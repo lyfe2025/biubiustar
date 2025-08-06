@@ -1,0 +1,1227 @@
+---
+alwaysApply: true
+priority: 6
+techStack: "FastAdmin Performance"
+---
+
+# FastAdmin 性能优化标准规范
+
+> **优化目标**: 提升系统响应速度、减少资源消耗、提高并发能力
+> **适用场景**: 生产环境优化、高并发系统、大数据量处理
+
+---
+
+## 🚀 数据库性能优化
+
+### 查询优化规范
+```php
+/**
+ * 数据库查询优化最佳实践
+ */
+class DatabaseOptimization
+{
+    /**
+     * 使用索引优化查询
+     */
+    public function optimizedQuery()
+    {
+        // ✅ 正确：使用索引字段查询
+        $users = \think\Db::name('user')
+            ->where('status', 'normal')          // status字段有索引
+            ->where('create_time', '>', $time)   // create_time字段有索引
+            ->limit(10)
+            ->select();
+        
+        // ❌ 错误：避免在非索引字段使用LIKE
+        $users = \think\Db::name('user')
+            ->where('content', 'like', '%keyword%')  // content字段无索引且前置%
+            ->select();
+    }
+    
+    /**
+     * 分页查询优化
+     */
+    public function optimizedPagination($page, $limit)
+    {
+        // ✅ 正确：使用LIMIT OFFSET优化
+        $offset = ($page - 1) * $limit;
+        
+        // 对于大数据量，使用ID范围查询
+        if ($page > 100) {
+            $lastId = \think\Db::name('user')
+                ->order('id desc')
+                ->limit($offset, 1)
+                ->value('id');
+                
+            $users = \think\Db::name('user')
+                ->where('id', '<', $lastId)
+                ->order('id desc')
+                ->limit($limit)
+                ->select();
+        } else {
+            $users = \think\Db::name('user')
+                ->order('id desc')
+                ->limit($offset, $limit)
+                ->select();
+        }
+        
+        return $users;
+    }
+    
+    /**
+     * 批量操作优化
+     */
+    public function batchOperations($data)
+    {
+        // ✅ 正确：使用批量插入
+        \think\Db::name('user')->insertAll($data);
+        
+        // ✅ 正确：使用批量更新
+        $cases = [];
+        $ids = [];
+        foreach ($data as $item) {
+            $cases[] = "WHEN {$item['id']} THEN '{$item['status']}'";
+            $ids[] = $item['id'];
+        }
+        
+        $sql = "UPDATE user SET status = CASE id " . implode(' ', $cases) . " END WHERE id IN (" . implode(',', $ids) . ")";
+        \think\Db::execute($sql);
+    }
+    
+    /**
+     * 关联查询优化
+     */
+    public function optimizedJoins()
+    {
+        // ✅ 正确：使用预加载避免N+1查询
+        $users = \app\admin\model\User::with(['profile', 'roles'])->select();
+        
+        // ✅ 正确：限制关联查询字段
+        $users = \think\Db::name('user')
+            ->alias('u')
+            ->join('user_profile p', 'u.id = p.user_id', 'LEFT')
+            ->field('u.id, u.username, p.nickname, p.avatar')
+            ->where('u.status', 'normal')
+            ->select();
+    }
+    
+    /**
+     * 子查询优化
+     */
+    public function optimizedSubqueries()
+    {
+        // ✅ 正确：使用EXISTS替代IN子查询
+        $users = \think\Db::name('user')
+            ->alias('u')
+            ->whereExists(function($query) {
+                $query->name('user_role')
+                    ->alias('ur')
+                    ->where('ur.user_id = u.id')
+                    ->where('ur.role_id', 1);
+            })
+            ->select();
+    }
+}
+```
+
+### 索引优化策略
+```sql
+-- 单列索引
+CREATE INDEX idx_user_status ON fa_user(status);
+CREATE INDEX idx_user_create_time ON fa_user(create_time);
+CREATE INDEX idx_user_email ON fa_user(email);
+
+-- 复合索引（注意字段顺序）
+CREATE INDEX idx_user_status_time ON fa_user(status, create_time);
+CREATE INDEX idx_user_type_status ON fa_user(user_type, status, create_time);
+
+-- 唯一索引
+CREATE UNIQUE INDEX idx_user_username ON fa_user(username);
+CREATE UNIQUE INDEX idx_user_email ON fa_user(email);
+
+-- 前缀索引（适用于长字符串）
+CREATE INDEX idx_user_content ON fa_user(content(20));
+
+-- 函数索引（MySQL 8.0+）
+CREATE INDEX idx_user_upper_username ON fa_user((UPPER(username)));
+```
+
+### 数据库连接优化
+```php
+// config/database.php
+return [
+    'type'            => 'mysql',
+    'hostname'        => '127.0.0.1',
+    'database'        => 'fastadmin',
+    'username'        => 'root',
+    'password'        => '',
+    'hostport'        => '3306',
+    'params'          => [
+        // 启用持久连接
+        \PDO::ATTR_PERSISTENT => true,
+        // 设置字符集
+        \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4",
+        // 禁用预处理语句模拟
+        \PDO::ATTR_EMULATE_PREPARES => false,
+        // 设置超时时间
+        \PDO::ATTR_TIMEOUT => 30,
+    ],
+    'charset'         => 'utf8mb4',
+    'prefix'          => 'fa_',
+    // 启用读写分离
+    'rw_separate'     => true,
+    'master_num'      => 1,
+    'slave_no'        => '',
+    // 连接池配置
+    'pool'            => [
+        'max_connections' => 20,
+        'min_connections' => 5,
+        'max_idle_time'   => 60,
+        'wait_timeout'    => 10,
+    ],
+];
+```
+
+---
+
+## 📦 缓存优化策略
+
+### Redis缓存配置
+```php
+// config/cache.php
+return [
+    'default' => 'redis',
+    'stores' => [
+        'redis' => [
+            'type'       => 'Redis',
+            'host'       => '127.0.0.1',
+            'port'       => 6379,
+            'password'   => '',
+            'select'     => 0,
+            'timeout'    => 0,
+            'expire'     => 0,
+            'persistent' => true,
+            'prefix'     => 'fastadmin:',
+            'serialize'  => true,
+            // Redis连接池
+            'pool' => [
+                'min_connections' => 5,
+                'max_connections' => 50,
+                'connect_timeout' => 10.0,
+                'wait_timeout' => 3.0,
+                'heartbeat' => -1,
+                'max_idle_time' => 60.0,
+            ],
+        ],
+        'file' => [
+            'type'   => 'File',
+            'path'   => '../runtime/cache/',
+            'prefix' => '',
+            'expire' => 0,
+        ],
+    ],
+];
+```
+
+### 多层缓存策略
+```php
+/**
+ * 多层缓存实现
+ */
+class MultiLevelCache
+{
+    private $l1Cache; // 本地缓存（APCu/内存）
+    private $l2Cache; // 分布式缓存（Redis）
+    private $l3Cache; // 文件缓存
+    
+    public function __construct()
+    {
+        $this->l1Cache = new \think\cache\driver\File(['path' => '../runtime/cache/l1/']);
+        $this->l2Cache = new \think\cache\driver\Redis();
+        $this->l3Cache = new \think\cache\driver\File(['path' => '../runtime/cache/l3/']);
+    }
+    
+    /**
+     * 获取缓存数据
+     */
+    public function get($key)
+    {
+        // L1缓存（最快）
+        $data = $this->l1Cache->get($key);
+        if ($data !== false) {
+            return $data;
+        }
+        
+        // L2缓存（Redis）
+        $data = $this->l2Cache->get($key);
+        if ($data !== false) {
+            // 回写到L1缓存
+            $this->l1Cache->set($key, $data, 300); // 5分钟
+            return $data;
+        }
+        
+        // L3缓存（文件）
+        $data = $this->l3Cache->get($key);
+        if ($data !== false) {
+            // 回写到L2和L1缓存
+            $this->l2Cache->set($key, $data, 3600); // 1小时
+            $this->l1Cache->set($key, $data, 300);  // 5分钟
+            return $data;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 设置缓存数据
+     */
+    public function set($key, $value, $expire = 3600)
+    {
+        // 写入所有层级缓存
+        $this->l3Cache->set($key, $value, $expire);
+        $this->l2Cache->set($key, $value, min($expire, 3600));
+        $this->l1Cache->set($key, $value, min($expire, 300));
+    }
+    
+    /**
+     * 删除缓存
+     */
+    public function delete($key)
+    {
+        $this->l1Cache->delete($key);
+        $this->l2Cache->delete($key);
+        $this->l3Cache->delete($key);
+    }
+}
+```
+
+### 缓存策略实现
+```php
+/**
+ * 智能缓存策略
+ */
+class CacheStrategy
+{
+    /**
+     * 热点数据缓存
+     */
+    public static function getHotData($key, $callback, $expire = 3600)
+    {
+        $cacheKey = 'hot_data:' . $key;
+        $data = cache($cacheKey);
+        
+        if ($data === false) {
+            // 使用分布式锁防止缓存击穿
+            $lockKey = 'lock:' . $cacheKey;
+            $lockValue = uniqid();
+            
+            if (self::acquireLock($lockKey, $lockValue, 30)) {
+                try {
+                    // 双重检查
+                    $data = cache($cacheKey);
+                    if ($data === false) {
+                        $data = call_user_func($callback);
+                        // 设置随机过期时间防止缓存雪崩
+                        $randomExpire = $expire + mt_rand(0, 300);
+                        cache($cacheKey, $data, $randomExpire);
+                    }
+                } finally {
+                    self::releaseLock($lockKey, $lockValue);
+                }
+            } else {
+                // 获取锁失败，返回旧数据或等待
+                usleep(100000); // 等待100ms
+                $data = cache($cacheKey);
+                if ($data === false) {
+                    $data = call_user_func($callback);
+                }
+            }
+        }
+        
+        return $data;
+    }
+    
+    /**
+     * 分页数据缓存
+     */
+    public static function getPaginatedData($model, $page, $limit, $where = [], $order = 'id desc')
+    {
+        $cacheKey = 'paginated:' . md5(serialize([$model, $page, $limit, $where, $order]));
+        
+        return cache($cacheKey, function() use ($model, $page, $limit, $where, $order) {
+            $query = \think\Db::name($model);
+            
+            if (!empty($where)) {
+                $query->where($where);
+            }
+            
+            $total = $query->count();
+            $list = $query->order($order)
+                         ->page($page, $limit)
+                         ->select();
+            
+            return [
+                'total' => $total,
+                'list' => $list,
+                'page' => $page,
+                'limit' => $limit
+            ];
+        }, 600); // 10分钟缓存
+    }
+    
+    /**
+     * 获取分布式锁
+     */
+    private static function acquireLock($key, $value, $expire)
+    {
+        $redis = \think\Cache::store('redis')->handler();
+        return $redis->set($key, $value, ['nx', 'ex' => $expire]);
+    }
+    
+    /**
+     * 释放分布式锁
+     */
+    private static function releaseLock($key, $value)
+    {
+        $redis = \think\Cache::store('redis')->handler();
+        $script = "
+            if redis.call('get', KEYS[1]) == ARGV[1] then
+                return redis.call('del', KEYS[1])
+            else
+                return 0
+            end
+        ";
+        return $redis->eval($script, [$key, $value], 1);
+    }
+}
+```
+
+---
+
+## ⚡ 前端性能优化
+
+### JavaScript优化
+```javascript
+/**
+ * JavaScript性能优化
+ */
+define(['jquery'], function($) {
+    
+    var PerformanceOptimizer = {
+        
+        /**
+         * 防抖函数
+         */
+        debounce: function(func, wait, immediate) {
+            var timeout;
+            return function() {
+                var context = this, args = arguments;
+                var later = function() {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        },
+        
+        /**
+         * 节流函数
+         */
+        throttle: function(func, wait) {
+            var timeout;
+            var previous = 0;
+            return function() {
+                var now = Date.now();
+                var context = this;
+                var args = arguments;
+                if (now - previous > wait) {
+                    if (timeout) {
+                        clearTimeout(timeout);
+                        timeout = null;
+                    }
+                    func.apply(context, args);
+                    previous = now;
+                } else if (!timeout) {
+                    timeout = setTimeout(function() {
+                        timeout = null;
+                        func.apply(context, args);
+                        previous = Date.now();
+                    }, wait - (now - previous));
+                }
+            };
+        },
+        
+        /**
+         * 虚拟滚动实现
+         */
+        virtualScroll: function(container, data, itemHeight, visibleCount) {
+            var $container = $(container);
+            var $viewport = $('<div class="virtual-viewport"></div>');
+            var $content = $('<div class="virtual-content"></div>');
+            
+            $container.append($viewport);
+            $viewport.append($content);
+            
+            var totalHeight = data.length * itemHeight;
+            var startIndex = 0;
+            var endIndex = Math.min(visibleCount, data.length);
+            
+            // 设置容器高度
+            $viewport.height(totalHeight);
+            
+            var renderItems = function() {
+                var scrollTop = $container.scrollTop();
+                startIndex = Math.floor(scrollTop / itemHeight);
+                endIndex = Math.min(startIndex + visibleCount + 5, data.length);
+                
+                var html = '';
+                for (var i = startIndex; i < endIndex; i++) {
+                    html += '<div class="virtual-item" style="height:' + itemHeight + 'px;transform:translateY(' + (i * itemHeight) + 'px)">';
+                    html += data[i];
+                    html += '</div>';
+                }
+                
+                $content.html(html);
+            };
+            
+            // 监听滚动事件
+            $container.on('scroll', this.throttle(renderItems, 16));
+            
+            // 初始渲染
+            renderItems();
+        },
+        
+        /**
+         * 图片懒加载
+         */
+        lazyLoadImages: function(selector) {
+            var $images = $(selector || 'img[data-src]');
+            
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        var img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.add('loaded');
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '50px'
+            });
+            
+            $images.each(function() {
+                observer.observe(this);
+            });
+        },
+        
+        /**
+         * AJAX请求优化
+         */
+        optimizedAjax: function(options) {
+            var defaults = {
+                timeout: 10000,
+                cache: false,
+                beforeSend: function() {
+                    // 显示loading
+                    $('.loading').show();
+                },
+                complete: function() {
+                    // 隐藏loading
+                    $('.loading').hide();
+                },
+                error: function(xhr, status, error) {
+                    if (status === 'timeout') {
+                        console.error('请求超时');
+                    } else {
+                        console.error('请求失败:', error);
+                    }
+                }
+            };
+            
+            return $.ajax($.extend({}, defaults, options));
+        },
+        
+        /**
+         * 内存泄漏防护
+         */
+        preventMemoryLeaks: function() {
+            // 清理事件监听器
+            $(window).off('.performance');
+            $(document).off('.performance');
+            
+            // 清理定时器
+            if (window.performanceTimers) {
+                window.performanceTimers.forEach(function(timer) {
+                    clearTimeout(timer);
+                    clearInterval(timer);
+                });
+                window.performanceTimers = [];
+            }
+            
+            // 清理全局变量
+            if (window.performanceCache) {
+                window.performanceCache = null;
+            }
+        }
+    };
+    
+    return PerformanceOptimizer;
+});
+```
+
+### CSS优化策略
+```css
+/* 关键CSS内联 */
+.critical-css {
+    /* 首屏必需的样式 */
+    display: block;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 使用CSS3硬件加速 */
+.gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* 优化动画性能 */
+.smooth-animation {
+    will-change: transform;
+    transition: transform 0.3s ease-out;
+}
+
+/* 避免重排重绘 */
+.avoid-reflow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate3d(100px, 100px, 0);
+}
+
+/* 使用Flexbox替代Float */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 优化字体加载 */
+@font-face {
+    font-family: 'CustomFont';
+    src: url('font.woff2') format('woff2'),
+         url('font.woff') format('woff');
+    font-display: swap;
+}
+
+/* 响应式图片 */
+.responsive-image {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* 使用CSS Grid进行布局 */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+```
+
+### 资源加载优化
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- DNS预解析 -->
+    <link rel="dns-prefetch" href="//cdn.example.com">
+    <link rel="dns-prefetch" href="//api.example.com">
+    
+    <!-- 预连接 -->
+    <link rel="preconnect" href="//fonts.googleapis.com" crossorigin>
+    
+    <!-- 关键资源预加载 -->
+    <link rel="preload" href="/assets/css/critical.css" as="style">
+    <link rel="preload" href="/assets/js/critical.js" as="script">
+    <link rel="preload" href="/assets/fonts/main.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- 关键CSS内联 */
+    <style>
+        /* 关键样式 */
+        body { margin: 0; padding: 0; }
+        .header { height: 60px; background: #333; }
+    </style>
+    
+    <!-- 非关键CSS异步加载 -->
+    <link rel="preload" href="/assets/css/non-critical.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/assets/css/non-critical.css"></noscript>
+</head>
+<body>
+    <!-- 页面内容 -->
+    
+    <!-- JavaScript延迟加载 -->
+    <script>
+        // 页面加载完成后再加载非关键JavaScript
+        window.addEventListener('load', function() {
+            var scripts = [
+                '/assets/js/vendor.js',
+                '/assets/js/app.js'
+            ];
+            
+            scripts.forEach(function(src) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.async = true;
+                document.head.appendChild(script);
+            });
+        });
+    </script>
+</body>
+</html>
+```
+
+---
+
+## 🔧 服务器性能优化
+
+### PHP配置优化
+```ini
+; php.ini 性能优化配置
+
+; 内存限制
+memory_limit = 256M
+
+; 执行时间限制
+max_execution_time = 30
+max_input_time = 60
+
+; 文件上传
+upload_max_filesize = 20M
+post_max_size = 25M
+max_file_uploads = 20
+
+; 会话配置
+session.gc_maxlifetime = 1440
+session.gc_probability = 1
+session.gc_divisor = 1000
+
+; OPcache配置
+opcache.enable = 1
+opcache.enable_cli = 0
+opcache.memory_consumption = 128
+opcache.interned_strings_buffer = 8
+opcache.max_accelerated_files = 4000
+opcache.revalidate_freq = 2
+opcache.fast_shutdown = 1
+opcache.enable_file_override = 1
+
+; 实时编译优化
+opcache.optimization_level = 0x7FFFBFFF
+opcache.dups_fix = 1
+opcache.blacklist_filename = /path/to/opcache-blacklist.txt
+```
+
+### Nginx配置优化
+```nginx
+# nginx.conf 性能优化配置
+
+# 工作进程数
+worker_processes auto;
+
+# 每个进程的最大连接数
+events {
+    worker_connections 2048;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    # 隐藏版本信息
+    server_tokens off;
+    
+    # 文件描述符缓存
+    open_file_cache max=200000 inactive=20s;
+    open_file_cache_valid 30s;
+    open_file_cache_min_uses 2;
+    open_file_cache_errors on;
+    
+    # Gzip压缩
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+    
+    # 缓存配置
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # PHP-FPM配置
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        
+        # FastCGI缓存
+        fastcgi_cache_valid 200 302 10m;
+        fastcgi_cache_valid 404 1m;
+        fastcgi_cache_bypass $skip_cache;
+        fastcgi_no_cache $skip_cache;
+    }
+    
+    # 限流配置
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+    
+    location /api/ {
+        limit_req zone=api burst=20 nodelay;
+    }
+    
+    location /login {
+        limit_req zone=login burst=5 nodelay;
+    }
+}
+```
+
+### MySQL配置优化
+```ini
+# my.cnf MySQL性能优化配置
+
+[mysqld]
+# 基本配置
+port = 3306
+socket = /var/lib/mysql/mysql.sock
+datadir = /var/lib/mysql
+pid-file = /var/lib/mysql/mysql.pid
+
+# 内存配置
+innodb_buffer_pool_size = 1G
+innodb_buffer_pool_instances = 8
+key_buffer_size = 256M
+max_connections = 200
+thread_cache_size = 50
+
+# InnoDB配置
+innodb_file_per_table = 1
+innodb_flush_log_at_trx_commit = 2
+innodb_log_buffer_size = 16M
+innodb_log_file_size = 256M
+innodb_log_files_in_group = 2
+
+# 查询缓存
+query_cache_type = 1
+query_cache_size = 128M
+query_cache_limit = 2M
+
+# 临时表
+tmp_table_size = 64M
+max_heap_table_size = 64M
+
+# 慢查询日志
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+log_queries_not_using_indexes = 1
+
+# 二进制日志
+log_bin = mysql-bin
+binlog_format = ROW
+expire_logs_days = 7
+```
+
+---
+
+## 📊 性能监控与分析
+
+### 性能监控实现
+```php
+/**
+ * 性能监控工具
+ */
+class PerformanceMonitor
+{
+    private static $startTime;
+    private static $startMemory;
+    private static $checkpoints = [];
+    
+    /**
+     * 开始监控
+     */
+    public static function start()
+    {
+        self::$startTime = microtime(true);
+        self::$startMemory = memory_get_usage();
+        self::$checkpoints = [];
+    }
+    
+    /**
+     * 添加检查点
+     */
+    public static function checkpoint($name)
+    {
+        $currentTime = microtime(true);
+        $currentMemory = memory_get_usage();
+        
+        self::$checkpoints[] = [
+            'name' => $name,
+            'time' => $currentTime - self::$startTime,
+            'memory' => $currentMemory - self::$startMemory,
+            'peak_memory' => memory_get_peak_usage() - self::$startMemory
+        ];
+    }
+    
+    /**
+     * 结束监控并生成报告
+     */
+    public static function end()
+    {
+        $endTime = microtime(true);
+        $endMemory = memory_get_usage();
+        $peakMemory = memory_get_peak_usage();
+        
+        $report = [
+            'total_time' => $endTime - self::$startTime,
+            'total_memory' => $endMemory - self::$startMemory,
+            'peak_memory' => $peakMemory - self::$startMemory,
+            'checkpoints' => self::$checkpoints
+        ];
+        
+        // 记录性能日志
+        self::logPerformance($report);
+        
+        return $report;
+    }
+    
+    /**
+     * 数据库查询监控
+     */
+    public static function monitorQuery($sql, $params = [])
+    {
+        $startTime = microtime(true);
+        
+        try {
+            $result = \think\Db::query($sql, $params);
+            $endTime = microtime(true);
+            $duration = $endTime - $startTime;
+            
+            // 记录慢查询
+            if ($duration > 1.0) { // 超过1秒的查询
+                self::logSlowQuery($sql, $params, $duration);
+            }
+            
+            return $result;
+        } catch (\Exception $e) {
+            $endTime = microtime(true);
+            $duration = $endTime - $startTime;
+            
+            // 记录查询错误
+            self::logQueryError($sql, $params, $e->getMessage(), $duration);
+            throw $e;
+        }
+    }
+    
+    /**
+     * API响应时间监控
+     */
+    public static function monitorApi($controller, $action, $startTime)
+    {
+        $endTime = microtime(true);
+        $duration = $endTime - $startTime;
+        $memory = memory_get_peak_usage(true);
+        
+        $data = [
+            'controller' => $controller,
+            'action' => $action,
+            'duration' => $duration,
+            'memory' => $memory,
+            'timestamp' => time(),
+            'ip' => request()->ip(),
+            'user_agent' => request()->header('User-Agent')
+        ];
+        
+        // 异步记录到日志
+        self::asyncLog('api_performance', $data);
+        
+        // 慢接口告警
+        if ($duration > 3.0) { // 超过3秒
+            self::alertSlowApi($data);
+        }
+    }
+    
+    /**
+     * 记录性能日志
+     */
+    private static function logPerformance($report)
+    {
+        $logData = [
+            'url' => request()->url(),
+            'method' => request()->method(),
+            'total_time' => round($report['total_time'] * 1000, 2) . 'ms',
+            'memory_usage' => self::formatBytes($report['total_memory']),
+            'peak_memory' => self::formatBytes($report['peak_memory']),
+            'checkpoints' => $report['checkpoints'],
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
+        
+        \think\Log::info('Performance Report: ' . json_encode($logData));
+    }
+    
+    /**
+     * 记录慢查询
+     */
+    private static function logSlowQuery($sql, $params, $duration)
+    {
+        $logData = [
+            'sql' => $sql,
+            'params' => $params,
+            'duration' => round($duration * 1000, 2) . 'ms',
+            'url' => request()->url(),
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
+        
+        \think\Log::warning('Slow Query: ' . json_encode($logData));
+    }
+    
+    /**
+     * 异步日志记录
+     */
+    private static function asyncLog($type, $data)
+    {
+        // 使用队列异步处理日志
+        \think\Queue::push('app\\common\\job\\LogJob', [
+            'type' => $type,
+            'data' => $data
+        ]);
+    }
+    
+    /**
+     * 格式化字节数
+     */
+    private static function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        
+        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+        
+        return round($bytes, $precision) . ' ' . $units[$i];
+    }
+}
+```
+
+### 性能分析工具
+```php
+/**
+ * 性能分析工具
+ */
+class PerformanceAnalyzer
+{
+    /**
+     * 分析SQL性能
+     */
+    public static function analyzeSQLPerformance()
+    {
+        $slowQueries = \think\Db::query("
+            SELECT 
+                query_time,
+                lock_time,
+                rows_sent,
+                rows_examined,
+                sql_text
+            FROM mysql.slow_log 
+            WHERE start_time >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+            ORDER BY query_time DESC
+            LIMIT 10
+        ");
+        
+        $analysis = [];
+        foreach ($slowQueries as $query) {
+            $analysis[] = [
+                'query_time' => $query['query_time'],
+                'efficiency' => $query['rows_examined'] > 0 ? $query['rows_sent'] / $query['rows_examined'] : 0,
+                'sql' => substr($query['sql_text'], 0, 200),
+                'suggestion' => self::getSQLOptimizationSuggestion($query)
+            ];
+        }
+        
+        return $analysis;
+    }
+    
+    /**
+     * 分析内存使用
+     */
+    public static function analyzeMemoryUsage()
+    {
+        $memoryLogs = cache('memory_usage_logs') ?: [];
+        
+        if (empty($memoryLogs)) {
+            return ['message' => '暂无内存使用数据'];
+        }
+        
+        $avgMemory = array_sum(array_column($memoryLogs, 'memory')) / count($memoryLogs);
+        $maxMemory = max(array_column($memoryLogs, 'memory'));
+        $minMemory = min(array_column($memoryLogs, 'memory'));
+        
+        return [
+            'average' => self::formatBytes($avgMemory),
+            'maximum' => self::formatBytes($maxMemory),
+            'minimum' => self::formatBytes($minMemory),
+            'trend' => self::calculateMemoryTrend($memoryLogs),
+            'recommendations' => self::getMemoryOptimizationRecommendations($avgMemory, $maxMemory)
+        ];
+    }
+    
+    /**
+     * 分析API性能
+     */
+    public static function analyzeAPIPerformance($hours = 24)
+    {
+        $logs = \think\Db::name('api_performance_log')
+            ->where('create_time', '>', time() - $hours * 3600)
+            ->order('duration desc')
+            ->select();
+        
+        if (empty($logs)) {
+            return ['message' => '暂无API性能数据'];
+        }
+        
+        $analysis = [
+            'total_requests' => count($logs),
+            'average_response_time' => array_sum(array_column($logs, 'duration')) / count($logs),
+            'slowest_apis' => array_slice($logs, 0, 10),
+            'performance_distribution' => self::calculatePerformanceDistribution($logs),
+            'recommendations' => self::getAPIOptimizationRecommendations($logs)
+        ];
+        
+        return $analysis;
+    }
+    
+    /**
+     * 获取SQL优化建议
+     */
+    private static function getSQLOptimizationSuggestion($query)
+    {
+        $suggestions = [];
+        
+        if ($query['rows_examined'] > 1000) {
+            $suggestions[] = '考虑添加索引以减少扫描行数';
+        }
+        
+        if ($query['lock_time'] > 0.1) {
+            $suggestions[] = '优化查询以减少锁等待时间';
+        }
+        
+        if ($query['rows_examined'] > 0 && $query['rows_sent'] / $query['rows_examined'] < 0.1) {
+            $suggestions[] = '查询效率较低，考虑优化WHERE条件';
+        }
+        
+        return implode('; ', $suggestions);
+    }
+    
+    /**
+     * 计算内存使用趋势
+     */
+    private static function calculateMemoryTrend($logs)
+    {
+        if (count($logs) < 2) {
+            return 'stable';
+        }
+        
+        $recent = array_slice($logs, -10);
+        $earlier = array_slice($logs, 0, 10);
+        
+        $recentAvg = array_sum(array_column($recent, 'memory')) / count($recent);
+        $earlierAvg = array_sum(array_column($earlier, 'memory')) / count($earlier);
+        
+        $change = ($recentAvg - $earlierAvg) / $earlierAvg;
+        
+        if ($change > 0.1) {
+            return 'increasing';
+        } elseif ($change < -0.1) {
+            return 'decreasing';
+        } else {
+            return 'stable';
+        }
+    }
+}
+```
+
+---
+
+## 📋 性能优化检查清单
+
+### 数据库优化检查
+- [ ] 为常用查询字段添加索引
+- [ ] 避免SELECT * 查询
+- [ ] 使用LIMIT限制查询结果
+- [ ] 优化JOIN查询
+- [ ] 使用预加载避免N+1查询
+- [ ] 启用查询缓存
+- [ ] 定期分析慢查询日志
+- [ ] 优化数据库配置参数
+- [ ] 使用读写分离
+- [ ] 定期优化表结构
+
+### 缓存优化检查
+- [ ] 实现多层缓存策略
+- [ ] 设置合理的缓存过期时间
+- [ ] 使用缓存预热机制
+- [ ] 防止缓存击穿和雪崩
+- [ ] 实现缓存数据一致性
+- [ ] 监控缓存命中率
+- [ ] 优化缓存键设计
+- [ ] 使用分布式缓存
+- [ ] 实现缓存降级策略
+- [ ] 定期清理无效缓存
+
+### 前端优化检查
+- [ ] 压缩和合并静态资源
+- [ ] 使用CDN加速
+- [ ] 实现图片懒加载
+- [ ] 优化关键渲染路径
+- [ ] 使用浏览器缓存
+- [ ] 减少HTTP请求数量
+- [ ] 优化JavaScript执行
+- [ ] 使用Web字体优化
+- [ ] 实现响应式图片
+- [ ] 优化CSS选择器
+
+### 服务器优化检查
+- [ ] 配置OPcache
+- [ ] 优化PHP配置
+- [ ] 配置Nginx/Apache
+- [ ] 启用Gzip压缩
+- [ ] 设置适当的缓存头
+- [ ] 优化文件权限
+- [ ] 监控服务器资源
+- [ ] 实现负载均衡
+- [ ] 配置SSL/TLS
+- [ ] 定期更新软件版本
+
+---
+
+**注意**: 性能优化是一个持续的过程，需要根据实际业务场景和数据量进行针对性优化。建议在优化前后都要进行性能测试，确保优化效果。

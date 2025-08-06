@@ -1,0 +1,1331 @@
+---
+alwaysApply: true
+priority: 5
+techStack: "FastAdmin Security"
+---
+
+# FastAdmin 安全开发标准规范
+
+> **安全等级**: 高安全性要求
+> **适用场景**: 生产环境、敏感数据处理、权限管理
+
+---
+
+## 🔐 身份认证安全
+
+### 密码安全规范
+```php
+/**
+ * 密码加密存储
+ */
+class PasswordSecurity
+{
+    /**
+     * 生成安全密码哈希
+     */
+    public static function hashPassword($password, $salt = '')
+    {
+        // 使用bcrypt算法
+        if (empty($salt)) {
+            return password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+        }
+        
+        // 兼容旧版本的MD5+盐值方式
+        return md5(md5($password) . $salt);
+    }
+    
+    /**
+     * 验证密码
+     */
+    public static function verifyPassword($password, $hash, $salt = '')
+    {
+        if (empty($salt)) {
+            return password_verify($password, $hash);
+        }
+        
+        return hash_equals($hash, md5(md5($password) . $salt));
+    }
+    
+    /**
+     * 生成安全的随机盐值
+     */
+    public static function generateSalt($length = 30)
+    {
+        return \fast\Random::alnum($length);
+    }
+    
+    /**
+     * 密码强度检查
+     */
+    public static function checkPasswordStrength($password)
+    {
+        $errors = [];
+        
+        if (strlen($password) < 8) {
+            $errors[] = '密码长度至少8位';
+        }
+        
+        if (!preg_match('/[a-z]/', $password)) {
+            $errors[] = '密码必须包含小写字母';
+        }
+        
+        if (!preg_match('/[A-Z]/', $password)) {
+            $errors[] = '密码必须包含大写字母';
+        }
+        
+        if (!preg_match('/[0-9]/', $password)) {
+            $errors[] = '密码必须包含数字';
+        }
+        
+        if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+            $errors[] = '密码必须包含特殊字符';
+        }
+        
+        return empty($errors) ? true : $errors;
+    }
+}
+```
+
+### Token安全管理
+```php
+/**
+ * JWT Token安全管理
+ */
+class TokenSecurity
+{
+    /**
+     * 生成JWT Token
+     */
+    public static function generateToken($payload, $expire = 7200)
+    {
+        $header = [
+            'typ' => 'JWT',
+            'alg' => 'HS256'
+        ];
+        
+        $payload['iat'] = time();
+        $payload['exp'] = time() + $expire;
+        $payload['jti'] = uniqid(); // 防止重放攻击
+        
+        $headerEncoded = self::base64UrlEncode(json_encode($header));
+        $payloadEncoded = self::base64UrlEncode(json_encode($payload));
+        
+        $signature = hash_hmac('sha256', $headerEncoded . '.' . $payloadEncoded, config('app.app_key'), true);
+        $signatureEncoded = self::base64UrlEncode($signature);
+        
+        return $headerEncoded . '.' . $payloadEncoded . '.' . $signatureEncoded;
+    }
+    
+    /**
+     * 验证JWT Token
+     */
+    public static function verifyToken($token)
+    {
+        $parts = explode('.', $token);
+        if (count($parts) !== 3) {
+            return false;
+        }
+        
+        list($headerEncoded, $payloadEncoded, $signatureEncoded) = $parts;
+        
+        // 验证签名
+        $signature = hash_hmac('sha256', $headerEncoded . '.' . $payloadEncoded, config('app.app_key'), true);
+        $signatureCheck = self::base64UrlEncode($signature);
+        
+        if (!hash_equals($signatureCheck, $signatureEncoded)) {
+            return false;
+        }
+        
+        $payload = json_decode(self::base64UrlDecode($payloadEncoded), true);
+        
+        // 检查过期时间
+        if (isset($payload['exp']) && $payload['exp'] < time()) {
+            return false;
+        }
+        
+        // 检查Token黑名单
+        if (self::isTokenBlacklisted($payload['jti'] ?? '')) {
+            return false;
+        }
+        
+        return $payload;
+    }
+    
+    /**
+     * 将Token加入黑名单
+     */
+    public static function blacklistToken($jti)
+    {
+        cache('token_blacklist_' . $jti, true, 86400); // 24小时过期
+    }
+    
+    /**
+     * 检查Token是否在黑名单中
+     */
+    public static function isTokenBlacklisted($jti)
+    {
+        return cache('token_blacklist_' . $jti) ? true : false;
+    }
+    
+    private static function base64UrlEncode($data)
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+    
+    private static function base64UrlDecode($data)
+    {
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
+    }
+}
+```
+
+### 登录安全控制
+```php
+/**
+ * 登录安全控制
+ */
+class LoginSecurity
+{
+    /**
+     * 登录失败次数限制
+     */
+    public static function checkLoginAttempts($username, $ip)
+    {
+        $usernameKey = 'login_attempts_user_' . md5($username);
+        $ipKey = 'login_attempts_ip_' . md5($ip);
+        
+        $userAttempts = cache($usernameKey) ?: 0;
+        $ipAttempts = cache($ipKey) ?: 0;
+        
+        // 用户名5次失败锁定30分钟
+        if ($userAttempts >= 5) {
+            return ['locked' => true, 'message' => '用户名登录失败次数过多，请30分钟后重试'];
+        }
+        
+        // IP地址10次失败锁定1小时
+        if ($ipAttempts >= 10) {
+            return ['locked' => true, 'message' => 'IP地址登录失败次数过多，请1小时后重试'];
+        }
+        
+        return ['locked' => false];
+    }
+    
+    /**
+     * 记录登录失败
+     */
+    public static function recordLoginFailure($username, $ip)
+    {
+        $usernameKey = 'login_attempts_user_' . md5($username);
+        $ipKey = 'login_attempts_ip_' . md5($ip);
+        
+        $userAttempts = cache($usernameKey) ?: 0;
+        $ipAttempts = cache($ipKey) ?: 0;
+        
+        cache($usernameKey, $userAttempts + 1, 1800); // 30分钟
+        cache($ipKey, $ipAttempts + 1, 3600); // 1小时
+    }
+    
+    /**
+     * 清除登录失败记录
+     */
+    public static function clearLoginFailures($username, $ip)
+    {
+        $usernameKey = 'login_attempts_user_' . md5($username);
+        $ipKey = 'login_attempts_ip_' . md5($ip);
+        
+        cache($usernameKey, null);
+        cache($ipKey, null);
+    }
+    
+    /**
+     * 检查验证码
+     */
+    public static function checkCaptcha($code, $id = '')
+    {
+        if (empty($code)) {
+            return false;
+        }
+        
+        return captcha_check($code, $id);
+    }
+    
+    /**
+     * 检查设备指纹
+     */
+    public static function checkDeviceFingerprint($fingerprint, $userId)
+    {
+        $knownDevices = cache('user_devices_' . $userId) ?: [];
+        
+        if (!in_array($fingerprint, $knownDevices)) {
+            // 新设备，需要额外验证
+            return ['new_device' => true, 'message' => '检测到新设备登录，请进行安全验证'];
+        }
+        
+        return ['new_device' => false];
+    }
+}
+```
+
+---
+
+## 🛡️ 输入验证与过滤
+
+### 数据验证安全
+```php
+/**
+ * 输入数据安全验证
+ */
+class InputSecurity
+{
+    /**
+     * 验证和过滤用户输入
+     */
+    public static function validateAndFilter($data, $rules = [])
+    {
+        // 1. 数据类型验证
+        foreach ($rules as $field => $rule) {
+            if (isset($data[$field])) {
+                $data[$field] = self::validateField($data[$field], $rule);
+            }
+        }
+        
+        // 2. XSS过滤
+        $data = self::filterXSS($data);
+        
+        // 3. SQL注入防护（通过参数绑定实现）
+        $data = self::escapeSQLInjection($data);
+        
+        // 4. 文件路径遍历防护
+        $data = self::filterPathTraversal($data);
+        
+        return $data;
+    }
+    
+    /**
+     * 字段验证
+     */
+    private static function validateField($value, $rule)
+    {
+        $rules = explode('|', $rule);
+        
+        foreach ($rules as $r) {
+            if (strpos($r, ':') !== false) {
+                list($ruleName, $ruleValue) = explode(':', $r, 2);
+            } else {
+                $ruleName = $r;
+                $ruleValue = null;
+            }
+            
+            switch ($ruleName) {
+                case 'required':
+                    if (empty($value)) {
+                        throw new \Exception('字段不能为空');
+                    }
+                    break;
+                    
+                case 'length':
+                    list($min, $max) = explode(',', $ruleValue);
+                    if (strlen($value) < $min || strlen($value) > $max) {
+                        throw new \Exception("字段长度必须在{$min}-{$max}之间");
+                    }
+                    break;
+                    
+                case 'email':
+                    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                        throw new \Exception('邮箱格式不正确');
+                    }
+                    break;
+                    
+                case 'url':
+                    if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                        throw new \Exception('URL格式不正确');
+                    }
+                    break;
+                    
+                case 'integer':
+                    if (!filter_var($value, FILTER_VALIDATE_INT)) {
+                        throw new \Exception('必须是整数');
+                    }
+                    $value = (int)$value;
+                    break;
+                    
+                case 'float':
+                    if (!filter_var($value, FILTER_VALIDATE_FLOAT)) {
+                        throw new \Exception('必须是浮点数');
+                    }
+                    $value = (float)$value;
+                    break;
+                    
+                case 'regex':
+                    if (!preg_match($ruleValue, $value)) {
+                        throw new \Exception('格式不正确');
+                    }
+                    break;
+            }
+        }
+        
+        return $value;
+    }
+    
+    /**
+     * XSS过滤
+     */
+    public static function filterXSS($data)
+    {
+        if (is_array($data)) {
+            return array_map([self::class, 'filterXSS'], $data);
+        }
+        
+        if (!is_string($data)) {
+            return $data;
+        }
+        
+        // 移除危险标签
+        $data = preg_replace('/<script[^>]*?>.*?<\/script>/si', '', $data);
+        $data = preg_replace('/<iframe[^>]*?>.*?<\/iframe>/si', '', $data);
+        $data = preg_replace('/<object[^>]*?>.*?<\/object>/si', '', $data);
+        $data = preg_replace('/<embed[^>]*?>/si', '', $data);
+        $data = preg_replace('/<applet[^>]*?>.*?<\/applet>/si', '', $data);
+        
+        // 移除危险属性
+        $data = preg_replace('/on\w+\s*=\s*["\'][^"\']*["\']/i', '', $data);
+        $data = preg_replace('/javascript\s*:/i', '', $data);
+        $data = preg_replace('/vbscript\s*:/i', '', $data);
+        $data = preg_replace('/data\s*:/i', '', $data);
+        
+        return $data;
+    }
+    
+    /**
+     * SQL注入防护
+     */
+    public static function escapeSQLInjection($data)
+    {
+        if (is_array($data)) {
+            return array_map([self::class, 'escapeSQLInjection'], $data);
+        }
+        
+        if (!is_string($data)) {
+            return $data;
+        }
+        
+        // 移除SQL关键字（仅作为辅助防护，主要还是靠参数绑定）
+        $sqlKeywords = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'DROP', 'CREATE', 'ALTER', 'EXEC', 'UNION', 'SCRIPT'];
+        $pattern = '/\b(' . implode('|', $sqlKeywords) . ')\b/i';
+        
+        if (preg_match($pattern, $data)) {
+            \think\Log::warning('Potential SQL injection attempt: ' . $data);
+        }
+        
+        return $data;
+    }
+    
+    /**
+     * 路径遍历防护
+     */
+    public static function filterPathTraversal($data)
+    {
+        if (is_array($data)) {
+            return array_map([self::class, 'filterPathTraversal'], $data);
+        }
+        
+        if (!is_string($data)) {
+            return $data;
+        }
+        
+        // 移除路径遍历字符
+        $data = str_replace(['../', '.\\', '../', '..\\'], '', $data);
+        $data = preg_replace('/\.{2,}/', '.', $data);
+        
+        return $data;
+    }
+}
+```
+
+### 文件上传安全
+```php
+/**
+ * 文件上传安全控制
+ */
+class UploadSecurity
+{
+    // 允许的文件类型
+    private static $allowedTypes = [
+        'image' => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'],
+        'document' => ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'],
+        'video' => ['mp4', 'avi', 'mov', 'wmv', 'flv'],
+        'audio' => ['mp3', 'wav', 'flac', 'aac']
+    ];
+    
+    // 危险文件扩展名
+    private static $dangerousExtensions = [
+        'php', 'php3', 'php4', 'php5', 'phtml', 'pht',
+        'jsp', 'asp', 'aspx', 'cer', 'asa', 'cdx',
+        'exe', 'bat', 'cmd', 'com', 'pif', 'scr',
+        'js', 'jar', 'vb', 'vbs', 'sh'
+    ];
+    
+    /**
+     * 验证文件上传安全性
+     */
+    public static function validateUpload($file, $type = 'image')
+    {
+        $errors = [];
+        
+        // 1. 检查文件是否存在
+        if (!$file || !$file->isValid()) {
+            $errors[] = '文件上传失败';
+            return $errors;
+        }
+        
+        // 2. 检查文件大小
+        $maxSize = self::getMaxFileSize($type);
+        if ($file->getSize() > $maxSize) {
+            $errors[] = '文件大小超过限制：' . self::formatFileSize($maxSize);
+        }
+        
+        // 3. 检查文件扩展名
+        $extension = strtolower($file->getOriginalExtension());
+        if (in_array($extension, self::$dangerousExtensions)) {
+            $errors[] = '不允许上传的文件类型：' . $extension;
+        }
+        
+        if (!in_array($extension, self::$allowedTypes[$type] ?? [])) {
+            $errors[] = '不支持的文件格式：' . $extension;
+        }
+        
+        // 4. 检查MIME类型
+        $mimeType = $file->getMime();
+        if (!self::isValidMimeType($mimeType, $type)) {
+            $errors[] = '无效的MIME类型：' . $mimeType;
+        }
+        
+        // 5. 检查文件头部
+        if ($type === 'image' && !self::isValidImageHeader($file->getPathname())) {
+            $errors[] = '无效的图片文件';
+        }
+        
+        // 6. 病毒扫描（如果启用）
+        if (config('upload.virus_scan') && !self::virusScan($file->getPathname())) {
+            $errors[] = '文件包含恶意代码';
+        }
+        
+        return $errors;
+    }
+    
+    /**
+     * 获取最大文件大小
+     */
+    private static function getMaxFileSize($type)
+    {
+        $sizes = [
+            'image' => 2 * 1024 * 1024,      // 2MB
+            'document' => 10 * 1024 * 1024,  // 10MB
+            'video' => 100 * 1024 * 1024,    // 100MB
+            'audio' => 20 * 1024 * 1024      // 20MB
+        ];
+        
+        return $sizes[$type] ?? 2 * 1024 * 1024;
+    }
+    
+    /**
+     * 验证MIME类型
+     */
+    private static function isValidMimeType($mimeType, $type)
+    {
+        $validMimes = [
+            'image' => ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'],
+            'document' => ['application/pdf', 'application/msword', 'application/vnd.ms-excel', 'text/plain'],
+            'video' => ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-msvideo'],
+            'audio' => ['audio/mpeg', 'audio/wav', 'audio/flac', 'audio/aac']
+        ];
+        
+        return in_array($mimeType, $validMimes[$type] ?? []);
+    }
+    
+    /**
+     * 验证图片文件头部
+     */
+    private static function isValidImageHeader($filepath)
+    {
+        $handle = fopen($filepath, 'rb');
+        if (!$handle) {
+            return false;
+        }
+        
+        $header = fread($handle, 10);
+        fclose($handle);
+        
+        // 检查常见图片格式的文件头
+        $imageHeaders = [
+            'jpeg' => [0xFF, 0xD8, 0xFF],
+            'png' => [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
+            'gif' => [0x47, 0x49, 0x46],
+            'bmp' => [0x42, 0x4D]
+        ];
+        
+        foreach ($imageHeaders as $format => $bytes) {
+            if (self::checkFileHeader($header, $bytes)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 检查文件头部字节
+     */
+    private static function checkFileHeader($header, $expectedBytes)
+    {
+        for ($i = 0; $i < count($expectedBytes); $i++) {
+            if (!isset($header[$i]) || ord($header[$i]) !== $expectedBytes[$i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * 病毒扫描
+     */
+    private static function virusScan($filepath)
+    {
+        // 这里可以集成第三方病毒扫描服务
+        // 示例：使用ClamAV
+        /*
+        $output = shell_exec("clamscan --no-summary {$filepath}");
+        return strpos($output, 'FOUND') === false;
+        */
+        
+        return true; // 默认通过
+    }
+    
+    /**
+     * 格式化文件大小
+     */
+    private static function formatFileSize($size)
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $index = 0;
+        
+        while ($size >= 1024 && $index < count($units) - 1) {
+            $size /= 1024;
+            $index++;
+        }
+        
+        return round($size, 2) . ' ' . $units[$index];
+    }
+    
+    /**
+     * 生成安全的文件名
+     */
+    public static function generateSecureFilename($originalName, $extension)
+    {
+        // 生成随机文件名，避免文件名冲突和路径遍历
+        $filename = date('Ymd') . '/' . uniqid() . '.' . $extension;
+        
+        // 确保目录存在
+        $dir = dirname($filename);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        
+        return $filename;
+    }
+}
+```
+
+---
+
+## 🔒 权限控制安全
+
+### RBAC权限模型
+```php
+/**
+ * 基于角色的访问控制
+ */
+class RBACAuth
+{
+    /**
+     * 检查用户权限
+     */
+    public static function checkPermission($userId, $permission)
+    {
+        // 1. 超级管理员拥有所有权限
+        if (self::isSuperAdmin($userId)) {
+            return true;
+        }
+        
+        // 2. 获取用户角色
+        $userRoles = self::getUserRoles($userId);
+        if (empty($userRoles)) {
+            return false;
+        }
+        
+        // 3. 检查角色权限
+        foreach ($userRoles as $role) {
+            if (self::roleHasPermission($role['id'], $permission)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 检查数据权限
+     */
+    public static function checkDataPermission($userId, $dataOwnerId, $permission)
+    {
+        // 1. 超级管理员可以访问所有数据
+        if (self::isSuperAdmin($userId)) {
+            return true;
+        }
+        
+        // 2. 检查是否是数据所有者
+        if ($userId == $dataOwnerId) {
+            return self::checkPermission($userId, $permission);
+        }
+        
+        // 3. 检查是否有管理下级数据的权限
+        if (self::canManageSubordinate($userId, $dataOwnerId)) {
+            return self::checkPermission($userId, $permission);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 获取用户数据权限范围
+     */
+    public static function getDataScope($userId)
+    {
+        if (self::isSuperAdmin($userId)) {
+            return ['type' => 'all'];
+        }
+        
+        $userRoles = self::getUserRoles($userId);
+        $dataScope = ['type' => 'self', 'user_ids' => [$userId]];
+        
+        foreach ($userRoles as $role) {
+            switch ($role['data_scope']) {
+                case 'all':
+                    return ['type' => 'all'];
+                    
+                case 'dept':
+                    $deptUsers = self::getDepartmentUsers($userId);
+                    $dataScope['user_ids'] = array_merge($dataScope['user_ids'], $deptUsers);
+                    $dataScope['type'] = 'dept';
+                    break;
+                    
+                case 'dept_and_sub':
+                    $deptAndSubUsers = self::getDepartmentAndSubUsers($userId);
+                    $dataScope['user_ids'] = array_merge($dataScope['user_ids'], $deptAndSubUsers);
+                    $dataScope['type'] = 'dept_and_sub';
+                    break;
+            }
+        }
+        
+        return $dataScope;
+    }
+    
+    /**
+     * 权限缓存
+     */
+    public static function getCachedPermissions($userId)
+    {
+        $cacheKey = 'user_permissions_' . $userId;
+        $permissions = cache($cacheKey);
+        
+        if ($permissions === false) {
+            $permissions = self::loadUserPermissions($userId);
+            cache($cacheKey, $permissions, 3600); // 缓存1小时
+        }
+        
+        return $permissions;
+    }
+    
+    /**
+     * 清除权限缓存
+     */
+    public static function clearPermissionCache($userId)
+    {
+        cache('user_permissions_' . $userId, null);
+    }
+    
+    private static function isSuperAdmin($userId)
+    {
+        return \app\admin\model\Admin::where('id', $userId)->value('is_super') == 1;
+    }
+    
+    private static function getUserRoles($userId)
+    {
+        return \think\Db::name('auth_group_access')
+            ->alias('aga')
+            ->join('auth_group ag', 'aga.group_id = ag.id')
+            ->where('aga.uid', $userId)
+            ->where('ag.status', 'normal')
+            ->field('ag.*')
+            ->select();
+    }
+    
+    private static function roleHasPermission($roleId, $permission)
+    {
+        $rules = \think\Db::name('auth_group')->where('id', $roleId)->value('rules');
+        $ruleIds = explode(',', $rules);
+        
+        return \think\Db::name('auth_rule')
+            ->where('id', 'in', $ruleIds)
+            ->where('name', $permission)
+            ->where('status', 'normal')
+            ->count() > 0;
+    }
+}
+```
+
+### API接口权限控制
+```php
+/**
+ * API接口权限中间件
+ */
+class ApiAuthMiddleware
+{
+    public function handle($request, \Closure $next)
+    {
+        // 1. 获取Token
+        $token = $this->getTokenFromRequest($request);
+        if (!$token) {
+            return $this->unauthorizedResponse('Token缺失');
+        }
+        
+        // 2. 验证Token
+        $payload = TokenSecurity::verifyToken($token);
+        if (!$payload) {
+            return $this->unauthorizedResponse('Token无效');
+        }
+        
+        // 3. 检查用户状态
+        $user = \app\common\model\User::find($payload['user_id']);
+        if (!$user || $user->status !== 'normal') {
+            return $this->unauthorizedResponse('用户状态异常');
+        }
+        
+        // 4. 检查接口权限
+        $controller = $request->controller();
+        $action = $request->action();
+        $permission = strtolower($controller . '/' . $action);
+        
+        if (!RBACAuth::checkPermission($user->id, $permission)) {
+            return $this->forbiddenResponse('无权限访问');
+        }
+        
+        // 5. 记录访问日志
+        $this->logApiAccess($user->id, $permission, $request->ip());
+        
+        // 6. 将用户信息注入请求
+        $request->user = $user;
+        
+        return $next($request);
+    }
+    
+    private function getTokenFromRequest($request)
+    {
+        // 从Header获取
+        $header = $request->header('Authorization');
+        if ($header && strpos($header, 'Bearer ') === 0) {
+            return substr($header, 7);
+        }
+        
+        // 从参数获取
+        return $request->param('token');
+    }
+    
+    private function unauthorizedResponse($message)
+    {
+        return json(['code' => 401, 'msg' => $message, 'data' => null]);
+    }
+    
+    private function forbiddenResponse($message)
+    {
+        return json(['code' => 403, 'msg' => $message, 'data' => null]);
+    }
+    
+    private function logApiAccess($userId, $permission, $ip)
+    {
+        \think\Db::name('api_access_log')->insert([
+            'user_id' => $userId,
+            'permission' => $permission,
+            'ip' => $ip,
+            'create_time' => time()
+        ]);
+    }
+}
+```
+
+---
+
+## 🛡️ 数据安全保护
+
+### 敏感数据加密
+```php
+/**
+ * 敏感数据加密处理
+ */
+class DataEncryption
+{
+    private static $key;
+    
+    public static function init()
+    {
+        self::$key = config('app.encryption_key') ?: config('app.app_key');
+    }
+    
+    /**
+     * 加密敏感数据
+     */
+    public static function encrypt($data)
+    {
+        if (empty($data)) {
+            return $data;
+        }
+        
+        self::init();
+        
+        $iv = openssl_random_pseudo_bytes(16);
+        $encrypted = openssl_encrypt($data, 'AES-256-CBC', self::$key, 0, $iv);
+        
+        return base64_encode($iv . $encrypted);
+    }
+    
+    /**
+     * 解密敏感数据
+     */
+    public static function decrypt($encryptedData)
+    {
+        if (empty($encryptedData)) {
+            return $encryptedData;
+        }
+        
+        self::init();
+        
+        $data = base64_decode($encryptedData);
+        $iv = substr($data, 0, 16);
+        $encrypted = substr($data, 16);
+        
+        return openssl_decrypt($encrypted, 'AES-256-CBC', self::$key, 0, $iv);
+    }
+    
+    /**
+     * 手机号脱敏
+     */
+    public static function maskMobile($mobile)
+    {
+        if (strlen($mobile) !== 11) {
+            return $mobile;
+        }
+        
+        return substr($mobile, 0, 3) . '****' . substr($mobile, -4);
+    }
+    
+    /**
+     * 身份证号脱敏
+     */
+    public static function maskIdCard($idCard)
+    {
+        $length = strlen($idCard);
+        if ($length < 8) {
+            return $idCard;
+        }
+        
+        return substr($idCard, 0, 4) . str_repeat('*', $length - 8) . substr($idCard, -4);
+    }
+    
+    /**
+     * 邮箱脱敏
+     */
+    public static function maskEmail($email)
+    {
+        if (strpos($email, '@') === false) {
+            return $email;
+        }
+        
+        list($username, $domain) = explode('@', $email);
+        $usernameLength = strlen($username);
+        
+        if ($usernameLength <= 2) {
+            return $email;
+        }
+        
+        $maskedUsername = substr($username, 0, 1) . str_repeat('*', $usernameLength - 2) . substr($username, -1);
+        
+        return $maskedUsername . '@' . $domain;
+    }
+}
+```
+
+### 数据库安全操作
+```php
+/**
+ * 数据库安全操作
+ */
+class DatabaseSecurity
+{
+    /**
+     * 安全的数据库查询
+     */
+    public static function secureQuery($sql, $params = [])
+    {
+        // 1. 检查SQL语句是否包含危险操作
+        if (self::containsDangerousSQL($sql)) {
+            \think\Log::warning('Dangerous SQL detected: ' . $sql);
+            throw new \Exception('非法SQL操作');
+        }
+        
+        // 2. 使用参数绑定防止SQL注入
+        return \think\Db::query($sql, $params);
+    }
+    
+    /**
+     * 检查是否包含危险SQL
+     */
+    private static function containsDangerousSQL($sql)
+    {
+        $dangerousKeywords = [
+            'DROP\s+TABLE',
+            'DROP\s+DATABASE',
+            'TRUNCATE\s+TABLE',
+            'DELETE\s+FROM\s+\w+\s*;',
+            'UPDATE\s+\w+\s+SET\s+.*\s*;',
+            'EXEC\s*\(',
+            'EXECUTE\s*\(',
+            'xp_cmdshell',
+            'sp_executesql'
+        ];
+        
+        foreach ($dangerousKeywords as $keyword) {
+            if (preg_match('/' . $keyword . '/i', $sql)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 数据库连接安全配置
+     */
+    public static function getSecureDbConfig()
+    {
+        return [
+            // 使用只读账号进行查询操作
+            'read_config' => [
+                'username' => env('DB_READ_USERNAME'),
+                'password' => env('DB_READ_PASSWORD'),
+                'options' => [
+                    \PDO::ATTR_EMULATE_PREPARES => false,
+                    \PDO::ATTR_STRINGIFY_FETCHES => false,
+                ]
+            ],
+            
+            // 使用读写账号进行写操作
+            'write_config' => [
+                'username' => env('DB_WRITE_USERNAME'),
+                'password' => env('DB_WRITE_PASSWORD'),
+                'options' => [
+                    \PDO::ATTR_EMULATE_PREPARES => false,
+                    \PDO::ATTR_STRINGIFY_FETCHES => false,
+                ]
+            ]
+        ];
+    }
+    
+    /**
+     * 数据备份
+     */
+    public static function backupData($tables = [])
+    {
+        $backupDir = ROOT_PATH . 'backup/' . date('Y-m-d');
+        if (!is_dir($backupDir)) {
+            mkdir($backupDir, 0755, true);
+        }
+        
+        $filename = $backupDir . '/backup_' . date('His') . '.sql';
+        
+        // 使用mysqldump进行备份
+        $command = sprintf(
+            'mysqldump -h%s -u%s -p%s %s %s > %s',
+            config('database.hostname'),
+            config('database.username'),
+            config('database.password'),
+            config('database.database'),
+            implode(' ', $tables),
+            $filename
+        );
+        
+        exec($command, $output, $returnCode);
+        
+        if ($returnCode === 0) {
+            // 压缩备份文件
+            $zipFilename = $filename . '.zip';
+            $zip = new \ZipArchive();
+            if ($zip->open($zipFilename, \ZipArchive::CREATE) === TRUE) {
+                $zip->addFile($filename, basename($filename));
+                $zip->close();
+                unlink($filename); // 删除原始SQL文件
+                return $zipFilename;
+            }
+        }
+        
+        return false;
+    }
+}
+```
+
+---
+
+## 🚨 安全监控与日志
+
+### 安全事件监控
+```php
+/**
+ * 安全事件监控
+ */
+class SecurityMonitor
+{
+    /**
+     * 记录安全事件
+     */
+    public static function logSecurityEvent($type, $description, $level = 'info', $userId = 0)
+    {
+        $data = [
+            'type' => $type,
+            'description' => $description,
+            'level' => $level,
+            'user_id' => $userId,
+            'ip' => request()->ip(),
+            'user_agent' => request()->header('User-Agent'),
+            'url' => request()->url(),
+            'create_time' => time()
+        ];
+        
+        \think\Db::name('security_log')->insert($data);
+        
+        // 高危事件实时告警
+        if (in_array($level, ['warning', 'error', 'critical'])) {
+            self::sendAlert($data);
+        }
+    }
+    
+    /**
+     * 检测异常登录
+     */
+    public static function detectAbnormalLogin($userId, $ip, $userAgent)
+    {
+        // 1. 检查IP地址是否异常
+        $lastLogin = \think\Db::name('admin_log')
+            ->where('user_id', $userId)
+            ->where('title', '登录')
+            ->order('id desc')
+            ->find();
+            
+        if ($lastLogin && $lastLogin['ip'] !== $ip) {
+            // IP地址变更，记录安全事件
+            self::logSecurityEvent(
+                'abnormal_login',
+                "用户{$userId}从新IP地址{$ip}登录，上次登录IP：{$lastLogin['ip']}",
+                'warning',
+                $userId
+            );
+        }
+        
+        // 2. 检查登录时间是否异常
+        $currentHour = date('H');
+        if ($currentHour < 6 || $currentHour > 22) {
+            self::logSecurityEvent(
+                'off_hours_login',
+                "用户{$userId}在非工作时间{$currentHour}点登录",
+                'info',
+                $userId
+            );
+        }
+        
+        // 3. 检查User-Agent是否异常
+        if (strpos($userAgent, 'curl') !== false || strpos($userAgent, 'wget') !== false) {
+            self::logSecurityEvent(
+                'suspicious_user_agent',
+                "用户{$userId}使用可疑User-Agent登录：{$userAgent}",
+                'warning',
+                $userId
+            );
+        }
+    }
+    
+    /**
+     * 检测暴力破解攻击
+     */
+    public static function detectBruteForce($ip)
+    {
+        $attempts = cache('login_attempts_' . $ip) ?: 0;
+        
+        if ($attempts >= 10) {
+            self::logSecurityEvent(
+                'brute_force',
+                "IP地址{$ip}疑似进行暴力破解攻击，失败次数：{$attempts}",
+                'critical'
+            );
+            
+            // 加入黑名单
+            self::addToBlacklist($ip, 'brute_force', 3600); // 1小时
+        }
+    }
+    
+    /**
+     * 检测SQL注入攻击
+     */
+    public static function detectSQLInjection($input, $ip)
+    {
+        $patterns = [
+            '/union\s+select/i',
+            '/or\s+1\s*=\s*1/i',
+            '/and\s+1\s*=\s*1/i',
+            '/drop\s+table/i',
+            '/exec\s*\(/i',
+            '/<script/i',
+            '/javascript:/i'
+        ];
+        
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $input)) {
+                self::logSecurityEvent(
+                    'sql_injection',
+                    "检测到SQL注入攻击，IP：{$ip}，输入：" . substr($input, 0, 200),
+                    'critical'
+                );
+                
+                // 加入黑名单
+                self::addToBlacklist($ip, 'sql_injection', 7200); // 2小时
+                break;
+            }
+        }
+    }
+    
+    /**
+     * 添加到黑名单
+     */
+    public static function addToBlacklist($ip, $reason, $duration = 3600)
+    {
+        $data = [
+            'ip' => $ip,
+            'reason' => $reason,
+            'expire_time' => time() + $duration,
+            'create_time' => time()
+        ];
+        
+        \think\Db::name('ip_blacklist')->insert($data);
+        
+        // 缓存黑名单
+        cache('blacklist_' . $ip, true, $duration);
+    }
+    
+    /**
+     * 检查IP是否在黑名单中
+     */
+    public static function isBlacklisted($ip)
+    {
+        // 先检查缓存
+        if (cache('blacklist_' . $ip)) {
+            return true;
+        }
+        
+        // 检查数据库
+        $blacklist = \think\Db::name('ip_blacklist')
+            ->where('ip', $ip)
+            ->where('expire_time', '>', time())
+            ->find();
+            
+        if ($blacklist) {
+            // 更新缓存
+            cache('blacklist_' . $ip, true, $blacklist['expire_time'] - time());
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 发送安全告警
+     */
+    private static function sendAlert($event)
+    {
+        // 发送邮件告警
+        $to = config('security.alert_email');
+        if ($to) {
+            $subject = '安全告警：' . $event['type'];
+            $body = "安全事件详情：\n";
+            $body .= "类型：{$event['type']}\n";
+            $body .= "描述：{$event['description']}\n";
+            $body .= "等级：{$event['level']}\n";
+            $body .= "IP地址：{$event['ip']}\n";
+            $body .= "时间：" . date('Y-m-d H:i:s', $event['create_time']) . "\n";
+            
+            // 这里调用邮件发送服务
+            // \app\common\library\Email::send($to, $subject, $body);
+        }
+        
+        // 发送短信告警（高危事件）
+        if ($event['level'] === 'critical') {
+            $mobile = config('security.alert_mobile');
+            if ($mobile) {
+                $message = "安全告警：检测到{$event['type']}，请及时处理。时间：" . date('m-d H:i');
+                // 这里调用短信发送服务
+                // \app\common\library\Sms::send($mobile, $message);
+            }
+        }
+    }
+}
+```
+
+---
+
+## 📋 安全检查清单
+
+### 代码安全检查
+- [ ] 所有用户输入都经过验证和过滤
+- [ ] 使用参数绑定防止SQL注入
+- [ ] 实现XSS防护措施
+- [ ] 文件上传安全验证
+- [ ] 密码使用强加密算法
+- [ ] Token使用安全算法生成
+- [ ] 权限检查覆盖所有接口
+- [ ] 敏感数据加密存储
+- [ ] 错误信息不泄露敏感信息
+- [ ] 日志记录安全事件
+
+### 配置安全检查
+- [ ] 数据库连接使用最小权限账号
+- [ ] 关闭不必要的服务和端口
+- [ ] 设置合理的会话超时时间
+- [ ] 配置HTTPS强制跳转
+- [ ] 设置安全的Cookie属性
+- [ ] 配置防火墙规则
+- [ ] 定期更新系统和软件
+- [ ] 设置文件上传目录权限
+- [ ] 隐藏服务器版本信息
+- [ ] 配置访问频率限制
+
+### 运行时安全检查
+- [ ] 监控异常登录行为
+- [ ] 检测暴力破解攻击
+- [ ] 监控SQL注入尝试
+- [ ] 检查文件上传安全
+- [ ] 监控权限越权访问
+- [ ] 记录敏感操作日志
+- [ ] 定期备份重要数据
+- [ ] 检查系统漏洞
+- [ ] 监控服务器资源使用
+- [ ] 定期清理临时文件
+
+---
+
+**注意**: 安全是一个持续的过程，需要定期评估和更新安全措施。开发人员应具备基本的安全意识，遵循安全编码规范。

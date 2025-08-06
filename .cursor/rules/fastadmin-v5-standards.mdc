@@ -1,0 +1,722 @@
+---
+alwaysApply: true
+priority: 0
+techStack: "FastAdmin v5 + ThinkPHP"
+---
+
+# FastAdmin v5 开发标准规范
+
+> **技术栈**: FastAdmin + ThinkPHP 5.1 + Bootstrap + AdminLTE + RequireJS + Less
+> **适用场景**: 后台管理系统开发、CRUD快速生成、权限管理系统
+
+---
+
+## 🏗️ 项目架构规范
+
+### 目录结构标准
+```
+biubiustar/
+├── addons/                 # 插件目录
+├── application/            # 应用目录
+│   ├── admin/             # 后台管理模块
+│   ├── api/               # API接口模块  
+│   ├── index/             # 前台模块
+│   └── common/            # 公共模块
+├── public/                # 公共资源目录
+│   ├── assets/           # 静态资源
+│   └── uploads/          # 上传文件
+├── extend/                # 扩展类库
+├── runtime/               # 运行时目录
+├── thinkphp/              # ThinkPHP框架核心
+└── vendor/                # Composer依赖
+```
+
+### 模块结构规范
+```
+application/[module]/
+├── controller/            # 控制器
+├── model/                 # 模型
+├── view/                  # 视图模板
+├── lang/                  # 语言包
+├── validate/              # 验证器
+├── library/               # 模块类库
+├── behavior/              # 行为
+└── command/               # 命令行
+```
+
+---
+
+## 📝 命名规范
+
+### 文件和类命名
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| **控制器** | 大驼峰，继承Backend | `UserController.php` |
+| **模型** | 大驼峰，继承Model | `User.php` |
+| **视图** | 小写+下划线 | `user/index.html` |
+| **验证器** | 大驼峰 | `UserValidate.php` |
+| **中间件** | 大驼峰 | `AuthMiddleware.php` |
+
+### 数据库命名
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| **表名** | 前缀+小写+下划线 | `fa_admin_user` |
+| **字段名** | 小写+下划线 | `user_name`, `create_time` |
+| **索引名** | 表名_字段名_idx | `fa_user_email_idx` |
+
+### 变量和方法命名
+```php
+// ✅ 正确示例
+class UserController extends Backend
+{
+    protected $model = null;
+    protected $searchFields = 'username,nickname';
+    
+    public function initialize()
+    {
+        parent::initialize();
+        $this->model = new \app\admin\model\User;
+    }
+    
+    public function getUserList($params = [])
+    {
+        // 实现逻辑
+    }
+}
+
+// ❌ 错误示例
+class usercontroller extends Backend  // 命名不规范
+{
+    protected $m = null;              // 变量名不清晰
+    
+    public function getdata()         // 方法名不规范
+    {
+        // 实现逻辑
+    }
+}
+```
+
+---
+
+## 🎯 控制器开发规范
+
+### Backend控制器标准结构
+```php
+<?php
+namespace app\admin\controller;
+
+use app\common\controller\Backend;
+use app\admin\model\User as UserModel;
+use think\Db;
+use think\Exception;
+use think\exception\PDOException;
+use think\exception\ValidateException;
+
+/**
+ * 用户管理控制器
+ */
+class User extends Backend
+{
+    /**
+     * 用户模型对象
+     * @var \app\admin\model\User
+     */
+    protected $model = null;
+    
+    /**
+     * 快速搜索字段
+     */
+    protected $searchFields = 'username,nickname,email';
+    
+    /**
+     * 关联查询
+     */
+    protected $relationSearch = true;
+    
+    /**
+     * 初始化方法
+     */
+    public function initialize()
+    {
+        parent::initialize();
+        $this->model = new UserModel;
+        
+        // 权限检查
+        $this->view->assign("statusList", $this->model->getStatusList());
+    }
+    
+    /**
+     * 查看列表
+     */
+    public function index()
+    {
+        // 设置过滤方法
+        $this->request->filter(['strip_tags', 'trim']);
+        
+        if ($this->request->isAjax()) {
+            // AJAX请求处理
+            return $this->selectpage();
+        }
+        
+        return $this->view->fetch();
+    }
+    
+    /**
+     * 添加用户
+     */
+    public function add()
+    {
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params = $this->preExcludeFields($params);
+                
+                if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
+                    $params[$this->dataLimitField] = $this->auth->id;
+                }
+                
+                $result = false;
+                Db::startTrans();
+                try {
+                    $result = $this->model->allowField(true)->save($params);
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error(__('No rows were inserted'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        
+        return $this->view->fetch();
+    }
+}
+```
+
+### API控制器标准结构
+```php
+<?php
+namespace app\api\controller;
+
+use app\common\controller\Api;
+use app\common\model\User as UserModel;
+
+/**
+ * 用户API接口
+ */
+class User extends Api
+{
+    // 无需登录的接口
+    protected $noNeedLogin = ['login', 'register'];
+    // 无需鉴权的接口
+    protected $noNeedRight = ['profile'];
+    
+    /**
+     * 用户登录
+     */
+    public function login()
+    {
+        $username = $this->request->post('username');
+        $password = $this->request->post('password');
+        
+        if (!$username || !$password) {
+            $this->error(__('Invalid parameters'));
+        }
+        
+        $ret = $this->auth->login($username, $password);
+        if ($ret) {
+            $data = ['userinfo' => $this->auth->getUserinfo()];
+            $this->success(__('Logged in successful'), $data);
+        } else {
+            $this->error($this->auth->getError());
+        }
+    }
+    
+    /**
+     * 用户信息
+     */
+    public function profile()
+    {
+        $user = $this->auth->getUser();
+        $this->success('', $user);
+    }
+}
+```
+
+---
+
+## 🗃️ 模型开发规范
+
+### 模型标准结构
+```php
+<?php
+namespace app\admin\model;
+
+use think\Model;
+use traits\model\SoftDelete;
+
+/**
+ * 用户模型
+ */
+class User extends Model
+{
+    use SoftDelete;
+    
+    // 表名
+    protected $name = 'user';
+    
+    // 自动写入时间戳字段
+    protected $autoWriteTimestamp = 'int';
+    
+    // 定义时间戳字段名
+    protected $createTime = 'createtime';
+    protected $updateTime = 'updatetime';
+    protected $deleteTime = 'deletetime';
+    
+    // 追加属性
+    protected $append = [
+        'status_text',
+        'avatar_url'
+    ];
+    
+    /**
+     * 状态列表
+     */
+    public function getStatusList()
+    {
+        return ['normal' => __('Normal'), 'hidden' => __('Hidden')];
+    }
+    
+    /**
+     * 状态文本获取器
+     */
+    public function getStatusTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['status']) ? $data['status'] : '');
+        $list = $this->getStatusList();
+        return isset($list[$value]) ? $list[$value] : '';
+    }
+    
+    /**
+     * 头像URL获取器
+     */
+    public function getAvatarUrlAttr($value, $data)
+    {
+        $avatar = $data['avatar'] ?? '';
+        return $avatar ? cdnurl($avatar, true) : letter_avatar($data['nickname'] ?? '');
+    }
+    
+    /**
+     * 关联用户组
+     */
+    public function group()
+    {
+        return $this->belongsTo('UserGroup', 'group_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+}
+```
+
+### 数据验证规范
+```php
+<?php
+namespace app\admin\validate;
+
+use think\Validate;
+
+/**
+ * 用户验证器
+ */
+class User extends Validate
+{
+    /**
+     * 验证规则
+     */
+    protected $rule = [
+        'username'  => 'require|length:3,30|unique:user',
+        'nickname'  => 'require|length:3,30',
+        'password'  => 'require|length:6,30',
+        'email'     => 'require|email|unique:user',
+        'mobile'    => 'require|mobile|unique:user',
+        'status'    => 'require|in:normal,hidden',
+    ];
+    
+    /**
+     * 提示消息
+     */
+    protected $message = [
+        'username.require'   => 'Username is required',
+        'username.length'    => 'Username must be 3-30 characters',
+        'username.unique'    => 'Username already exists',
+        'password.require'   => 'Password is required',
+        'password.length'    => 'Password must be 6-30 characters',
+        'email.email'        => 'Invalid email format',
+        'mobile.mobile'      => 'Invalid mobile format',
+    ];
+    
+    /**
+     * 验证场景
+     */
+    protected $scene = [
+        'add'  => ['username', 'nickname', 'password', 'email', 'mobile', 'status'],
+        'edit' => ['nickname', 'email', 'mobile', 'status'],
+    ];
+}
+```
+
+---
+
+## 🎨 视图和前端规范
+
+### HTML模板规范
+```html
+<!-- 继承后台布局 -->
+{extend name="layout/default" /}
+
+<!-- 页面标题 -->
+{block name="title"}用户管理{/block}
+
+<!-- 页面CSS -->
+{block name="css"}
+<style>
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+</style>
+{/block}
+
+<!-- 页面内容 -->
+{block name="content"}
+<div class="panel panel-default panel-intro">
+    <div class="panel-heading">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#t-all" data-toggle="tab">全部</a></li>
+            <li><a href="#t-normal" data-toggle="tab">正常</a></li>
+            <li><a href="#t-hidden" data-toggle="tab">隐藏</a></li>
+        </ul>
+    </div>
+    
+    <div class="panel-body">
+        <div id="toolbar" class="toolbar">
+            <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}" ><i class="fa fa-refresh"></i> </a>
+            <a href="javascript:;" class="btn btn-success btn-add {:$auth->check('user/add')?'':'hide'}" title="{:__('Add')}" ><i class="fa fa-plus"></i> {:__('Add')}</a>
+            <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('user/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
+            <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('user/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
+        </div>
+        
+        <table id="table" class="table table-striped table-bordered table-hover" width="100%">
+        </table>
+    </div>
+</div>
+{/block}
+
+<!-- 页面JS -->
+{block name="js"}
+<script>
+    require(['backend/user/user'], function(Controller){
+        Controller.index();
+    });
+</script>
+{/block}
+```
+
+### JavaScript模块规范
+```javascript
+define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
+    
+    var Controller = {
+        index: function () {
+            // 初始化表格参数配置
+            Table.api.init({
+                extend: {
+                    index_url: 'user/index' + location.search,
+                    add_url: 'user/add',
+                    edit_url: 'user/edit',
+                    del_url: 'user/del',
+                    multi_url: 'user/multi',
+                    import_url: 'user/import',
+                    table: 'user',
+                }
+            });
+
+            var table = $("#table");
+
+            // 初始化表格
+            table.bootstrapTable({
+                url: $.fn.bootstrapTable.defaults.extend.index_url,
+                pk: 'id',
+                sortName: 'id',
+                columns: [
+                    [
+                        {checkbox: true},
+                        {field: 'id', title: __('Id')},
+                        {field: 'username', title: __('Username'), operate: 'LIKE'},
+                        {field: 'nickname', title: __('Nickname'), operate: 'LIKE'},
+                        {field: 'email', title: __('Email'), operate: 'LIKE'},
+                        {field: 'mobile', title: __('Mobile'), operate: 'LIKE'},
+                        {field: 'avatar', title: __('Avatar'), events: Table.api.events.image, formatter: Table.api.formatter.image},
+                        {field: 'status', title: __('Status'), searchList: {"normal":__('Normal'),"hidden":__('Hidden')}, formatter: Table.api.formatter.status},
+                        {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                    ]
+                ]
+            });
+
+            // 为表格绑定事件
+            Table.api.bindevent(table);
+        },
+        
+        add: function () {
+            Controller.api.bindevent();
+        },
+        
+        edit: function () {
+            Controller.api.bindevent();
+        },
+        
+        api: {
+            bindevent: function () {
+                Form.api.bindevent($("form[role=form]"));
+            }
+        }
+    };
+    
+    return Controller;
+});
+```
+
+---
+
+## 🔐 安全开发规范
+
+### 输入验证和过滤
+```php
+// ✅ 正确的输入处理
+public function save()
+{
+    // 1. 设置过滤器
+    $this->request->filter(['strip_tags', 'trim']);
+    
+    // 2. 获取并验证数据
+    $params = $this->request->post("row/a");
+    $validate = new \app\admin\validate\User;
+    
+    if (!$validate->scene('add')->check($params)) {
+        $this->error($validate->getError());
+    }
+    
+    // 3. 排除危险字段
+    $params = $this->preExcludeFields($params);
+    
+    // 4. 密码加密
+    if (isset($params['password'])) {
+        $params['password'] = password_hash($params['password'], PASSWORD_DEFAULT);
+    }
+}
+
+// ❌ 错误的输入处理
+public function save()
+{
+    $params = $_POST; // 直接使用$_POST，未过滤
+    $this->model->save($params); // 未验证直接保存
+}
+```
+
+### SQL注入防护
+```php
+// ✅ 使用参数绑定
+$users = Db::name('user')
+    ->where('status', '=', $status)
+    ->where('username', 'like', '%' . $keyword . '%')
+    ->select();
+
+// ✅ 使用模型查询
+$users = UserModel::where('status', $status)
+    ->where('username', 'like', '%' . $keyword . '%')
+    ->select();
+
+// ❌ 字符串拼接SQL
+$sql = "SELECT * FROM user WHERE username = '{$username}'"; // 危险！
+```
+
+### 权限控制
+```php
+// 控制器权限检查
+class User extends Backend
+{
+    public function edit()
+    {
+        // 检查编辑权限
+        if (!$this->auth->check('user/edit')) {
+            $this->error(__('You have no permission'));
+        }
+        
+        // 数据权限限制
+        if ($this->dataLimit) {
+            $this->model->where($this->dataLimitField, $this->auth->id);
+        }
+    }
+}
+```
+
+---
+
+## ⚡ 性能优化规范
+
+### 数据库查询优化
+```php
+// ✅ 使用索引和限制查询
+$users = UserModel::field('id,username,nickname')
+    ->where('status', 'normal')
+    ->limit(10)
+    ->order('id desc')
+    ->select();
+
+// ✅ 预加载关联
+$users = UserModel::with(['group'])
+    ->where('status', 'normal')
+    ->select();
+
+// ✅ 使用缓存
+$users = cache('user_list_' . $page, function() use ($page) {
+    return UserModel::where('status', 'normal')
+        ->page($page, 10)
+        ->select();
+}, 300);
+
+// ❌ 避免N+1查询
+foreach ($users as $user) {
+    echo $user->group->name; // 每次循环都查询数据库
+}
+```
+
+### 前端资源优化
+```javascript
+// ✅ 按需加载模块
+define(['jquery', 'bootstrap'], function ($) {
+    // 只加载必要的依赖
+});
+
+// ✅ 使用CDN资源
+<link rel="stylesheet" href="//cdn.bootcdn.net/ajax/libs/bootstrap/3.4.1/css/bootstrap.min.css">
+
+// ✅ 压缩和合并资源
+// 使用FastAdmin的压缩命令
+php think min -m backend -r all
+```
+
+---
+
+## 🧪 测试规范
+
+### 单元测试
+```php
+<?php
+namespace tests\unit;
+
+use app\admin\model\User as UserModel;
+use think\testing\TestCase;
+
+class UserTest extends TestCase
+{
+    public function testUserCreate()
+    {
+        $user = new UserModel();
+        $result = $user->save([
+            'username' => 'testuser',
+            'password' => password_hash('123456', PASSWORD_DEFAULT),
+            'email' => 'test@example.com',
+            'status' => 'normal'
+        ]);
+        
+        $this->assertTrue($result);
+        $this->assertEquals('testuser', $user->username);
+    }
+    
+    public function testUserValidation()
+    {
+        $validate = new \app\admin\validate\User;
+        $result = $validate->check([
+            'username' => 'te', // 太短
+            'email' => 'invalid-email' // 无效邮箱
+        ]);
+        
+        $this->assertFalse($result);
+    }
+}
+```
+
+---
+
+## 📦 部署和维护规范
+
+### 环境配置
+```php
+// .env 文件配置
+APP_DEBUG = false
+APP_TRACE = false
+
+DATABASE_TYPE = mysql
+DATABASE_HOSTNAME = 127.0.0.1
+DATABASE_DATABASE = fastadmin
+DATABASE_USERNAME = root
+DATABASE_PASSWORD = 
+DATABASE_HOSTPORT = 3306
+
+REDIS_HOSTNAME = 127.0.0.1
+REDIS_PORT = 6379
+```
+
+### 日志记录
+```php
+// 记录操作日志
+\app\admin\model\AdminLog::record([
+    'title' => '用户管理',
+    'content' => '添加用户：' . $username,
+    'url' => $this->request->url()
+]);
+
+// 记录错误日志
+\think\Log::error('User creation failed: ' . $e->getMessage());
+```
+
+---
+
+## 🎯 代码质量检查
+
+### 必须遵循的规则
+1. **所有控制器必须继承对应的基类**（Backend/Frontend/Api）
+2. **所有数据库操作必须使用事务**
+3. **所有用户输入必须验证和过滤**
+4. **所有敏感操作必须记录日志**
+5. **所有文件上传必须检查类型和大小**
+6. **所有API接口必须有权限控制**
+7. **所有SQL查询必须使用参数绑定**
+8. **所有缓存键必须有合理的过期时间**
+
+### 代码审查要点
+- [ ] 是否遵循MVC架构
+- [ ] 是否使用了正确的命名规范
+- [ ] 是否进行了输入验证
+- [ ] 是否有SQL注入风险
+- [ ] 是否有XSS漏洞
+- [ ] 是否有权限控制
+- [ ] 是否有错误处理
+- [ ] 是否有性能问题
+
+---
+
+**注意**: 本规范基于FastAdmin框架的最佳实践，开发时应严格遵循以确保代码质量和安全性。

@@ -1,0 +1,1019 @@
+---
+alwaysApply: true
+priority: 3
+techStack: "FastAdmin CRUD Generator"
+---
+
+# FastAdmin CRUD生成标准规范
+
+> **功能**: 一键生成CRUD（增删改查）功能
+> **适用场景**: 快速开发数据管理模块、后台管理功能
+
+---
+
+## 🚀 CRUD生成命令规范
+
+### 基础生成命令
+```bash
+# 基础CRUD生成
+php think crud -t table_name
+
+# 指定控制器名称
+php think crud -t table_name -c ControllerName
+
+# 指定模型名称
+php think crud -t table_name -m ModelName
+
+# 生成到指定模块
+php think crud -t table_name --module=admin
+
+# 强制覆盖已存在文件
+php think crud -t table_name --force=true
+
+# 生成时跳过某些字段
+php think crud -t table_name --fields=id,password,delete_time
+
+# 生成关联表CRUD
+php think crud -t table_name --relation=user:user_id:id
+
+# 生成树形结构CRUD
+php think crud -t table_name --tree=true
+```
+
+### 生成菜单命令
+```bash
+# 生成菜单和权限规则
+php think menu -c ControllerName
+
+# 指定菜单父级
+php think menu -c ControllerName --parent=system
+
+# 指定菜单标题
+php think menu -c ControllerName --title="用户管理"
+
+# 指定菜单图标
+php think menu -c ControllerName --icon="fa fa-user"
+```
+
+---
+
+## 🗃️ 数据表设计规范
+
+### 表结构标准
+```sql
+-- 基础用户表示例
+CREATE TABLE `fa_user` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `username` varchar(32) NOT NULL DEFAULT '' COMMENT '用户名',
+  `nickname` varchar(50) NOT NULL DEFAULT '' COMMENT '昵称', 
+  `password` varchar(32) NOT NULL DEFAULT '' COMMENT '密码',
+  `salt` varchar(30) NOT NULL DEFAULT '' COMMENT '密码盐',
+  `email` varchar(100) NOT NULL DEFAULT '' COMMENT '电子邮箱',
+  `mobile` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号',
+  `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '头像',
+  `level` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '等级',
+  `gender` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '性别:0=保密,1=男,2=女',
+  `birthday` date DEFAULT NULL COMMENT '生日',
+  `bio` text COMMENT '格言',
+  `money` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '余额',
+  `score` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '积分',
+  `successions` int(10) unsigned NOT NULL DEFAULT '1' COMMENT '连续登录天数',
+  `maxsuccessions` int(10) unsigned NOT NULL DEFAULT '1' COMMENT '最大连续登录天数',
+  `prevtime` int(10) unsigned DEFAULT NULL COMMENT '上次登录时间',
+  `logintime` int(10) unsigned DEFAULT NULL COMMENT '登录时间',
+  `loginip` varchar(50) DEFAULT NULL COMMENT '登录IP',
+  `loginfailure` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '失败次数',
+  `joinip` varchar(50) DEFAULT NULL COMMENT '加入IP',
+  `jointime` int(10) unsigned DEFAULT NULL COMMENT '加入时间',
+  `createtime` int(10) unsigned DEFAULT NULL COMMENT '创建时间',
+  `updatetime` int(10) unsigned DEFAULT NULL COMMENT '更新时间',
+  `token` varchar(59) NOT NULL DEFAULT '' COMMENT 'Token',
+  `status` enum('normal','hidden') NOT NULL DEFAULT 'normal' COMMENT '状态',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `mobile` (`mobile`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+```
+
+### 字段命名规范
+| 字段类型 | 命名规范 | 示例 | 说明 |
+|---------|---------|------|------|
+| **主键** | `id` | `id` | 统一使用id作为主键 |
+| **时间字段** | `xxxtime` | `createtime`, `updatetime` | 使用int类型存储时间戳 |
+| **状态字段** | `status` | `status` | 使用enum类型，如normal,hidden |
+| **排序字段** | `weigh` | `weigh` | 使用int类型，数值越大越靠前 |
+| **父级字段** | `pid` | `pid` | 树形结构的父级ID |
+| **关联字段** | `xxx_id` | `user_id`, `category_id` | 外键字段以_id结尾 |
+| **布尔字段** | `is_xxx` | `is_default`, `is_recommend` | 布尔值字段以is_开头 |
+| **数量字段** | `xxx_count` | `view_count`, `like_count` | 统计数量字段以_count结尾 |
+
+### 字段类型规范
+```sql
+-- 字符串类型
+`title` varchar(100) NOT NULL DEFAULT '' COMMENT '标题',
+`content` text COMMENT '内容',
+`description` varchar(255) NOT NULL DEFAULT '' COMMENT '描述',
+
+-- 数值类型  
+`price` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '价格',
+`amount` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '数量',
+`rate` float(3,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '评分',
+
+-- 时间类型
+`createtime` int(10) unsigned DEFAULT NULL COMMENT '创建时间',
+`updatetime` int(10) unsigned DEFAULT NULL COMMENT '更新时间',
+`deletetime` int(10) unsigned DEFAULT NULL COMMENT '删除时间',
+
+-- 枚举类型
+`status` enum('normal','hidden','locked') NOT NULL DEFAULT 'normal' COMMENT '状态',
+`type` enum('user','admin','guest') NOT NULL DEFAULT 'user' COMMENT '类型',
+
+-- JSON类型（MySQL 5.7+）
+`extra` json DEFAULT NULL COMMENT '扩展信息',
+`config` json DEFAULT NULL COMMENT '配置信息',
+```
+
+---
+
+## 🎯 控制器生成规范
+
+### 生成的控制器结构
+```php
+<?php
+namespace app\admin\controller;
+
+use app\common\controller\Backend;
+
+/**
+ * 用户管理
+ *
+ * @icon fa fa-circle-o
+ */
+class User extends Backend
+{
+    /**
+     * User模型对象
+     * @var \app\admin\model\User
+     */
+    protected $model = null;
+    
+    /**
+     * 快速搜索时的字段
+     */
+    protected $searchFields = 'id,username,nickname,email';
+    
+    /**
+     * 是否开启关联查询
+     */
+    protected $relationSearch = true;
+    
+    /**
+     * 设置过滤方法
+     */
+    protected $multiFields = 'status';
+    
+    public function _initialize()
+    {
+        parent::_initialize();
+        $this->model = new \app\admin\model\User;
+        $this->view->assign("statusList", $this->model->getStatusList());
+        $this->view->assign("genderList", $this->model->getGenderList());
+    }
+
+    /**
+     * 默认生成的控制器所继承的父类中有index/add/edit/del/multi五个基础方法
+     * 因此在当前控制器中可不用编写增删改查的代码,除非需要自定义
+     * 如果需要自定义,可以将application/admin/library/traits/Backend.php中对应的方法复制到当前控制器,然后进行修改
+     */
+
+    /**
+     * 查看
+     */
+    public function index()
+    {
+        //当前是否为关联查询
+        $this->relationSearch = true;
+        //设置过滤方法
+        $this->request->filter(['strip_tags', 'trim']);
+        if ($this->request->isAjax()) {
+            //如果发送的来源是Selectpage，则转发到Selectpage
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+
+            $list = $this->model
+                    ->with(['usergroup'])
+                    ->where($where)
+                    ->order($sort, $order)
+                    ->paginate($limit);
+
+            foreach ($list as $row) {
+                $row->visible(['id','username','nickname','email','mobile','avatar','level','gender','birthday','bio','money','score','successions','maxsuccessions','prevtime','logintime','loginip','loginfailure','joinip','jointime','createtime','updatetime','token','status']);
+                $row->visible(['usergroup']);
+                $row->getRelation('usergroup')->visible(['name']);
+            }
+
+            $result = array("total" => $list->total(), "rows" => $list->items());
+
+            return json($result);
+        }
+        return $this->view->fetch();
+    }
+
+    /**
+     * 添加
+     */
+    public function add()
+    {
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params = $this->preExcludeFields($params);
+
+                if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
+                    $params[$this->dataLimitField] = $this->auth->id;
+                }
+                $result = false;
+                Db::startTrans();
+                try {
+                    //是否采用模型验证
+                    if ($this->modelValidate) {
+                        $name = str_replace("\\model\\", "\\validate\\", get_class($this->model));
+                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : $name) : $this->modelValidate;
+                        $this->model->validateFailException(true)->validate($validate);
+                    }
+                    $result = $this->model->allowField(true)->save($params);
+                    Db::commit();
+                } catch (ValidateException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (PDOException $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (Exception $e) {
+                    Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error(__('No rows were inserted'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        return $this->view->fetch();
+    }
+}
+```
+
+### 控制器自定义方法
+```php
+/**
+ * 批量更新状态
+ */
+public function multi()
+{
+    if ($this->request->isPost()) {
+        $ids = $this->request->post("ids");
+        $action = $this->request->post("action");
+        if (!$ids) {
+            $this->error(__('Parameter %s can not be empty', 'ids'));
+        }
+        $ids = explode(',', $ids);
+        $result = false;
+        Db::startTrans();
+        try {
+            switch ($action) {
+                case 'normal':
+                    $result = $this->model->where('id', 'in', $ids)->update(['status' => 'normal']);
+                    break;
+                case 'hidden':
+                    $result = $this->model->where('id', 'in', $ids)->update(['status' => 'hidden']);
+                    break;
+                case 'delete':
+                    $result = $this->model->where('id', 'in', $ids)->delete();
+                    break;
+                default:
+                    $this->error(__('Unknown operation'));
+            }
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage());
+        }
+        if ($result) {
+            $this->success();
+        } else {
+            $this->error(__('No rows were updated'));
+        }
+    }
+    $this->error(__('Invalid parameters'));
+}
+
+/**
+ * 导入数据
+ */
+public function import()
+{
+    parent::import();
+}
+
+/**
+ * 导出数据
+ */
+public function export()
+{
+    $list = $this->model->select();
+    $header = ['ID', '用户名', '昵称', '邮箱', '手机号', '状态', '创建时间'];
+    $data = [];
+    foreach ($list as $row) {
+        $data[] = [
+            $row->id,
+            $row->username,
+            $row->nickname,
+            $row->email,
+            $row->mobile,
+            $row->status,
+            date('Y-m-d H:i:s', $row->createtime)
+        ];
+    }
+    
+    $filename = 'user_' . date('YmdHis') . '.xlsx';
+    \PhpOffice\PhpSpreadsheet\Helper\Html::toRichTextObject($data);
+    return $this->exportExcel($header, $data, $filename);
+}
+```
+
+---
+
+## 🗃️ 模型生成规范
+
+### 生成的模型结构
+```php
+<?php
+namespace app\admin\model;
+
+use think\Model;
+use traits\model\SoftDelete;
+
+class User extends Model
+{
+    use SoftDelete;
+
+    // 表名
+    protected $name = 'user';
+    
+    // 自动写入时间戳字段
+    protected $autoWriteTimestamp = 'int';
+
+    // 定义时间戳字段名
+    protected $createTime = 'createtime';
+    protected $updateTime = 'updatetime';
+    protected $deleteTime = 'deletetime';
+
+    // 追加属性
+    protected $append = [
+        'status_text',
+        'gender_text'
+    ];
+    
+
+    public function getStatusList()
+    {
+        return ['normal' => __('Normal'), 'hidden' => __('Hidden')];
+    }
+
+    public function getGenderList()
+    {
+        return ['0' => __('Secrecy'), '1' => __('Male'), '2' => __('Female')];
+    }
+
+    public function getStatusTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['status']) ? $data['status'] : '');
+        $list = $this->getStatusList();
+        return isset($list[$value]) ? $list[$value] : '';
+    }
+
+    public function getGenderTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['gender']) ? $data['gender'] : '');
+        $list = $this->getGenderList();
+        return isset($list[$value]) ? $list[$value] : '';
+    }
+
+    public function usergroup()
+    {
+        return $this->belongsTo('UserGroup', 'group_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+}
+```
+
+### 模型关联定义
+```php
+// 一对一关联
+public function profile()
+{
+    return $this->hasOne('UserProfile', 'user_id', 'id');
+}
+
+// 一对多关联
+public function orders()
+{
+    return $this->hasMany('Order', 'user_id', 'id');
+}
+
+// 多对多关联
+public function roles()
+{
+    return $this->belongsToMany('Role', 'user_role', 'role_id', 'user_id');
+}
+
+// 关联预载入
+public function posts()
+{
+    return $this->hasMany('Post', 'user_id', 'id')->with(['category']);
+}
+
+// 多态关联
+public function comments()
+{
+    return $this->morphMany('Comment', 'commentable');
+}
+```
+
+---
+
+## 🎨 视图生成规范
+
+### 列表页面模板
+```html
+{extend name="layout/default" /}
+{block name="content"}
+<div class="panel panel-default panel-intro">
+    <div class="panel-heading">
+        {:build_heading()}
+    </div>
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div class="widget-body no-padding">
+                    <div id="toolbar" class="toolbar">
+                        <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}" ><i class="fa fa-refresh"></i> </a>
+                        <a href="javascript:;" class="btn btn-success btn-add {:$auth->check('user/add')?'':'hide'}" title="{:__('Add')}" ><i class="fa fa-plus"></i> {:__('Add')}</a>
+                        <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled {:$auth->check('user/edit')?'':'hide'}" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
+                        <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled {:$auth->check('user/del')?'':'hide'}" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
+                        <a href="javascript:;" class="btn btn-danger btn-import {:$auth->check('user/import')?'':'hide'}" title="{:__('Import')}" id="btn-import-file" data-url="ajax/upload" data-mimetype="csv,xls,xlsx" data-multiple="false"><i class="fa fa-upload"></i> {:__('Import')}</a>
+
+                        <div class="dropdown btn-group {:$auth->check('user/multi')?'':'hide'}">
+                            <a class="btn btn-primary btn-more dropdown-toggle btn-disabled disabled" data-toggle="dropdown"><i class="fa fa-cog"></i> {:__('More')}</a>
+                            <ul class="dropdown-menu text-left" role="menu">
+                                <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="status=normal"><i class="fa fa-eye"></i> {:__('Set to normal')}</a></li>
+                                <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="status=hidden"><i class="fa fa-eye-slash"></i> {:__('Set to hidden')}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <table id="table" class="table table-striped table-bordered table-hover table-nowrap" data-operate-edit="{:$auth->check('user/edit')}" data-operate-del="{:$auth->check('user/del')}" width="100%">
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<script src="{:cdnurl('assets/js/backend/user.js', true)}"></script>
+{/block}
+```
+
+### 添加/编辑页面模板
+```html
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Username')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-username" data-rule="required;username" class="form-control" name="row[username]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Nickname')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-nickname" data-rule="required" class="form-control" name="row[nickname]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Password')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-password" data-rule="required;password" class="form-control" name="row[password]" type="password" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Email')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-email" data-rule="required;email" class="form-control" name="row[email]" type="email" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Mobile')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-mobile" data-rule="required;mobile" class="form-control" name="row[mobile]" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Avatar')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-avatar" class="form-control" size="50" name="row[avatar]" type="text" value="">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="plupload-avatar" class="btn btn-danger plupload" data-input-id="c-avatar" data-mimetype="image/gif,image/jpeg,image/png,image/jpg,image/bmp" data-multiple="false" data-preview-id="p-avatar"><i class="fa fa-upload"></i> {:__('Upload')}</button></span>
+                    <span><button type="button" id="fachoose-avatar" class="btn btn-primary fachoose" data-input-id="c-avatar" data-mimetype="image/*" data-multiple="false"><i class="fa fa-list"></i> {:__('Choose')}</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-avatar"></span>
+            </div>
+            <ul class="row list-inline plupload-preview" id="p-avatar"></ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="radio">
+            {foreach name="statusList" item="vo" key="key"}
+                <label><input name="row[status]" type="radio" value="{$key}" {in name="key" value="normal"}checked{/in} /> {$vo}</label>
+            {/foreach}
+            </div>
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>
+```
+
+---
+
+## 🎯 JavaScript生成规范
+
+### 列表页面JS
+```javascript
+define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
+
+    var Controller = {
+        index: function () {
+            // 初始化表格参数配置
+            Table.api.init({
+                extend: {
+                    index_url: 'user/index' + location.search,
+                    add_url: 'user/add',
+                    edit_url: 'user/edit',
+                    del_url: 'user/del',
+                    multi_url: 'user/multi',
+                    import_url: 'user/import',
+                    table: 'user',
+                }
+            });
+
+            var table = $("#table");
+
+            // 初始化表格
+            table.bootstrapTable({
+                url: $.fn.bootstrapTable.defaults.extend.index_url,
+                pk: 'id',
+                sortName: 'id',
+                fixedColumns: true,
+                fixedRightNumber: 1,
+                columns: [
+                    [
+                        {checkbox: true},
+                        {field: 'id', title: __('Id')},
+                        {field: 'username', title: __('Username'), operate: 'LIKE'},
+                        {field: 'nickname', title: __('Nickname'), operate: 'LIKE'},
+                        {field: 'email', title: __('Email'), operate: 'LIKE'},
+                        {field: 'mobile', title: __('Mobile'), operate: 'LIKE'},
+                        {field: 'avatar', title: __('Avatar'), events: Table.api.events.image, formatter: Table.api.formatter.image},
+                        {field: 'level', title: __('Level')},
+                        {field: 'gender', title: __('Gender'), searchList: {"0":__('Secrecy'),"1":__('Male'),"2":__('Female')}, formatter: Table.api.formatter.normal},
+                        {field: 'birthday', title: __('Birthday'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
+                        {field: 'bio', title: __('Bio'), operate: 'LIKE'},
+                        {field: 'money', title: __('Money'), operate:'BETWEEN'},
+                        {field: 'score', title: __('Score')},
+                        {field: 'successions', title: __('Successions')},
+                        {field: 'maxsuccessions', title: __('Maxsuccessions')},
+                        {field: 'prevtime', title: __('Prevtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'logintime', title: __('Logintime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'loginip', title: __('Loginip'), operate: 'LIKE'},
+                        {field: 'loginfailure', title: __('Loginfailure')},
+                        {field: 'joinip', title: __('Joinip'), operate: 'LIKE'},
+                        {field: 'jointime', title: __('Jointime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'updatetime', title: __('Updatetime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'token', title: __('Token'), operate: 'LIKE'},
+                        {field: 'status', title: __('Status'), searchList: {"normal":__('Normal'),"hidden":__('Hidden')}, formatter: Table.api.formatter.status},
+                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                    ]
+                ]
+            });
+
+            // 为表格绑定事件
+            Table.api.bindevent(table);
+        },
+        add: function () {
+            Controller.api.bindevent();
+        },
+        edit: function () {
+            Controller.api.bindevent();
+        },
+        api: {
+            bindevent: function () {
+                Form.api.bindevent($("form[role=form]"));
+            }
+        }
+    };
+    return Controller;
+});
+```
+
+### 表格字段配置规范
+```javascript
+// 基础字段配置
+{field: 'id', title: __('Id'), sortable: true}
+
+// 文本搜索字段
+{field: 'title', title: __('Title'), operate: 'LIKE', placeholder: __('Fuzzy query')}
+
+// 精确搜索字段
+{field: 'status', title: __('Status'), searchList: {"normal":__('Normal'),"hidden":__('Hidden')}, formatter: Table.api.formatter.status}
+
+// 时间范围搜索
+{field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime}
+
+// 数值范围搜索
+{field: 'price', title: __('Price'), operate:'BETWEEN', formatter: Table.api.formatter.money}
+
+// 图片字段
+{field: 'avatar', title: __('Avatar'), events: Table.api.events.image, formatter: Table.api.formatter.image}
+
+// 开关字段
+{field: 'switch', title: __('Switch'), table: table, events: Table.api.events.toggle, formatter: Table.api.formatter.toggle}
+
+// 自定义格式化
+{field: 'content', title: __('Content'), formatter: function(value, row, index) {
+    return value ? value.substr(0, 50) + '...' : '';
+}}
+
+// 操作列
+{field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate, buttons: [
+    {name: 'detail', title: __('Detail'), classname: 'btn btn-xs btn-primary btn-detail'},
+    {name: 'custom', title: __('Custom'), classname: 'btn btn-xs btn-success btn-custom'}
+]}
+```
+
+---
+
+## 📝 语言包生成规范
+
+### 中文语言包
+```php
+<?php
+// application/admin/lang/zh-cn/user.php
+return [
+    'Id'                => 'ID',
+    'Username'          => '用户名',
+    'Nickname'          => '昵称',
+    'Password'          => '密码',
+    'Email'             => '邮箱',
+    'Mobile'            => '手机号',
+    'Avatar'            => '头像',
+    'Level'             => '等级',
+    'Gender'            => '性别',
+    'Birthday'          => '生日',
+    'Bio'               => '个人简介',
+    'Money'             => '余额',
+    'Score'             => '积分',
+    'Successions'       => '连续登录天数',
+    'Maxsuccessions'    => '最大连续登录天数',
+    'Prevtime'          => '上次登录时间',
+    'Logintime'         => '登录时间',
+    'Loginip'           => '登录IP',
+    'Loginfailure'      => '登录失败次数',
+    'Joinip'            => '注册IP',
+    'Jointime'          => '注册时间',
+    'Createtime'        => '创建时间',
+    'Updatetime'        => '更新时间',
+    'Token'             => 'Token',
+    'Status'            => '状态',
+    'Normal'            => '正常',
+    'Hidden'            => '隐藏',
+    'Locked'            => '锁定',
+    'Male'              => '男',
+    'Female'            => '女',
+    'Secrecy'           => '保密',
+    'Set to normal'     => '设为正常',
+    'Set to hidden'     => '设为隐藏',
+    'Set to locked'     => '设为锁定',
+];
+```
+
+---
+
+## 🔧 自定义配置规范
+
+### 字段类型映射配置
+```php
+// application/admin/command/Crud/stubs/config.stub
+return [
+    // 字段类型映射
+    'fieldtype' => [
+        'varchar'    => 'string',
+        'char'       => 'string', 
+        'text'       => 'text',
+        'mediumtext' => 'textarea',
+        'longtext'   => 'textarea',
+        'int'        => 'number',
+        'tinyint'    => 'number',
+        'bigint'     => 'number',
+        'float'      => 'number',
+        'double'     => 'number',
+        'decimal'    => 'number',
+        'date'       => 'date',
+        'time'       => 'time',
+        'datetime'   => 'datetime',
+        'timestamp'  => 'datetime',
+        'enum'       => 'select',
+        'set'        => 'checkbox',
+        'json'       => 'textarea',
+    ],
+    
+    // 表单验证规则映射
+    'validation' => [
+        'varchar'    => 'require|length:1,255',
+        'char'       => 'require|length:1,255',
+        'text'       => 'require',
+        'int'        => 'require|integer',
+        'tinyint'    => 'require|integer|between:0,255',
+        'decimal'    => 'require|float',
+        'email'      => 'require|email',
+        'mobile'     => 'require|mobile',
+        'url'        => 'require|url',
+        'date'       => 'require|date',
+        'datetime'   => 'require|dateFormat:Y-m-d H:i:s',
+    ],
+    
+    // 搜索类型映射
+    'searchtype' => [
+        'varchar'    => 'LIKE',
+        'char'       => 'LIKE', 
+        'text'       => 'LIKE',
+        'int'        => '=',
+        'tinyint'    => '=',
+        'decimal'    => 'BETWEEN',
+        'date'       => 'RANGE',
+        'datetime'   => 'RANGE',
+        'timestamp'  => 'RANGE',
+        'enum'       => '=',
+    ],
+];
+```
+
+### CRUD生成配置文件
+```php
+// config/crud.php
+return [
+    // 生成文件的模板路径
+    'template_path' => 'application/admin/command/Crud/stubs/',
+    
+    // 生成的控制器命名空间
+    'controller_namespace' => 'app\\admin\\controller',
+    
+    // 生成的模型命名空间  
+    'model_namespace' => 'app\\admin\\model',
+    
+    // 生成的验证器命名空间
+    'validate_namespace' => 'app\\admin\\validate',
+    
+    // 生成的视图路径
+    'view_path' => 'application/admin/view/',
+    
+    // 生成的JS路径
+    'js_path' => 'public/assets/js/backend/',
+    
+    // 生成的语言包路径
+    'lang_path' => 'application/admin/lang/zh-cn/',
+    
+    // 排除的字段（不生成到表单中）
+    'exclude_fields' => [
+        'id', 'createtime', 'updatetime', 'deletetime'
+    ],
+    
+    // 只读字段（只显示不可编辑）
+    'readonly_fields' => [
+        'createtime', 'updatetime'
+    ],
+    
+    // 隐藏字段（不在列表中显示）
+    'hidden_fields' => [
+        'password', 'salt', 'token', 'deletetime'
+    ],
+    
+    // 图片字段（自动生成图片上传组件）
+    'image_fields' => [
+        'avatar', 'image', 'pic', 'photo', 'thumb'
+    ],
+    
+    // 文件字段（自动生成文件上传组件）
+    'file_fields' => [
+        'file', 'attachment', 'document'
+    ],
+    
+    // 富文本字段（自动生成编辑器）
+    'editor_fields' => [
+        'content', 'description', 'detail', 'intro'
+    ],
+    
+    // 日期时间字段
+    'datetime_fields' => [
+        'createtime', 'updatetime', 'logintime', 'jointime'
+    ],
+];
+```
+
+---
+
+## 🎯 高级功能生成规范
+
+### 树形结构CRUD
+```bash
+# 生成树形结构CRUD
+php think crud -t category --tree=true
+```
+
+生成的控制器会包含树形结构相关方法：
+```php
+/**
+ * 查看
+ */
+public function index()
+{
+    if ($this->request->isAjax()) {
+        $list = $this->model->order('weigh desc,id desc')->select();
+        $tree = Tree::instance();
+        $tree->init(collection($list)->toArray(), 'pid');
+        $list = $tree->getTreeList($tree->getTreeArray(0), 'name');
+        
+        $result = array("total" => count($list), "rows" => $list);
+        return json($result);
+    }
+    return $this->view->fetch();
+}
+```
+
+### 关联表CRUD
+```bash
+# 生成带关联的CRUD
+php think crud -t user --relation=usergroup:group_id:id
+```
+
+生成的控制器会包含关联查询：
+```php
+public function index()
+{
+    $this->relationSearch = true;
+    
+    if ($this->request->isAjax()) {
+        list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+        
+        $list = $this->model
+                ->with(['usergroup'])
+                ->where($where)
+                ->order($sort, $order)
+                ->paginate($limit);
+                
+        foreach ($list as $row) {
+            $row->visible(['id','username','nickname','email','status']);
+            $row->visible(['usergroup']);
+            $row->getRelation('usergroup')->visible(['name']);
+        }
+        
+        $result = array("total" => $list->total(), "rows" => $list->items());
+        return json($result);
+    }
+    return $this->view->fetch();
+}
+```
+
+### 导入导出功能
+```php
+/**
+ * 导入
+ */
+public function import()
+{
+    $file = $this->request->request('file');
+    if (!$file) {
+        $this->error(__('Parameter %s can not be empty', 'file'));
+    }
+    $filePath = ROOT_PATH . DS . 'public' . DS . $file;
+    if (!is_file($filePath)) {
+        $this->error(__('No results were found'));
+    }
+    
+    $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+    if (!in_array($ext, ['csv', 'xls', 'xlsx'])) {
+        $this->error(__('Unknown data format'));
+    }
+    
+    // 实例化reader
+    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader(ucfirst($ext));
+    if (!$reader->canRead($filePath)) {
+        $this->error(__('Unknown data format'));
+    }
+    
+    // 载入文件
+    $insert = [];
+    try {
+        $spreadsheet = $reader->load($filePath);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $highestRow = $worksheet->getHighestRow();
+        
+        for ($row = 2; $row <= $highestRow; $row++) {
+            $data = [
+                'username'   => $worksheet->getCell('A' . $row)->getValue(),
+                'nickname'   => $worksheet->getCell('B' . $row)->getValue(),
+                'email'      => $worksheet->getCell('C' . $row)->getValue(),
+                'mobile'     => $worksheet->getCell('D' . $row)->getValue(),
+                'status'     => $worksheet->getCell('E' . $row)->getValue() ?: 'normal',
+                'createtime' => time(),
+                'updatetime' => time(),
+            ];
+            
+            if ($data['username']) {
+                $insert[] = $data;
+            }
+        }
+    } catch (Exception $e) {
+        $this->error($e->getMessage());
+    }
+    
+    if (!$insert) {
+        $this->error(__('No rows were inserted'));
+    }
+    
+    try {
+        $this->model->saveAll($insert);
+    } catch (Exception $e) {
+        $this->error($e->getMessage());
+    }
+    
+    $this->success(__('Import successful'));
+}
+```
+
+---
+
+## 📋 质量检查标准
+
+### 生成代码检查清单
+- [ ] 控制器继承正确的基类
+- [ ] 模型定义了正确的表名和字段
+- [ ] 视图模板结构完整
+- [ ] JavaScript模块定义正确
+- [ ] 语言包翻译完整
+- [ ] 字段验证规则合理
+- [ ] 搜索功能配置正确
+- [ ] 关联查询定义准确
+- [ ] 权限控制设置到位
+- [ ] 错误处理机制完善
+
+### 功能测试要点
+- [ ] 列表页面正常显示
+- [ ] 搜索功能正常工作
+- [ ] 添加功能正确执行
+- [ ] 编辑功能正确执行
+- [ ] 删除功能正确执行
+- [ ] 批量操作功能正常
+- [ ] 导入导出功能正常
+- [ ] 权限控制生效
+- [ ] 表单验证正确
+- [ ] 响应式布局正常
+
+### 性能优化检查
+- [ ] 数据库查询使用索引
+- [ ] 避免N+1查询问题
+- [ ] 分页查询限制数量
+- [ ] 图片懒加载实现
+- [ ] 静态资源压缩
+- [ ] 缓存策略设置
+- [ ] 前端资源优化
+- [ ] 数据库连接优化
+
+---
+
+**注意**: 使用CRUD生成器可以大大提高开发效率，但生成后应根据具体业务需求进行调整和优化。生成的代码应作为开发的起点而非终点。

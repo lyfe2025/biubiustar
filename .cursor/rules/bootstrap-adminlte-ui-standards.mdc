@@ -1,0 +1,1238 @@
+---
+alwaysApply: true
+priority: 2
+techStack: "Bootstrap + AdminLTE + RequireJS + Less"
+---
+
+# Bootstrap + AdminLTE 前端UI开发标准
+
+> **技术栈**: Bootstrap 3.4 + AdminLTE 2.4 + RequireJS + Less + jQuery
+> **适用场景**: 后台管理界面、响应式Web应用、数据表格展示
+
+---
+
+## 🎨 UI设计规范
+
+### 色彩规范
+```css
+/* 主色调 */
+:root {
+    --primary-color: #3c8dbc;      /* 主蓝色 */
+    --success-color: #00a65a;      /* 成功绿色 */
+    --info-color: #00c0ef;         /* 信息蓝色 */
+    --warning-color: #f39c12;      /* 警告橙色 */
+    --danger-color: #dd4b39;       /* 危险红色 */
+    --secondary-color: #6c757d;    /* 次要灰色 */
+}
+
+/* 背景色 */
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-success { background-color: var(--success-color) !important; }
+.bg-info { background-color: var(--info-color) !important; }
+.bg-warning { background-color: var(--warning-color) !important; }
+.bg-danger { background-color: var(--danger-color) !important; }
+
+/* 文字色 */
+.text-primary { color: var(--primary-color) !important; }
+.text-success { color: var(--success-color) !important; }
+.text-info { color: var(--info-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-danger { color: var(--danger-color) !important; }
+```
+
+### 字体规范
+```css
+/* 字体族 */
+body {
+    font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* 字体大小 */
+.font-size-xs { font-size: 12px; }
+.font-size-sm { font-size: 14px; }
+.font-size-md { font-size: 16px; }
+.font-size-lg { font-size: 18px; }
+.font-size-xl { font-size: 20px; }
+
+/* 字重 */
+.font-weight-light { font-weight: 300; }
+.font-weight-normal { font-weight: 400; }
+.font-weight-medium { font-weight: 500; }
+.font-weight-bold { font-weight: 700; }
+```
+
+### 间距规范
+```css
+/* 外边距 */
+.m-0 { margin: 0 !important; }
+.m-1 { margin: 5px !important; }
+.m-2 { margin: 10px !important; }
+.m-3 { margin: 15px !important; }
+.m-4 { margin: 20px !important; }
+.m-5 { margin: 25px !important; }
+
+/* 内边距 */
+.p-0 { padding: 0 !important; }
+.p-1 { padding: 5px !important; }
+.p-2 { padding: 10px !important; }
+.p-3 { padding: 15px !important; }
+.p-4 { padding: 20px !important; }
+.p-5 { padding: 25px !important; }
+```
+
+---
+
+## 🏗️ HTML结构规范
+
+### 页面基础结构
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{block name="title"}FastAdmin{/block}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- AdminLTE CSS -->
+    <link href="/assets/css/fastadmin.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="/assets/css/font-awesome.min.css" rel="stylesheet">
+    
+    {block name="css"}{/block}
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+        <!-- 头部导航 -->
+        {include file="common/header" /}
+        
+        <!-- 侧边栏 -->
+        {include file="common/sidebar" /}
+        
+        <!-- 内容区域 -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>{block name="page-title"}页面标题{/block}</h1>
+                <ol class="breadcrumb">
+                    {block name="breadcrumb"}{/block}
+                </ol>
+            </section>
+            
+            <section class="content">
+                {block name="content"}{/block}
+            </section>
+        </div>
+        
+        <!-- 页脚 -->
+        {include file="common/footer" /}
+    </div>
+    
+    <!-- jQuery -->
+    <script src="/assets/js/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <!-- AdminLTE JS -->
+    <script src="/assets/js/adminlte.min.js"></script>
+    <!-- RequireJS -->
+    <script src="/assets/js/require.min.js"></script>
+    
+    {block name="js"}{/block}
+</body>
+</html>
+```
+
+### 面板组件结构
+```html
+<!-- 基础面板 -->
+<div class="box box-primary">
+    <div class="box-header with-border">
+        <h3 class="box-title">面板标题</h3>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="box-body">
+        <!-- 面板内容 -->
+    </div>
+    <div class="box-footer">
+        <!-- 面板底部 -->
+    </div>
+</div>
+
+<!-- 带标签的面板 -->
+<div class="nav-tabs-custom">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab_1" data-toggle="tab">标签1</a></li>
+        <li><a href="#tab_2" data-toggle="tab">标签2</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab_1">
+            <!-- 标签1内容 -->
+        </div>
+        <div class="tab-pane" id="tab_2">
+            <!-- 标签2内容 -->
+        </div>
+    </div>
+</div>
+```
+
+### 表格组件结构
+```html
+<div class="box">
+    <div class="box-header">
+        <h3 class="box-title">数据列表</h3>
+    </div>
+    <div class="box-body">
+        <!-- 工具栏 -->
+        <div id="toolbar" class="toolbar">
+            <a href="javascript:;" class="btn btn-primary btn-refresh" title="刷新">
+                <i class="fa fa-refresh"></i>
+            </a>
+            <a href="javascript:;" class="btn btn-success btn-add" title="添加">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled" title="编辑">
+                <i class="fa fa-pencil"></i> 编辑
+            </a>
+            <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled" title="删除">
+                <i class="fa fa-trash"></i> 删除
+            </a>
+        </div>
+        
+        <!-- Bootstrap Table -->
+        <table id="table" class="table table-striped table-bordered table-hover" width="100%">
+            <!-- 表格内容由JavaScript动态生成 -->
+        </table>
+    </div>
+</div>
+```
+
+### 表单组件结构
+```html
+<form role="form" class="form-horizontal" method="post">
+    <div class="box-body">
+        <!-- 文本输入 -->
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">用户名:</label>
+            <div class="col-xs-12 col-sm-8">
+                <input type="text" class="form-control" name="username" placeholder="请输入用户名" required>
+            </div>
+        </div>
+        
+        <!-- 选择框 -->
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">状态:</label>
+            <div class="col-xs-12 col-sm-8">
+                <select class="form-control" name="status">
+                    <option value="normal">正常</option>
+                    <option value="hidden">隐藏</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- 单选框 -->
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">性别:</label>
+            <div class="col-xs-12 col-sm-8">
+                <div class="radio">
+                    <label><input type="radio" name="gender" value="1"> 男</label>
+                    <label><input type="radio" name="gender" value="2"> 女</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 复选框 -->
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">爱好:</label>
+            <div class="col-xs-12 col-sm-8">
+                <div class="checkbox">
+                    <label><input type="checkbox" name="hobby[]" value="reading"> 阅读</label>
+                    <label><input type="checkbox" name="hobby[]" value="music"> 音乐</label>
+                    <label><input type="checkbox" name="hobby[]" value="sport"> 运动</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 文件上传 -->
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">头像:</label>
+            <div class="col-xs-12 col-sm-8">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="avatar" readonly>
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-danger btn-choose">
+                            <i class="fa fa-upload"></i> 选择
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 富文本编辑器 -->
+        <div class="form-group">
+            <label class="control-label col-xs-12 col-sm-2">内容:</label>
+            <div class="col-xs-12 col-sm-8">
+                <textarea class="form-control editor" name="content" rows="8"></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <div class="box-footer">
+        <button type="submit" class="btn btn-success btn-embossed">确定</button>
+        <button type="button" class="btn btn-default btn-embossed" onclick="Layer.closeAll()">取消</button>
+    </div>
+</form>
+```
+
+---
+
+## 🎯 JavaScript模块化规范
+
+### RequireJS配置
+```javascript
+// require-config.js
+require.config({
+    baseUrl: '/assets/js/',
+    paths: {
+        'jquery': 'jquery.min',
+        'bootstrap': 'bootstrap.min',
+        'adminlte': 'adminlte.min',
+        'layer': 'layer/layer',
+        'toastr': 'toastr/toastr.min',
+        'moment': 'moment/moment.min',
+        'table': 'bootstrap-table/bootstrap-table.min',
+        'form': 'jquery-form/jquery.form.min',
+        'validate': 'nice-validator/nice-validator.min',
+        'upload': 'plupload/plupload.full.min',
+        'selectpage': 'selectpage/selectpage.min',
+        'citypicker': 'citypicker/city-picker.min',
+        'datetimepicker': 'bootstrap-datetimepicker/bootstrap-datetimepicker.min',
+        'dragsort': 'dragsort/jquery.dragsort.min',
+        'sortable': 'sortable/Sortable.min',
+        'addtabs': 'addtabs/jquery.addtabs.min',
+        'slimscroll': 'slimscroll/jquery.slimscroll.min',
+        'cookie': 'cookie/js.cookie.min',
+        'template': 'template/template-web',
+        'echarts': 'echarts/echarts.min',
+        'echarts-theme': 'echarts-theme'
+    },
+    shim: {
+        'bootstrap': {
+            deps: ['jquery'],
+            exports: 'jQuery.fn.popover'
+        },
+        'adminlte': {
+            deps: ['bootstrap'],
+            exports: 'AdminLTE'
+        },
+        'table': {
+            deps: ['bootstrap'],
+            exports: 'jQuery.fn.bootstrapTable'
+        },
+        'form': {
+            deps: ['jquery'],
+            exports: 'jQuery.fn.ajaxForm'
+        }
+    },
+    waitSeconds: 30,
+    charset: 'utf-8'
+});
+```
+
+### 控制器模块规范
+```javascript
+define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
+    
+    var Controller = {
+        // 列表页面
+        index: function () {
+            // 初始化表格参数配置
+            Table.api.init({
+                extend: {
+                    index_url: 'user/index' + location.search,
+                    add_url: 'user/add',
+                    edit_url: 'user/edit',
+                    del_url: 'user/del',
+                    multi_url: 'user/multi',
+                    import_url: 'user/import',
+                    table: 'user',
+                }
+            });
+
+            var table = $("#table");
+
+            // 初始化表格
+            table.bootstrapTable({
+                url: $.fn.bootstrapTable.defaults.extend.index_url,
+                pk: 'id',
+                sortName: 'id',
+                fixedColumns: true,
+                fixedRightNumber: 1,
+                columns: [
+                    [
+                        {checkbox: true},
+                        {field: 'id', title: __('Id'), sortable: true},
+                        {field: 'username', title: __('Username'), operate: 'LIKE %...%', placeholder: __('Fuzzy query')},
+                        {field: 'nickname', title: __('Nickname'), operate: 'LIKE'},
+                        {field: 'email', title: __('Email'), operate: 'LIKE'},
+                        {field: 'mobile', title: __('Mobile'), operate: 'LIKE'},
+                        {field: 'avatar', title: __('Avatar'), events: Table.api.events.image, formatter: Table.api.formatter.image},
+                        {field: 'status', title: __('Status'), searchList: {"normal":__('Normal'),"hidden":__('Hidden')}, formatter: Table.api.formatter.status},
+                        {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
+                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                    ]
+                ]
+            });
+
+            // 为表格绑定事件
+            Table.api.bindevent(table);
+            
+            // 自定义事件
+            Controller.api.bindevent();
+        },
+        
+        // 添加页面
+        add: function () {
+            Controller.api.bindevent();
+        },
+        
+        // 编辑页面
+        edit: function () {
+            Controller.api.bindevent();
+        },
+        
+        // API接口
+        api: {
+            bindevent: function () {
+                // 绑定表单验证和提交
+                Form.api.bindevent($("form[role=form]"));
+                
+                // 自定义事件绑定
+                $(document).on('click', '.btn-custom', function() {
+                    var id = $(this).data('id');
+                    Controller.api.customAction(id);
+                });
+            },
+            
+            // 自定义操作
+            customAction: function(id) {
+                Layer.confirm(__('Are you sure you want to perform this operation?'), {
+                    icon: 3,
+                    title: __('Warning'),
+                    shadeClose: false,
+                    btn: [__('OK'), __('Cancel')]
+                }, function (index) {
+                    Backend.api.ajax({
+                        url: "user/custom",
+                        data: {ids: id}
+                    }, function (data, ret) {
+                        Layer.close(index);
+                        Toastr.success(__('Operation completed'));
+                        table.bootstrapTable('refresh');
+                    });
+                });
+            }
+        }
+    };
+    
+    return Controller;
+});
+```
+
+### 公共工具模块
+```javascript
+// utils.js
+define(['jquery'], function ($) {
+    
+    var Utils = {
+        // 格式化时间
+        formatTime: function(timestamp, format) {
+            format = format || 'Y-m-d H:i:s';
+            var date = new Date(timestamp * 1000);
+            var o = {
+                "M+": date.getMonth() + 1,
+                "d+": date.getDate(),
+                "H+": date.getHours(),
+                "m+": date.getMinutes(),
+                "s+": date.getSeconds(),
+                "q+": Math.floor((date.getMonth() + 3) / 3),
+                "S": date.getMilliseconds()
+            };
+            if (/(y+)/.test(format)) {
+                format = format.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            }
+            for (var k in o) {
+                if (new RegExp("(" + k + ")").test(format)) {
+                    format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length));
+                }
+            }
+            return format;
+        },
+        
+        // 格式化文件大小
+        formatFileSize: function(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            var k = 1024;
+            var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            var i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+        
+        // 防抖函数
+        debounce: function(func, wait, immediate) {
+            var timeout;
+            return function() {
+                var context = this, args = arguments;
+                var later = function() {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        },
+        
+        // 节流函数
+        throttle: function(func, wait) {
+            var timeout;
+            return function() {
+                var context = this, args = arguments;
+                if (!timeout) {
+                    timeout = setTimeout(function() {
+                        timeout = null;
+                        func.apply(context, args);
+                    }, wait);
+                }
+            };
+        },
+        
+        // URL参数解析
+        getUrlParam: function(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        },
+        
+        // Cookie操作
+        cookie: {
+            set: function(name, value, days) {
+                var expires = "";
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+            },
+            get: function(name) {
+                var nameEQ = name + "=";
+                var ca = document.cookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            },
+            remove: function(name) {
+                document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+            }
+        }
+    };
+    
+    return Utils;
+});
+```
+
+---
+
+## 🎨 CSS/Less开发规范
+
+### Less变量定义
+```less
+// variables.less
+// 颜色变量
+@primary-color: #3c8dbc;
+@success-color: #00a65a;
+@info-color: #00c0ef;
+@warning-color: #f39c12;
+@danger-color: #dd4b39;
+@secondary-color: #6c757d;
+
+// 字体变量
+@font-family-sans-serif: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+@font-size-base: 14px;
+@line-height-base: 1.428571429;
+
+// 间距变量
+@padding-base-vertical: 6px;
+@padding-base-horizontal: 12px;
+@margin-base: 10px;
+
+// 边框变量
+@border-radius-base: 4px;
+@border-width-base: 1px;
+@border-color-base: #d2d6de;
+
+// 响应式断点
+@screen-xs-min: 480px;
+@screen-sm-min: 768px;
+@screen-md-min: 992px;
+@screen-lg-min: 1200px;
+```
+
+### Less混合器定义
+```less
+// mixins.less
+// 清除浮动
+.clearfix() {
+    &:before,
+    &:after {
+        content: " ";
+        display: table;
+    }
+    &:after {
+        clear: both;
+    }
+}
+
+// 按钮样式
+.button-variant(@color; @background; @border) {
+    color: @color;
+    background-color: @background;
+    border-color: @border;
+    
+    &:hover,
+    &:focus,
+    &.focus {
+        color: @color;
+        background-color: darken(@background, 10%);
+        border-color: darken(@border, 25%);
+    }
+    
+    &:active,
+    &.active {
+        color: @color;
+        background-color: darken(@background, 10%);
+        border-color: darken(@border, 25%);
+    }
+}
+
+// 响应式工具
+.responsive(@rules) {
+    @media (max-width: @screen-sm-min) {
+        @rules();
+    }
+}
+
+// 渐变背景
+.gradient(@start-color; @end-color) {
+    background: @start-color;
+    background: -webkit-linear-gradient(@start-color, @end-color);
+    background: linear-gradient(@start-color, @end-color);
+}
+
+// 阴影效果
+.box-shadow(@shadow) {
+    -webkit-box-shadow: @shadow;
+    -moz-box-shadow: @shadow;
+    box-shadow: @shadow;
+}
+
+// 过渡动画
+.transition(@transition) {
+    -webkit-transition: @transition;
+    -moz-transition: @transition;
+    -ms-transition: @transition;
+    -o-transition: @transition;
+    transition: @transition;
+}
+```
+
+### 组件样式规范
+```less
+// components.less
+// 自定义按钮
+.btn-custom {
+    .button-variant(#fff; @primary-color; @primary-color);
+    .transition(all 0.3s ease);
+    
+    &.btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    &.btn-lg {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+}
+
+// 卡片组件
+.card {
+    background: #fff;
+    border: @border-width-base solid @border-color-base;
+    border-radius: @border-radius-base;
+    .box-shadow(0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24));
+    
+    .card-header {
+        padding: @padding-base-vertical @padding-base-horizontal;
+        border-bottom: @border-width-base solid @border-color-base;
+        background-color: #f4f4f4;
+        
+        .card-title {
+            margin: 0;
+            font-size: @font-size-base + 2px;
+            font-weight: 500;
+        }
+    }
+    
+    .card-body {
+        padding: @padding-base-vertical @padding-base-horizontal;
+    }
+    
+    .card-footer {
+        padding: @padding-base-vertical @padding-base-horizontal;
+        border-top: @border-width-base solid @border-color-base;
+        background-color: #f4f4f4;
+    }
+}
+
+// 表格增强样式
+.table-enhanced {
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #f9f9f9;
+    }
+    
+    .table-hover > tbody > tr:hover {
+        background-color: #f5f5f5;
+        .transition(background-color 0.3s ease);
+    }
+    
+    th {
+        background-color: #f4f4f4;
+        font-weight: 600;
+        border-bottom: 2px solid @border-color-base;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+        
+        &.status-normal {
+            background-color: @success-color;
+            color: #fff;
+        }
+        
+        &.status-hidden {
+            background-color: @danger-color;
+            color: #fff;
+        }
+    }
+}
+
+// 响应式表格
+@media (max-width: @screen-sm-min) {
+    .table-responsive-stack {
+        tr {
+            display: block;
+            border: 1px solid @border-color-base;
+            margin-bottom: 10px;
+        }
+        
+        td {
+            display: block;
+            border: none;
+            border-bottom: 1px solid @border-color-base;
+            padding-left: 50%;
+            position: relative;
+            
+            &:before {
+                content: attr(data-label) ":";
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                font-weight: bold;
+            }
+        }
+    }
+}
+```
+
+---
+
+## 📱 响应式设计规范
+
+### 断点定义
+```css
+/* 超小屏幕 (手机, 小于768px) */
+@media (max-width: 767px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .table-responsive {
+        border: none;
+    }
+    
+    .btn-group-vertical > .btn {
+        margin-bottom: 5px;
+    }
+}
+
+/* 小屏幕 (平板, 768px 到 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .sidebar-mini .main-sidebar {
+        width: 50px;
+    }
+    
+    .content-wrapper {
+        margin-left: 50px;
+    }
+}
+
+/* 中等屏幕 (桌面显示器, 992px 到 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .container {
+        max-width: 970px;
+    }
+}
+
+/* 大屏幕 (大桌面显示器, 1200px 及以上) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1170px;
+    }
+}
+```
+
+### 移动端优化
+```css
+/* 移动端基础样式 */
+@media (max-width: 767px) {
+    /* 隐藏桌面端元素 */
+    .hidden-xs {
+        display: none !important;
+    }
+    
+    /* 按钮组垂直排列 */
+    .btn-group-mobile {
+        .btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 5px;
+            
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+    
+    /* 表单优化 */
+    .form-horizontal {
+        .control-label {
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+    }
+    
+    /* 模态框优化 */
+    .modal-dialog {
+        margin: 10px;
+        width: auto;
+    }
+    
+    /* 导航优化 */
+    .navbar-nav {
+        margin: 0;
+        
+        > li > a {
+            padding: 10px 15px;
+        }
+    }
+}
+```
+
+---
+
+## 🎭 组件开发规范
+
+### 数据表格组件
+```javascript
+// table-component.js
+define(['jquery', 'bootstrap', 'table'], function ($, undefined, Table) {
+    
+    var TableComponent = {
+        // 初始化表格
+        init: function(selector, options) {
+            var defaults = {
+                url: '',
+                pk: 'id',
+                sortName: 'id',
+                sortOrder: 'desc',
+                pageSize: 10,
+                pageList: [10, 25, 50, 100],
+                search: true,
+                showRefresh: true,
+                showColumns: true,
+                showToggle: true,
+                showExport: true,
+                clickToSelect: true,
+                singleSelect: false,
+                toolbar: '#toolbar',
+                maintainSelected: true,
+                fixedColumns: true,
+                fixedRightNumber: 1,
+                queryParams: function(params) {
+                    return {
+                        offset: params.offset,
+                        limit: params.limit,
+                        search: params.search,
+                        sort: params.sort,
+                        order: params.order
+                    };
+                },
+                responseHandler: function(res) {
+                    return {
+                        total: res.total,
+                        rows: res.rows
+                    };
+                }
+            };
+            
+            var settings = $.extend({}, defaults, options);
+            
+            return $(selector).bootstrapTable(settings);
+        },
+        
+        // 刷新表格
+        refresh: function(selector) {
+            $(selector).bootstrapTable('refresh');
+        },
+        
+        // 获取选中行
+        getSelections: function(selector) {
+            return $(selector).bootstrapTable('getSelections');
+        },
+        
+        // 删除行
+        remove: function(selector, id) {
+            $(selector).bootstrapTable('remove', {
+                field: 'id',
+                values: [id]
+            });
+        },
+        
+        // 更新行
+        updateRow: function(selector, index, row) {
+            $(selector).bootstrapTable('updateRow', {
+                index: index,
+                row: row
+            });
+        }
+    };
+    
+    return TableComponent;
+});
+```
+
+### 表单验证组件
+```javascript
+// form-validator.js
+define(['jquery'], function ($) {
+    
+    var FormValidator = {
+        // 初始化验证
+        init: function(selector, rules, messages) {
+            var $form = $(selector);
+            
+            $form.on('submit', function(e) {
+                e.preventDefault();
+                
+                if (FormValidator.validate($form, rules, messages)) {
+                    FormValidator.submit($form);
+                }
+            });
+        },
+        
+        // 验证表单
+        validate: function($form, rules, messages) {
+            var isValid = true;
+            
+            // 清除之前的错误信息
+            $form.find('.has-error').removeClass('has-error');
+            $form.find('.help-block').remove();
+            
+            $.each(rules, function(field, rule) {
+                var $field = $form.find('[name="' + field + '"]');
+                var value = $field.val();
+                
+                // 必填验证
+                if (rule.required && !value) {
+                    FormValidator.showError($field, messages[field + '.required'] || '此字段不能为空');
+                    isValid = false;
+                    return;
+                }
+                
+                // 长度验证
+                if (rule.minlength && value.length < rule.minlength) {
+                    FormValidator.showError($field, messages[field + '.minlength'] || '长度不能少于' + rule.minlength + '个字符');
+                    isValid = false;
+                    return;
+                }
+                
+                if (rule.maxlength && value.length > rule.maxlength) {
+                    FormValidator.showError($field, messages[field + '.maxlength'] || '长度不能超过' + rule.maxlength + '个字符');
+                    isValid = false;
+                    return;
+                }
+                
+                // 邮箱验证
+                if (rule.email && value && !FormValidator.isEmail(value)) {
+                    FormValidator.showError($field, messages[field + '.email'] || '邮箱格式不正确');
+                    isValid = false;
+                    return;
+                }
+                
+                // 手机验证
+                if (rule.mobile && value && !FormValidator.isMobile(value)) {
+                    FormValidator.showError($field, messages[field + '.mobile'] || '手机号格式不正确');
+                    isValid = false;
+                    return;
+                }
+            });
+            
+            return isValid;
+        },
+        
+        // 显示错误信息
+        showError: function($field, message) {
+            var $group = $field.closest('.form-group');
+            $group.addClass('has-error');
+            $group.append('<span class="help-block">' + message + '</span>');
+        },
+        
+        // 提交表单
+        submit: function($form) {
+            var formData = new FormData($form[0]);
+            
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.code === 1) {
+                        Toastr.success(response.msg);
+                        setTimeout(function() {
+                            parent.location.reload();
+                        }, 1000);
+                    } else {
+                        Toastr.error(response.msg);
+                    }
+                },
+                error: function() {
+                    Toastr.error('网络错误，请重试');
+                }
+            });
+        },
+        
+        // 邮箱格式验证
+        isEmail: function(email) {
+            var pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return pattern.test(email);
+        },
+        
+        // 手机号格式验证
+        isMobile: function(mobile) {
+            var pattern = /^1[3-9]\d{9}$/;
+            return pattern.test(mobile);
+        }
+    };
+    
+    return FormValidator;
+});
+```
+
+---
+
+## 🔧 性能优化规范
+
+### 资源加载优化
+```html
+<!-- 关键CSS内联 -->
+<style>
+    /* 首屏关键样式 */
+    .wrapper { min-height: 100vh; }
+    .content-wrapper { margin-left: 230px; }
+</style>
+
+<!-- 非关键CSS异步加载 -->
+<link rel="preload" href="/assets/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" href="/assets/css/adminlte.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+<!-- JavaScript延迟加载 -->
+<script>
+    // 延迟加载非关键JavaScript
+    window.addEventListener('load', function() {
+        var scripts = [
+            '/assets/js/bootstrap.min.js',
+            '/assets/js/adminlte.min.js'
+        ];
+        
+        scripts.forEach(function(src) {
+            var script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            document.body.appendChild(script);
+        });
+    });
+</script>
+```
+
+### 图片优化
+```css
+/* 响应式图片 */
+.img-responsive {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 懒加载图片 */
+.img-lazy {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.img-lazy.loaded {
+    opacity: 1;
+}
+
+/* WebP格式支持检测 */
+.webp .img-container {
+    background-image: url('image.webp');
+}
+
+.no-webp .img-container {
+    background-image: url('image.jpg');
+}
+```
+
+### JavaScript性能优化
+```javascript
+// 防抖和节流
+var Utils = {
+    debounce: function(func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    },
+    
+    throttle: function(func, wait) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            if (!timeout) {
+                timeout = setTimeout(function() {
+                    timeout = null;
+                    func.apply(context, args);
+                }, wait);
+            }
+        };
+    }
+};
+
+// 事件委托
+$(document).on('click', '.btn-action', Utils.throttle(function() {
+    // 处理点击事件
+}, 300));
+
+// 虚拟滚动（大数据量表格）
+var VirtualScroll = {
+    init: function(container, data, itemHeight, visibleCount) {
+        var scrollTop = 0;
+        var startIndex = 0;
+        var endIndex = Math.min(visibleCount, data.length);
+        
+        $(container).on('scroll', Utils.throttle(function() {
+            scrollTop = $(this).scrollTop();
+            startIndex = Math.floor(scrollTop / itemHeight);
+            endIndex = Math.min(startIndex + visibleCount, data.length);
+            
+            VirtualScroll.render(container, data, startIndex, endIndex, itemHeight);
+        }, 16));
+    },
+    
+    render: function(container, data, startIndex, endIndex, itemHeight) {
+        var html = '';
+        for (var i = startIndex; i < endIndex; i++) {
+            html += '<div class="virtual-item" style="height:' + itemHeight + 'px">' + data[i] + '</div>';
+        }
+        $(container).find('.virtual-content').html(html);
+    }
+};
+```
+
+---
+
+## 📋 代码质量检查
+
+### HTML规范检查
+- [ ] 使用语义化标签
+- [ ] 正确的标签嵌套
+- [ ] 必要的alt属性
+- [ ] 合理的标题层级
+- [ ] 无内联样式和脚本
+- [ ] 正确的表单标签
+
+### CSS规范检查
+- [ ] 使用类选择器而非ID选择器
+- [ ] 避免!important的使用
+- [ ] 合理的选择器优先级
+- [ ] 响应式设计实现
+- [ ] 浏览器前缀处理
+- [ ] 代码压缩和优化
+
+### JavaScript规范检查
+- [ ] 使用严格模式
+- [ ] 避免全局变量污染
+- [ ] 正确的错误处理
+- [ ] 内存泄漏检查
+- [ ] 事件解绑处理
+- [ ] 模块化开发
+
+### 性能检查要点
+- [ ] 资源文件压缩
+- [ ] 图片格式优化
+- [ ] 缓存策略设置
+- [ ] 减少HTTP请求
+- [ ] 代码分割和懒加载
+- [ ] 关键渲染路径优化
+
+---
+
+**注意**: 本规范基于Bootstrap 3.4 + AdminLTE 2.4的最佳实践，开发时应严格遵循以确保界面一致性和用户体验。

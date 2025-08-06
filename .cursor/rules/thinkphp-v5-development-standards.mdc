@@ -1,0 +1,1117 @@
+---
+alwaysApply: true
+priority: 1
+techStack: "ThinkPHP 5.1"
+---
+
+# ThinkPHP 5.1 开发标准规范
+
+> **框架版本**: ThinkPHP 5.1.x
+> **适用场景**: MVC架构开发、RESTful API、命令行应用
+
+---
+
+## 🏗️ ThinkPHP架构规范
+
+### 应用结构标准
+```
+application/
+├── common/                # 公共模块
+│   ├── controller/       # 公共控制器基类
+│   ├── model/           # 公共模型
+│   ├── library/         # 公共类库
+│   ├── behavior/        # 行为类
+│   └── exception/       # 异常类
+├── [module]/            # 具体业务模块
+│   ├── controller/      # 控制器
+│   ├── model/          # 模型
+│   ├── view/           # 视图
+│   ├── validate/       # 验证器
+│   ├── middleware/     # 中间件
+│   └── config/         # 模块配置
+└── command/            # 命令行
+```
+
+### 命名空间规范
+```php
+// ✅ 正确的命名空间
+namespace app\admin\controller;      // 控制器
+namespace app\admin\model;           // 模型
+namespace app\common\library;        // 公共类库
+namespace app\api\validate;          // 验证器
+
+// ❌ 错误的命名空间
+namespace App\Admin\Controller;      // 大写开头
+namespace app\admin;                 // 缺少具体分类
+```
+
+---
+
+## 🎯 控制器开发规范
+
+### 基础控制器结构
+```php
+<?php
+namespace app\admin\controller;
+
+use think\Controller;
+use think\Request;
+use think\Db;
+use think\Exception;
+use think\exception\ValidateException;
+
+/**
+ * 基础控制器类
+ */
+class BaseController extends Controller
+{
+    /**
+     * Request实例
+     * @var \think\Request
+     */
+    protected $request;
+    
+    /**
+     * 当前模型实例
+     */
+    protected $model;
+    
+    /**
+     * 初始化方法
+     */
+    protected function initialize()
+    {
+        $this->request = Request::instance();
+        
+        // 跨域处理
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With');
+        header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE');
+    }
+    
+    /**
+     * 成功响应
+     */
+    protected function success($msg = 'success', $data = [], $code = 200)
+    {
+        return json([
+            'code' => $code,
+            'msg' => $msg,
+            'data' => $data,
+            'time' => time()
+        ]);
+    }
+    
+    /**
+     * 错误响应
+     */
+    protected function error($msg = 'error', $data = [], $code = 400)
+    {
+        return json([
+            'code' => $code,
+            'msg' => $msg,
+            'data' => $data,
+            'time' => time()
+        ]);
+    }
+}
+```
+
+### RESTful控制器规范
+```php
+<?php
+namespace app\api\controller;
+
+use app\common\controller\Api;
+use app\common\model\User as UserModel;
+use think\exception\ValidateException;
+
+/**
+ * RESTful用户控制器
+ */
+class User extends Api
+{
+    protected $model;
+    
+    protected function initialize()
+    {
+        parent::initialize();
+        $this->model = new UserModel();
+    }
+    
+    /**
+     * 获取用户列表
+     * GET /api/user
+     */
+    public function index()
+    {
+        $page = $this->request->param('page', 1);
+        $limit = $this->request->param('limit', 10);
+        
+        $users = $this->model
+            ->field('id,username,nickname,email,status,create_time')
+            ->where('status', 'normal')
+            ->page($page, $limit)
+            ->order('id desc')
+            ->select();
+            
+        $total = $this->model->where('status', 'normal')->count();
+        
+        return $this->success('获取成功', [
+            'list' => $users,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit
+        ]);
+    }
+    
+    /**
+     * 获取单个用户
+     * GET /api/user/:id
+     */
+    public function read($id)
+    {
+        $user = $this->model
+            ->field('id,username,nickname,email,avatar,status,create_time')
+            ->find($id);
+            
+        if (!$user) {
+            return $this->error('用户不存在', [], 404);
+        }
+        
+        return $this->success('获取成功', $user);
+    }
+    
+    /**
+     * 创建用户
+     * POST /api/user
+     */
+    public function save()
+    {
+        $data = $this->request->post();
+        
+        // 验证数据
+        $validate = new \app\api\validate\User();
+        if (!$validate->scene('create')->check($data)) {
+            return $this->error($validate->getError());
+        }
+        
+        Db::startTrans();
+        try {
+            // 密码加密
+            if (isset($data['password'])) {
+                $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            }
+            
+            $user = $this->model->create($data);
+            Db::commit();
+            
+            return $this->success('创建成功', ['id' => $user->id]);
+            
+        } catch (\Exception $e) {
+            Db::rollback();
+            return $this->error('创建失败：' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * 更新用户
+     * PUT /api/user/:id
+     */
+    public function update($id)
+    {
+        $user = $this->model->find($id);
+        if (!$user) {
+            return $this->error('用户不存在', [], 404);
+        }
+        
+        $data = $this->request->put();
+        
+        // 验证数据
+        $validate = new \app\api\validate\User();
+        if (!$validate->scene('update')->check($data)) {
+            return $this->error($validate->getError());
+        }
+        
+        Db::startTrans();
+        try {
+            // 排除敏感字段
+            unset($data['password'], $data['id']);
+            
+            $user->save($data);
+            Db::commit();
+            
+            return $this->success('更新成功');
+            
+        } catch (\Exception $e) {
+            Db::rollback();
+            return $this->error('更新失败：' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * 删除用户
+     * DELETE /api/user/:id
+     */
+    public function delete($id)
+    {
+        $user = $this->model->find($id);
+        if (!$user) {
+            return $this->error('用户不存在', [], 404);
+        }
+        
+        Db::startTrans();
+        try {
+            // 软删除
+            $user->delete();
+            Db::commit();
+            
+            return $this->success('删除成功');
+            
+        } catch (\Exception $e) {
+            Db::rollback();
+            return $this->error('删除失败：' . $e->getMessage());
+        }
+    }
+}
+```
+
+---
+
+## 🗃️ 模型开发规范
+
+### 模型基础结构
+```php
+<?php
+namespace app\common\model;
+
+use think\Model;
+use think\model\concern\SoftDelete;
+
+/**
+ * 用户模型
+ */
+class User extends Model
+{
+    use SoftDelete;
+    
+    // 设置当前模型对应的完整数据表名称
+    protected $table = 'fa_user';
+    
+    // 设置主键
+    protected $pk = 'id';
+    
+    // 设置字段信息
+    protected $schema = [
+        'id'          => 'int',
+        'username'    => 'string',
+        'password'    => 'string',
+        'nickname'    => 'string',
+        'email'       => 'string',
+        'mobile'      => 'string',
+        'avatar'      => 'string',
+        'status'      => 'string',
+        'create_time' => 'int',
+        'update_time' => 'int',
+        'delete_time' => 'int',
+    ];
+    
+    // 自动时间戳
+    protected $autoWriteTimestamp = 'int';
+    protected $createTime = 'create_time';
+    protected $updateTime = 'update_time';
+    protected $deleteTime = 'delete_time';
+    
+    // 软删除字段默认值
+    protected $defaultSoftDelete = 0;
+    
+    // 追加属性
+    protected $append = [
+        'status_text',
+        'avatar_url'
+    ];
+    
+    // 隐藏属性
+    protected $hidden = [
+        'password',
+        'delete_time'
+    ];
+    
+    // 类型转换
+    protected $type = [
+        'create_time' => 'timestamp:Y-m-d H:i:s',
+        'update_time' => 'timestamp:Y-m-d H:i:s',
+    ];
+    
+    /**
+     * 状态获取器
+     */
+    public function getStatusTextAttr($value, $data)
+    {
+        $status = $data['status'] ?? '';
+        $statusArray = [
+            'normal' => '正常',
+            'hidden' => '禁用'
+        ];
+        return $statusArray[$status] ?? '';
+    }
+    
+    /**
+     * 头像获取器
+     */
+    public function getAvatarUrlAttr($value, $data)
+    {
+        $avatar = $data['avatar'] ?? '';
+        return $avatar ? cdnurl($avatar, true) : '/static/img/default-avatar.png';
+    }
+    
+    /**
+     * 密码修改器
+     */
+    public function setPasswordAttr($value)
+    {
+        return password_hash($value, PASSWORD_DEFAULT);
+    }
+    
+    /**
+     * 搜索器：用户名
+     */
+    public function searchUsernameAttr($query, $value)
+    {
+        $query->where('username', 'like', '%' . $value . '%');
+    }
+    
+    /**
+     * 搜索器：状态
+     */
+    public function searchStatusAttr($query, $value)
+    {
+        $query->where('status', '=', $value);
+    }
+    
+    /**
+     * 关联用户组
+     */
+    public function userGroup()
+    {
+        return $this->belongsTo(UserGroup::class, 'group_id');
+    }
+    
+    /**
+     * 关联角色（多对多）
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_role', 'role_id', 'user_id');
+    }
+    
+    /**
+     * 验证用户密码
+     */
+    public function checkPassword($password)
+    {
+        return password_verify($password, $this->password);
+    }
+    
+    /**
+     * 获取用户权限
+     */
+    public function getPermissions()
+    {
+        return $this->roles()
+            ->with('permissions')
+            ->select()
+            ->toArray();
+    }
+}
+```
+
+### 关联查询规范
+```php
+// ✅ 预加载关联避免N+1查询
+$users = User::with(['userGroup', 'roles'])
+    ->where('status', 'normal')
+    ->select();
+
+// ✅ 关联查询条件
+$users = User::hasWhere('userGroup', ['status' => 'normal'])
+    ->select();
+
+// ✅ 关联统计
+$users = User::withCount('roles')
+    ->select();
+
+// ❌ 避免在循环中查询关联
+foreach ($users as $user) {
+    echo $user->userGroup->name; // N+1查询问题
+}
+```
+
+---
+
+## ✅ 验证器开发规范
+
+### 验证器结构
+```php
+<?php
+namespace app\api\validate;
+
+use think\Validate;
+
+/**
+ * 用户验证器
+ */
+class User extends Validate
+{
+    /**
+     * 验证规则
+     */
+    protected $rule = [
+        'username'  => 'require|length:3,30|alphaNum|unique:user',
+        'password'  => 'require|length:6,30|confirm',
+        'nickname'  => 'require|length:2,30|chs',
+        'email'     => 'require|email|unique:user',
+        'mobile'    => 'require|mobile|unique:user',
+        'status'    => 'require|in:normal,hidden',
+        'group_id'  => 'require|integer|gt:0',
+        'avatar'    => 'image|fileSize:2048000|fileExt:jpg,png,gif',
+    ];
+    
+    /**
+     * 验证消息
+     */
+    protected $message = [
+        'username.require'   => '用户名不能为空',
+        'username.length'    => '用户名长度为3-30个字符',
+        'username.alphaNum'  => '用户名只能是字母和数字',
+        'username.unique'    => '用户名已存在',
+        'password.require'   => '密码不能为空',
+        'password.length'    => '密码长度为6-30个字符',
+        'password.confirm'   => '两次密码输入不一致',
+        'nickname.require'   => '昵称不能为空',
+        'nickname.chs'       => '昵称只能是中文',
+        'email.email'        => '邮箱格式不正确',
+        'email.unique'       => '邮箱已存在',
+        'mobile.mobile'      => '手机号格式不正确',
+        'mobile.unique'      => '手机号已存在',
+        'status.in'          => '状态值不正确',
+        'group_id.gt'        => '用户组ID必须大于0',
+        'avatar.image'       => '头像必须是图片',
+        'avatar.fileSize'    => '头像大小不能超过2M',
+        'avatar.fileExt'     => '头像只能是jpg,png,gif格式',
+    ];
+    
+    /**
+     * 验证场景
+     */
+    protected $scene = [
+        'create' => ['username', 'password', 'nickname', 'email', 'mobile', 'status', 'group_id'],
+        'update' => ['nickname', 'email', 'mobile', 'status', 'group_id'],
+        'login'  => ['username', 'password'],
+        'register' => ['username', 'password', 'nickname', 'email'],
+        'change_password' => ['password'],
+        'upload_avatar' => ['avatar'],
+    ];
+    
+    /**
+     * 自定义验证规则：检查用户名是否存在（更新时排除自己）
+     */
+    protected function checkUsernameExists($value, $rule, $data = [])
+    {
+        $user_id = isset($data['id']) ? $data['id'] : 0;
+        $count = \app\common\model\User::where('username', $value)
+            ->where('id', '<>', $user_id)
+            ->count();
+            
+        return $count == 0 ? true : '用户名已存在';
+    }
+    
+    /**
+     * 自定义验证规则：检查旧密码是否正确
+     */
+    protected function checkOldPassword($value, $rule, $data = [])
+    {
+        if (!isset($data['user_id'])) {
+            return '用户ID不能为空';
+        }
+        
+        $user = \app\common\model\User::find($data['user_id']);
+        if (!$user) {
+            return '用户不存在';
+        }
+        
+        return password_verify($value, $user->password) ? true : '原密码不正确';
+    }
+}
+```
+
+---
+
+## 🔄 中间件开发规范
+
+### 中间件结构
+```php
+<?php
+namespace app\http\middleware;
+
+use think\Request;
+use think\Response;
+
+/**
+ * 认证中间件
+ */
+class Auth
+{
+    /**
+     * 处理请求
+     */
+    public function handle($request, \Closure $next)
+    {
+        // 获取token
+        $token = $request->header('Authorization');
+        
+        if (empty($token)) {
+            return json(['code' => 401, 'msg' => '请先登录']);
+        }
+        
+        // 验证token
+        $user = $this->validateToken($token);
+        if (!$user) {
+            return json(['code' => 401, 'msg' => 'Token无效']);
+        }
+        
+        // 将用户信息注入到请求中
+        $request->user = $user;
+        
+        return $next($request);
+    }
+    
+    /**
+     * 验证Token
+     */
+    private function validateToken($token)
+    {
+        // 移除Bearer前缀
+        $token = str_replace('Bearer ', '', $token);
+        
+        try {
+            // 解析JWT token
+            $payload = \Firebase\JWT\JWT::decode($token, config('jwt.key'), ['HS256']);
+            
+            // 查找用户
+            $user = \app\common\model\User::find($payload->user_id);
+            
+            return $user && $user->status === 'normal' ? $user : null;
+            
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}
+```
+
+### 跨域中间件
+```php
+<?php
+namespace app\http\middleware;
+
+/**
+ * 跨域中间件
+ */
+class Cors
+{
+    public function handle($request, \Closure $next)
+    {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With');
+        header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+        
+        // 处理预检请求
+        if ($request->method() == 'OPTIONS') {
+            return response('', 200);
+        }
+        
+        return $next($request);
+    }
+}
+```
+
+---
+
+## 📊 数据库操作规范
+
+### 查询构造器使用
+```php
+// ✅ 基础查询
+$users = Db::name('user')
+    ->field('id,username,nickname,email')
+    ->where('status', 'normal')
+    ->where('create_time', '>', strtotime('-30 days'))
+    ->order('id desc')
+    ->limit(10)
+    ->select();
+
+// ✅ 复杂查询
+$users = Db::name('user')
+    ->alias('u')
+    ->join('user_group g', 'u.group_id = g.id')
+    ->field('u.id,u.username,u.nickname,g.name as group_name')
+    ->where('u.status', 'normal')
+    ->whereIn('g.id', [1, 2, 3])
+    ->select();
+
+// ✅ 聚合查询
+$stats = Db::name('user')
+    ->field('status, COUNT(*) as count')
+    ->group('status')
+    ->select();
+
+// ✅ 子查询
+$subQuery = Db::name('user_role')
+    ->field('user_id')
+    ->where('role_id', 1)
+    ->buildSql();
+    
+$users = Db::name('user')
+    ->where('id', 'in', $subQuery)
+    ->select();
+```
+
+### 事务处理规范
+```php
+// ✅ 自动事务
+Db::transaction(function () {
+    // 创建用户
+    $userId = Db::name('user')->insertGetId([
+        'username' => 'test',
+        'password' => password_hash('123456', PASSWORD_DEFAULT),
+        'create_time' => time()
+    ]);
+    
+    // 分配角色
+    Db::name('user_role')->insert([
+        'user_id' => $userId,
+        'role_id' => 2,
+        'create_time' => time()
+    ]);
+});
+
+// ✅ 手动事务
+Db::startTrans();
+try {
+    // 业务逻辑
+    $result1 = Db::name('user')->insert($userData);
+    $result2 = Db::name('user_profile')->insert($profileData);
+    
+    if ($result1 && $result2) {
+        Db::commit();
+        return true;
+    } else {
+        Db::rollback();
+        return false;
+    }
+} catch (\Exception $e) {
+    Db::rollback();
+    throw $e;
+}
+```
+
+---
+
+## 🎨 视图和模板规范
+
+### 模板继承
+```html
+<!-- layout/base.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{block name="title"}默认标题{/block}</title>
+    {block name="css"}{/block}
+</head>
+<body>
+    <div class="container">
+        {block name="content"}{/block}
+    </div>
+    {block name="js"}{/block}
+</body>
+</html>
+
+<!-- user/index.html -->
+{extend name="layout/base" /}
+
+{block name="title"}用户列表{/block}
+
+{block name="css"}
+<style>
+    .user-list { margin: 20px 0; }
+</style>
+{/block}
+
+{block name="content"}
+<div class="user-list">
+    {volist name="users" id="user"}
+    <div class="user-item">
+        <h3>{$user.nickname}</h3>
+        <p>{$user.email}</p>
+    </div>
+    {/volist}
+</div>
+{/block}
+
+{block name="js"}
+<script>
+    console.log('用户列表页面');
+</script>
+{/block}
+```
+
+### 模板标签使用
+```html
+<!-- 条件判断 -->
+{if condition="$user.status eq 'normal'"}
+    <span class="label label-success">正常</span>
+{elseif condition="$user.status eq 'hidden'"}
+    <span class="label label-danger">禁用</span>
+{else/}
+    <span class="label label-default">未知</span>
+{/if}
+
+<!-- 循环输出 -->
+{volist name="users" id="user" key="key"}
+    <tr data-id="{$user.id}">
+        <td>{$key}</td>
+        <td>{$user.username}</td>
+        <td>{$user.nickname|default='未设置'}</td>
+        <td>{$user.create_time|date='Y-m-d H:i:s'}</td>
+    </tr>
+{empty/}
+    <tr><td colspan="4">暂无数据</td></tr>
+{/volist}
+
+<!-- 变量输出 -->
+{$user.username}                    <!-- 普通输出 -->
+{$user.username|upper}              <!-- 使用函数 -->
+{$user.content|raw}                 <!-- 原样输出 -->
+{$user.nickname|default='游客'}      <!-- 默认值 -->
+```
+
+---
+
+## 🛠️ 命令行开发规范
+
+### 命令类结构
+```php
+<?php
+namespace app\command;
+
+use think\console\Command;
+use think\console\Input;
+use think\console\Output;
+use app\common\model\User;
+
+/**
+ * 用户相关命令
+ */
+class UserCommand extends Command
+{
+    protected function configure()
+    {
+        $this->setName('user:create')
+            ->setDescription('创建用户')
+            ->addArgument('username', null, '用户名')
+            ->addArgument('password', null, '密码')
+            ->addOption('email', 'e', null, '邮箱')
+            ->addOption('nickname', 'n', null, '昵称');
+    }
+    
+    protected function execute(Input $input, Output $output)
+    {
+        $username = $input->getArgument('username');
+        $password = $input->getArgument('password');
+        $email = $input->getOption('email');
+        $nickname = $input->getOption('nickname');
+        
+        if (empty($username) || empty($password)) {
+            $output->error('用户名和密码不能为空');
+            return;
+        }
+        
+        try {
+            $user = User::create([
+                'username' => $username,
+                'password' => $password,
+                'email' => $email,
+                'nickname' => $nickname ?: $username,
+                'status' => 'normal',
+                'create_time' => time()
+            ]);
+            
+            $output->info('用户创建成功，ID: ' . $user->id);
+            
+        } catch (\Exception $e) {
+            $output->error('用户创建失败: ' . $e->getMessage());
+        }
+    }
+}
+```
+
+### 定时任务命令
+```php
+<?php
+namespace app\command;
+
+use think\console\Command;
+use think\console\Input;
+use think\console\Output;
+use think\Db;
+
+/**
+ * 数据清理命令
+ */
+class CleanCommand extends Command
+{
+    protected function configure()
+    {
+        $this->setName('clean:data')
+            ->setDescription('清理过期数据')
+            ->addOption('days', 'd', null, '保留天数', 30);
+    }
+    
+    protected function execute(Input $input, Output $output)
+    {
+        $days = (int)$input->getOption('days');
+        $expireTime = time() - ($days * 24 * 3600);
+        
+        $output->writeln('开始清理 ' . $days . ' 天前的数据...');
+        
+        // 清理日志
+        $logCount = Db::name('admin_log')
+            ->where('create_time', '<', $expireTime)
+            ->delete();
+            
+        $output->info('清理日志记录: ' . $logCount . ' 条');
+        
+        // 清理临时文件
+        $tempCount = Db::name('attachment')
+            ->where('create_time', '<', $expireTime)
+            ->where('category', 'temp')
+            ->delete();
+            
+        $output->info('清理临时文件: ' . $tempCount . ' 个');
+        
+        $output->info('数据清理完成');
+    }
+}
+```
+
+---
+
+## 🔧 配置管理规范
+
+### 应用配置
+```php
+// application/config.php
+return [
+    // 应用配置
+    'app_debug'              => env('APP_DEBUG', false),
+    'app_trace'              => env('APP_TRACE', false),
+    
+    // 数据库配置
+    'database'               => [
+        'type'            => env('DATABASE_TYPE', 'mysql'),
+        'hostname'        => env('DATABASE_HOSTNAME', '127.0.0.1'),
+        'database'        => env('DATABASE_DATABASE', ''),
+        'username'        => env('DATABASE_USERNAME', 'root'),
+        'password'        => env('DATABASE_PASSWORD', ''),
+        'hostport'        => env('DATABASE_HOSTPORT', '3306'),
+        'params'          => [],
+        'charset'         => 'utf8mb4',
+        'prefix'          => env('DATABASE_PREFIX', 'fa_'),
+        'debug'           => env('DATABASE_DEBUG', false),
+    ],
+    
+    // 缓存配置
+    'cache'                  => [
+        'type'   => 'Redis',
+        'host'   => env('REDIS_HOSTNAME', '127.0.0.1'),
+        'port'   => env('REDIS_PORT', 6379),
+        'password' => env('REDIS_PASSWORD', ''),
+        'select' => env('REDIS_SELECT', 0),
+        'timeout' => 0,
+        'expire' => 0,
+        'persistent' => false,
+        'prefix' => env('CACHE_PREFIX', 'think:'),
+    ],
+    
+    // 会话配置
+    'session'                => [
+        'id'             => '',
+        'var_session_id' => '',
+        'prefix'         => 'think',
+        'type'           => 'redis',
+        'auto_start'     => true,
+        'httponly'       => true,
+        'secure'         => false,
+    ],
+];
+```
+
+### 环境变量配置
+```bash
+# .env
+APP_DEBUG = true
+APP_TRACE = false
+
+# 数据库配置
+DATABASE_TYPE = mysql
+DATABASE_HOSTNAME = 127.0.0.1
+DATABASE_DATABASE = fastadmin
+DATABASE_USERNAME = root
+DATABASE_PASSWORD = 
+DATABASE_HOSTPORT = 3306
+DATABASE_PREFIX = fa_
+
+# Redis配置
+REDIS_HOSTNAME = 127.0.0.1
+REDIS_PORT = 6379
+REDIS_PASSWORD = 
+REDIS_SELECT = 0
+
+# 缓存配置
+CACHE_PREFIX = fastadmin:
+
+# JWT配置
+JWT_KEY = your-secret-key
+JWT_EXPIRE = 7200
+```
+
+---
+
+## 🚀 性能优化规范
+
+### 查询优化
+```php
+// ✅ 使用索引字段查询
+$users = User::where('username', $username)->find();
+
+// ✅ 限制查询字段
+$users = User::field('id,username,nickname')->select();
+
+// ✅ 使用缓存
+$users = cache('user_list', function() {
+    return User::where('status', 'normal')->select();
+}, 300);
+
+// ✅ 分页查询
+$users = User::paginate(10);
+
+// ❌ 避免全表扫描
+$users = User::where('nickname', 'like', '%test%')->select(); // 如果nickname没有索引
+
+// ❌ 避免查询所有字段
+$users = User::select(); // 查询所有字段
+```
+
+### 缓存使用
+```php
+// ✅ 数据缓存
+$user = cache('user_' . $id, function() use ($id) {
+    return User::find($id);
+}, 300);
+
+// ✅ 查询结果缓存
+$users = User::cache(300)->where('status', 'normal')->select();
+
+// ✅ 标签缓存
+cache('user_list', $users, 300, 'user');
+cache('user_count', $count, 300, 'user');
+
+// 清除标签缓存
+\think\Cache::clear('user');
+```
+
+---
+
+## 🔒 安全规范
+
+### 输入验证
+```php
+// ✅ 使用验证器
+$validate = new \app\api\validate\User();
+if (!$validate->check($data)) {
+    return $this->error($validate->getError());
+}
+
+// ✅ 过滤危险字符
+$data = $this->request->filter(['strip_tags', 'trim'])->post();
+
+// ✅ 类型转换
+$id = (int)$this->request->param('id');
+$page = max(1, (int)$this->request->param('page', 1));
+```
+
+### SQL注入防护
+```php
+// ✅ 使用参数绑定
+$users = Db::name('user')
+    ->where('username', '=', $username)
+    ->where('status', '=', $status)
+    ->select();
+
+// ✅ 使用whereRaw时绑定参数
+$users = Db::name('user')
+    ->whereRaw('username = ? AND status = ?', [$username, $status])
+    ->select();
+
+// ❌ 避免字符串拼接
+$sql = "SELECT * FROM user WHERE username = '{$username}'"; // 危险！
+```
+
+### 权限控制
+```php
+// 控制器权限检查
+public function edit()
+{
+    $id = $this->request->param('id');
+    
+    // 检查用户是否有编辑权限
+    if (!$this->checkPermission('user.edit')) {
+        return $this->error('无权限操作');
+    }
+    
+    // 检查是否只能编辑自己的数据
+    if ($this->isDataLimited() && !$this->checkDataOwnership($id)) {
+        return $this->error('只能编辑自己的数据');
+    }
+}
+```
+
+---
+
+## 📝 代码质量标准
+
+### 必须遵循的规则
+1. **所有控制器必须继承对应基类**
+2. **所有数据库操作必须使用事务**
+3. **所有用户输入必须验证**
+4. **所有查询必须使用参数绑定**
+5. **所有敏感操作必须记录日志**
+6. **所有异常必须捕获处理**
+7. **所有接口必须有权限控制**
+8. **所有缓存必须设置过期时间**
+
+### 代码审查要点
+- [ ] 是否遵循PSR规范
+- [ ] 是否使用了正确的命名规范
+- [ ] 是否进行了输入验证
+- [ ] 是否有SQL注入风险
+- [ ] 是否有权限控制
+- [ ] 是否有异常处理
+- [ ] 是否使用了事务
+- [ ] 是否有性能问题
+
+---
+
+**注意**: 本规范基于ThinkPHP 5.1框架，开发时应严格遵循以确保代码质量和安全性。

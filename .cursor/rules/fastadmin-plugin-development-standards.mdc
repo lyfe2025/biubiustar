@@ -1,0 +1,1272 @@
+---
+alwaysApply: true
+priority: 4
+techStack: "FastAdmin Plugin System"
+---
+
+# FastAdmin 插件开发标准规范
+
+> **功能**: FastAdmin插件系统开发规范
+> **适用场景**: 插件开发、功能扩展、模块化开发
+
+---
+
+## 🚀 插件系统架构
+
+### 插件目录结构
+```
+addons/
+├── example/                    # 插件目录（插件标识名）
+│   ├── config/                # 配置文件目录
+│   │   └── config.php         # 插件配置文件
+│   ├── controller/            # 控制器目录
+│   │   ├── Index.php          # 前台控制器
+│   │   └── Admin.php          # 后台控制器
+│   ├── model/                 # 模型目录
+│   │   └── Example.php        # 模型文件
+│   ├── view/                  # 视图目录
+│   │   ├── index/             # 前台视图
+│   │   └── admin/             # 后台视图
+│   ├── lang/                  # 语言包目录
+│   │   └── zh-cn.php          # 中文语言包
+│   ├── public/                # 静态资源目录
+│   │   ├── assets/            # 资源文件
+│   │   │   ├── css/           # CSS文件
+│   │   │   ├── js/            # JavaScript文件
+│   │   │   └── img/           # 图片文件
+│   ├── install.sql            # 安装SQL文件
+│   ├── uninstall.sql          # 卸载SQL文件
+│   ├── info.ini               # 插件信息文件
+│   ├── Example.php            # 插件主类
+│   └── LICENSE                # 许可证文件
+```
+
+---
+
+## 📝 插件信息配置
+
+### info.ini 配置文件
+```ini
+[addon]
+name = example
+title = 示例插件
+intro = 这是一个示例插件，用于演示插件开发规范
+author = FastAdmin
+website = https://www.fastadmin.net
+version = 1.0.0
+state = 1
+url = /addons/example
+license = MIT
+tags = example,demo
+has_adminlist = 1
+```
+
+### 配置参数说明
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | string | ✓ | 插件标识名，必须与目录名一致 |
+| `title` | string | ✓ | 插件标题 |
+| `intro` | string | ✓ | 插件简介 |
+| `author` | string | ✓ | 插件作者 |
+| `website` | string | ✗ | 插件官网 |
+| `version` | string | ✓ | 插件版本号 |
+| `state` | int | ✗ | 插件状态（1启用，0禁用） |
+| `url` | string | ✗ | 插件访问URL |
+| `license` | string | ✗ | 许可证类型 |
+| `tags` | string | ✗ | 插件标签，逗号分隔 |
+| `has_adminlist` | int | ✗ | 是否有后台管理页面 |
+
+---
+
+## 🎯 插件主类开发
+
+### 插件主类结构
+```php
+<?php
+namespace addons\example;
+
+use think\Addons;
+
+/**
+ * 示例插件
+ */
+class Example extends Addons
+{
+    /**
+     * 插件实例
+     */
+    public $info = [
+        'name'        => 'example',
+        'title'       => '示例插件',
+        'description' => '这是一个示例插件',
+        'status'      => 1,
+        'author'      => 'FastAdmin',
+        'version'     => '1.0.0'
+    ];
+
+    /**
+     * 插件安装方法
+     * @return bool
+     */
+    public function install()
+    {
+        $menu = [
+            [
+                'name'    => 'example',
+                'title'   => '示例插件',
+                'sublist' => [
+                    [
+                        'name'  => 'example/index',
+                        'title' => '插件首页'
+                    ],
+                    [
+                        'name'  => 'example/config', 
+                        'title' => '插件配置'
+                    ]
+                ]
+            ]
+        ];
+        return $this->addMenus($menu);
+    }
+
+    /**
+     * 插件卸载方法
+     * @return bool
+     */
+    public function uninstall()
+    {
+        $menu = [
+            'example'
+        ];
+        return $this->deleteMenus($menu);
+    }
+
+    /**
+     * 插件启用方法
+     * @return bool
+     */
+    public function enable()
+    {
+        $menu = [
+            'example'
+        ];
+        return $this->enableMenus($menu);
+    }
+
+    /**
+     * 插件禁用方法
+     * @return bool
+     */
+    public function disable()
+    {
+        $menu = [
+            'example'
+        ];
+        return $this->disableMenus($menu);
+    }
+
+    /**
+     * 获取插件配置
+     */
+    public function getConfig($name = '')
+    {
+        $config = get_addon_config('example');
+        if ($name != '') {
+            return isset($config[$name]) ? $config[$name] : '';
+        }
+        return $config;
+    }
+
+    /**
+     * 设置插件配置
+     */
+    public function setConfig($name, $value = '')
+    {
+        $config = get_addon_config('example');
+        if (is_array($name)) {
+            $config = array_merge($config, $name);
+        } else {
+            $config[$name] = $value;
+        }
+        return set_addon_config('example', $config);
+    }
+}
+```
+
+### 插件钩子方法
+```php
+/**
+ * 应用初始化钩子
+ */
+public function appInit()
+{
+    // 在应用初始化时执行的代码
+}
+
+/**
+ * 应用开始钩子
+ */
+public function appBegin()
+{
+    // 在应用开始时执行的代码
+}
+
+/**
+ * 模块初始化钩子
+ */
+public function moduleInit()
+{
+    // 在模块初始化时执行的代码
+}
+
+/**
+ * 控制器开始钩子
+ */
+public function actionBegin()
+{
+    // 在控制器开始时执行的代码
+}
+
+/**
+ * 视图过滤钩子
+ */
+public function viewFilter(&$content)
+{
+    // 过滤视图内容
+    $content = str_replace('原内容', '新内容', $content);
+}
+
+/**
+ * 应用结束钩子
+ */
+public function appEnd()
+{
+    // 在应用结束时执行的代码
+}
+
+/**
+ * 日志写入钩子
+ */
+public function logWrite($log)
+{
+    // 处理日志写入
+}
+
+/**
+ * 响应发送钩子
+ */
+public function responseSend($response)
+{
+    // 处理响应发送
+}
+
+/**
+ * 自定义钩子方法
+ */
+public function customHook($params = [])
+{
+    // 自定义钩子处理逻辑
+    return $params;
+}
+```
+
+---
+
+## 🎛️ 控制器开发规范
+
+### 前台控制器
+```php
+<?php
+namespace addons\example\controller;
+
+use think\addons\Controller;
+
+/**
+ * 示例插件前台控制器
+ */
+class Index extends Controller
+{
+    protected $layout = 'default';
+    protected $config = [];
+
+    public function _initialize()
+    {
+        parent::_initialize();
+        $this->config = get_addon_config('example');
+        $this->view->assign('config', $this->config);
+    }
+
+    /**
+     * 首页
+     */
+    public function index()
+    {
+        $this->view->assign('title', '示例插件首页');
+        return $this->view->fetch();
+    }
+
+    /**
+     * 详情页
+     */
+    public function detail()
+    {
+        $id = $this->request->param('id', 0, 'intval');
+        if (!$id) {
+            $this->error('参数错误');
+        }
+
+        $info = \addons\example\model\Example::get($id);
+        if (!$info) {
+            $this->error('记录不存在');
+        }
+
+        $this->view->assign('info', $info);
+        return $this->view->fetch();
+    }
+
+    /**
+     * AJAX接口
+     */
+    public function ajax()
+    {
+        if ($this->request->isAjax()) {
+            $data = $this->request->post();
+            
+            // 处理业务逻辑
+            $result = $this->processData($data);
+            
+            if ($result) {
+                $this->success('操作成功', $result);
+            } else {
+                $this->error('操作失败');
+            }
+        }
+        $this->error('非法请求');
+    }
+
+    /**
+     * 处理数据
+     */
+    private function processData($data)
+    {
+        // 数据处理逻辑
+        return true;
+    }
+}
+```
+
+### 后台控制器
+```php
+<?php
+namespace addons\example\controller;
+
+use app\common\controller\Backend;
+
+/**
+ * 示例插件后台控制器
+ */
+class Admin extends Backend
+{
+    protected $model = null;
+    protected $searchFields = 'id,title,content';
+    protected $relationSearch = true;
+
+    public function _initialize()
+    {
+        parent::_initialize();
+        $this->model = new \addons\example\model\Example;
+        
+        $this->view->assign("statusList", $this->model->getStatusList());
+    }
+
+    /**
+     * 查看列表
+     */
+    public function index()
+    {
+        $this->relationSearch = true;
+        $this->request->filter(['strip_tags', 'trim']);
+        
+        if ($this->request->isAjax()) {
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams();
+            
+            $list = $this->model
+                    ->where($where)
+                    ->order($sort, $order)
+                    ->paginate($limit);
+
+            $result = array("total" => $list->total(), "rows" => $list->items());
+            return json($result);
+        }
+        return $this->view->fetch();
+    }
+
+    /**
+     * 添加
+     */
+    public function add()
+    {
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params = $this->preExcludeFields($params);
+                
+                if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
+                    $params[$this->dataLimitField] = $this->auth->id;
+                }
+                
+                $result = false;
+                \think\Db::startTrans();
+                try {
+                    if ($this->modelValidate) {
+                        $name = str_replace("\\model\\", "\\validate\\", get_class($this->model));
+                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.add' : $name) : $this->modelValidate;
+                        $this->model->validateFailException(true)->validate($validate);
+                    }
+                    $result = $this->model->allowField(true)->save($params);
+                    \think\Db::commit();
+                } catch (\think\exception\ValidateException $e) {
+                    \think\Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    \think\Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error(__('No rows were inserted'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        return $this->view->fetch();
+    }
+
+    /**
+     * 编辑
+     */
+    public function edit($ids = null)
+    {
+        $row = $this->model->get($ids);
+        if (!$row) {
+            $this->error(__('No Results were found'));
+        }
+        
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds) && !in_array($row[$this->dataLimitField], $adminIds)) {
+            $this->error(__('You have no permission'));
+        }
+        
+        if ($this->request->isPost()) {
+            $params = $this->request->post("row/a");
+            if ($params) {
+                $params = $this->preExcludeFields($params);
+                $result = false;
+                \think\Db::startTrans();
+                try {
+                    if ($this->modelValidate) {
+                        $name = str_replace("\\model\\", "\\validate\\", get_class($this->model));
+                        $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
+                        $row->validateFailException(true)->validate($validate);
+                    }
+                    $result = $row->allowField(true)->save($params);
+                    \think\Db::commit();
+                } catch (\think\exception\ValidateException $e) {
+                    \think\Db::rollback();
+                    $this->error($e->getMessage());
+                } catch (\think\Exception $e) {
+                    \think\Db::rollback();
+                    $this->error($e->getMessage());
+                }
+                if ($result !== false) {
+                    $this->success();
+                } else {
+                    $this->error(__('No rows were updated'));
+                }
+            }
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        $this->view->assign("row", $row);
+        return $this->view->fetch();
+    }
+
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+        if (!$ids) {
+            $this->error(__('Parameter %s can not be empty', 'ids'));
+        }
+        $pk = $this->model->getPk();
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds)) {
+            $this->model->where($this->dataLimitField, 'in', $adminIds);
+        }
+        $list = $this->model->where($pk, 'in', $ids)->select();
+
+        $count = 0;
+        \think\Db::startTrans();
+        try {
+            foreach ($list as $k => $v) {
+                $count += $v->delete();
+            }
+            \think\Db::commit();
+        } catch (\think\Exception $e) {
+            \think\Db::rollback();
+            $this->error($e->getMessage());
+        }
+        if ($count) {
+            $this->success();
+        } else {
+            $this->error(__('No rows were deleted'));
+        }
+    }
+}
+```
+
+---
+
+## 🗃️ 模型开发规范
+
+### 插件模型
+```php
+<?php
+namespace addons\example\model;
+
+use think\Model;
+
+/**
+ * 示例模型
+ */
+class Example extends Model
+{
+    // 数据表后缀（不含表前缀）
+    protected $name = 'example';
+    
+    // 自动写入时间戳字段
+    protected $autoWriteTimestamp = 'int';
+
+    // 定义时间戳字段名
+    protected $createTime = 'createtime';
+    protected $updateTime = 'updatetime';
+    protected $deleteTime = false;
+
+    // 追加属性
+    protected $append = [
+        'status_text'
+    ];
+
+    /**
+     * 获取状态列表
+     */
+    public function getStatusList()
+    {
+        return [
+            'normal' => __('Normal'),
+            'hidden' => __('Hidden')
+        ];
+    }
+
+    /**
+     * 获取状态文本
+     */
+    public function getStatusTextAttr($value, $data)
+    {
+        $value = $value ? $value : (isset($data['status']) ? $data['status'] : '');
+        $list = $this->getStatusList();
+        return isset($list[$value]) ? $list[$value] : '';
+    }
+
+    /**
+     * 关联用户表
+     */
+    public function user()
+    {
+        return $this->belongsTo('app\\common\\model\\User', 'user_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+
+    /**
+     * 关联分类表
+     */
+    public function category()
+    {
+        return $this->belongsTo('addons\\example\\model\\Category', 'category_id', 'id', [], 'LEFT')->setEagerlyType(0);
+    }
+}
+```
+
+### 数据验证器
+```php
+<?php
+namespace addons\example\validate;
+
+use think\Validate;
+
+/**
+ * 示例验证器
+ */
+class Example extends Validate
+{
+    /**
+     * 验证规则
+     */
+    protected $rule = [
+        'title'       => 'require|length:2,100',
+        'content'     => 'require',
+        'category_id' => 'require|integer|gt:0',
+        'status'      => 'require|in:normal,hidden',
+        'weigh'       => 'integer',
+    ];
+
+    /**
+     * 提示消息
+     */
+    protected $message = [
+        'title.require'       => '标题不能为空',
+        'title.length'        => '标题长度必须在2-100个字符之间',
+        'content.require'     => '内容不能为空',
+        'category_id.require' => '分类不能为空',
+        'category_id.integer' => '分类ID必须是整数',
+        'category_id.gt'      => '分类ID必须大于0',
+        'status.require'      => '状态不能为空',
+        'status.in'           => '状态值不正确',
+        'weigh.integer'       => '排序值必须是整数',
+    ];
+
+    /**
+     * 验证场景
+     */
+    protected $scene = [
+        'add'  => ['title', 'content', 'category_id', 'status', 'weigh'],
+        'edit' => ['title', 'content', 'category_id', 'status', 'weigh'],
+    ];
+}
+```
+
+---
+
+## 🎨 视图开发规范
+
+### 前台视图模板
+```html
+<!-- view/index/index.html -->
+{extend name="addon_layout"}
+
+{block name="content"}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{$title}</h1>
+            <div class="example-content">
+                <p>这是示例插件的前台页面</p>
+                <div class="example-list">
+                    {volist name="list" id="item"}
+                    <div class="example-item">
+                        <h3><a href="{:addon_url('example/index/detail', ['id' => $item.id])}">{$item.title}</a></h3>
+                        <p>{$item.intro}</p>
+                        <span class="text-muted">{$item.createtime|date='Y-m-d H:i:s'}</span>
+                    </div>
+                    {/volist}
+                </div>
+                
+                <!-- 分页 -->
+                <div class="pagination-wrapper">
+                    {$list->render()}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+$(function() {
+    // 前台JavaScript代码
+    $('.example-item').on('click', function() {
+        // 处理点击事件
+    });
+});
+</script>
+{/block}
+```
+
+### 后台视图模板
+```html
+<!-- view/admin/index.html -->
+{extend name="layout/default" /}
+
+{block name="content"}
+<div class="panel panel-default panel-intro">
+    <div class="panel-heading">
+        {:build_heading()}
+    </div>
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div class="widget-body no-padding">
+                    <div id="toolbar" class="toolbar">
+                        <a href="javascript:;" class="btn btn-primary btn-refresh" title="{:__('Refresh')}" ><i class="fa fa-refresh"></i> </a>
+                        <a href="javascript:;" class="btn btn-success btn-add" title="{:__('Add')}" ><i class="fa fa-plus"></i> {:__('Add')}</a>
+                        <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled" title="{:__('Edit')}" ><i class="fa fa-pencil"></i> {:__('Edit')}</a>
+                        <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled" title="{:__('Delete')}" ><i class="fa fa-trash"></i> {:__('Delete')}</a>
+                    </div>
+                    <table id="table" class="table table-striped table-bordered table-hover" width="100%">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+<script src="{:cdnurl('assets/js/backend/example.js', true)}"></script>
+{/block}
+```
+
+---
+
+## 🎯 JavaScript开发规范
+
+### 前台JavaScript
+```javascript
+// public/assets/js/frontend.js
+define(['jquery'], function ($) {
+    
+    var Example = {
+        init: function() {
+            this.bindEvents();
+        },
+        
+        bindEvents: function() {
+            // 绑定事件
+            $(document).on('click', '.btn-action', function() {
+                Example.handleAction($(this));
+            });
+            
+            // AJAX提交表单
+            $(document).on('submit', '.example-form', function(e) {
+                e.preventDefault();
+                Example.submitForm($(this));
+            });
+        },
+        
+        handleAction: function($btn) {
+            var action = $btn.data('action');
+            var id = $btn.data('id');
+            
+            $.ajax({
+                url: Config.addon_url + '/ajax',
+                type: 'POST',
+                data: {
+                    action: action,
+                    id: id
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.code === 1) {
+                        Toastr.success(response.msg);
+                        // 刷新页面或更新内容
+                        location.reload();
+                    } else {
+                        Toastr.error(response.msg);
+                    }
+                },
+                error: function() {
+                    Toastr.error('网络错误，请重试');
+                }
+            });
+        },
+        
+        submitForm: function($form) {
+            var formData = $form.serialize();
+            
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.code === 1) {
+                        Toastr.success(response.msg);
+                        // 重置表单
+                        $form[0].reset();
+                    } else {
+                        Toastr.error(response.msg);
+                    }
+                },
+                error: function() {
+                    Toastr.error('提交失败，请重试');
+                }
+            });
+        }
+    };
+    
+    // 初始化
+    $(document).ready(function() {
+        Example.init();
+    });
+    
+    return Example;
+});
+```
+
+### 后台JavaScript
+```javascript
+// public/assets/js/backend.js
+define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefined, Backend, Table, Form) {
+
+    var Controller = {
+        index: function () {
+            // 初始化表格参数配置
+            Table.api.init({
+                extend: {
+                    index_url: Config.addon_url + '/admin/index' + location.search,
+                    add_url: Config.addon_url + '/admin/add',
+                    edit_url: Config.addon_url + '/admin/edit',
+                    del_url: Config.addon_url + '/admin/del',
+                    multi_url: Config.addon_url + '/admin/multi',
+                    table: 'example',
+                }
+            });
+
+            var table = $("#table");
+
+            // 初始化表格
+            table.bootstrapTable({
+                url: $.fn.bootstrapTable.defaults.extend.index_url,
+                pk: 'id',
+                sortName: 'id',
+                columns: [
+                    [
+                        {checkbox: true},
+                        {field: 'id', title: __('Id')},
+                        {field: 'title', title: __('Title'), operate: 'LIKE'},
+                        {field: 'content', title: __('Content'), operate: 'LIKE'},
+                        {field: 'category.name', title: __('Category'), operate: false},
+                        {field: 'status', title: __('Status'), searchList: {"normal":__('Normal'),"hidden":__('Hidden')}, formatter: Table.api.formatter.status},
+                        {field: 'weigh', title: __('Weigh')},
+                        {field: 'createtime', title: __('Createtime'), operate:'RANGE', addclass:'datetimerange', formatter: Table.api.formatter.datetime},
+                        {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
+                    ]
+                ]
+            });
+
+            // 为表格绑定事件
+            Table.api.bindevent(table);
+        },
+        
+        add: function () {
+            Controller.api.bindevent();
+        },
+        
+        edit: function () {
+            Controller.api.bindevent();
+        },
+        
+        api: {
+            bindevent: function () {
+                Form.api.bindevent($("form[role=form]"));
+                
+                // 自定义事件绑定
+                $(document).on('click', '.btn-custom', function() {
+                    var id = $(this).data('id');
+                    Controller.api.customAction(id);
+                });
+            },
+            
+            customAction: function(id) {
+                Layer.confirm(__('Are you sure?'), function(index) {
+                    Backend.api.ajax({
+                        url: Config.addon_url + '/admin/custom',
+                        data: {id: id}
+                    }, function(data, ret) {
+                        Layer.close(index);
+                        Toastr.success(__('Operation completed'));
+                        $("#table").bootstrapTable('refresh');
+                    });
+                });
+            }
+        }
+    };
+    
+    return Controller;
+});
+```
+
+---
+
+## 🔧 配置文件规范
+
+### 插件配置文件
+```php
+<?php
+// config/config.php
+return [
+    // 基础配置
+    'name' => [
+        'title' => '插件名称',
+        'type' => 'string',
+        'value' => '示例插件',
+        'rule' => 'required',
+        'msg' => '插件名称不能为空',
+        'tip' => '请输入插件名称',
+        'ok' => '',
+        'extend' => ''
+    ],
+    
+    // 开关配置
+    'enable' => [
+        'title' => '是否启用',
+        'type' => 'radio',
+        'value' => '1',
+        'options' => [
+            '1' => '启用',
+            '0' => '禁用'
+        ],
+        'rule' => 'required',
+        'msg' => '请选择是否启用',
+        'tip' => '选择是否启用该功能',
+        'ok' => '',
+        'extend' => ''
+    ],
+    
+    // 选择配置
+    'template' => [
+        'title' => '模板选择',
+        'type' => 'select',
+        'value' => 'default',
+        'options' => [
+            'default' => '默认模板',
+            'simple' => '简单模板',
+            'advanced' => '高级模板'
+        ],
+        'rule' => 'required',
+        'msg' => '请选择模板',
+        'tip' => '选择显示模板',
+        'ok' => '',
+        'extend' => ''
+    ],
+    
+    // 数值配置
+    'pagesize' => [
+        'title' => '每页显示数量',
+        'type' => 'number',
+        'value' => '10',
+        'rule' => 'required|integer|between:1,100',
+        'msg' => '每页显示数量必须是1-100之间的整数',
+        'tip' => '设置每页显示的记录数量',
+        'ok' => '',
+        'extend' => ''
+    ],
+    
+    // 文本域配置
+    'description' => [
+        'title' => '插件描述',
+        'type' => 'textarea',
+        'value' => '这是一个示例插件',
+        'rule' => '',
+        'msg' => '',
+        'tip' => '请输入插件描述',
+        'ok' => '',
+        'extend' => ''
+    ],
+    
+    // 富文本配置
+    'content' => [
+        'title' => '插件内容',
+        'type' => 'editor',
+        'value' => '<p>插件内容</p>',
+        'rule' => '',
+        'msg' => '',
+        'tip' => '请输入插件内容',
+        'ok' => '',
+        'extend' => ''
+    ],
+    
+    // 图片配置
+    'logo' => [
+        'title' => '插件Logo',
+        'type' => 'image',
+        'value' => '/assets/img/logo.png',
+        'rule' => '',
+        'msg' => '',
+        'tip' => '请上传插件Logo',
+        'ok' => '',
+        'extend' => ''
+    ],
+    
+    // 文件配置
+    'file' => [
+        'title' => '配置文件',
+        'type' => 'file',
+        'value' => '',
+        'rule' => '',
+        'msg' => '',
+        'tip' => '请上传配置文件',
+        'ok' => '',
+        'extend' => ''
+    ]
+];
+```
+
+---
+
+## 📊 数据库操作规范
+
+### 安装SQL文件
+```sql
+-- install.sql
+CREATE TABLE IF NOT EXISTS `__PREFIX__example` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `category_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '分类ID',
+  `user_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `title` varchar(100) NOT NULL DEFAULT '' COMMENT '标题',
+  `content` text COMMENT '内容',
+  `image` varchar(255) NOT NULL DEFAULT '' COMMENT '图片',
+  `views` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '浏览次数',
+  `weigh` int(10) NOT NULL DEFAULT '0' COMMENT '权重',
+  `status` enum('normal','hidden') NOT NULL DEFAULT 'normal' COMMENT '状态',
+  `createtime` int(10) unsigned DEFAULT NULL COMMENT '创建时间',
+  `updatetime` int(10) unsigned DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `category_id` (`category_id`),
+  KEY `user_id` (`user_id`),
+  KEY `status` (`status`),
+  KEY `weigh` (`weigh`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='示例表';
+
+-- 插入示例数据
+INSERT INTO `__PREFIX__example` (`id`, `category_id`, `user_id`, `title`, `content`, `image`, `views`, `weigh`, `status`, `createtime`, `updatetime`) VALUES
+(1, 1, 1, '示例标题1', '示例内容1', '', 0, 1, 'normal', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(2, 1, 1, '示例标题2', '示例内容2', '', 0, 2, 'normal', UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+
+-- 创建分类表
+CREATE TABLE IF NOT EXISTS `__PREFIX__example_category` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `pid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '父ID',
+  `name` varchar(50) NOT NULL DEFAULT '' COMMENT '分类名称',
+  `image` varchar(255) NOT NULL DEFAULT '' COMMENT '图片',
+  `weigh` int(10) NOT NULL DEFAULT '0' COMMENT '权重',
+  `status` enum('normal','hidden') NOT NULL DEFAULT 'normal' COMMENT '状态',
+  `createtime` int(10) unsigned DEFAULT NULL COMMENT '创建时间',
+  `updatetime` int(10) unsigned DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `pid` (`pid`),
+  KEY `status` (`status`),
+  KEY `weigh` (`weigh`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='示例分类表';
+
+-- 插入分类数据
+INSERT INTO `__PREFIX__example_category` (`id`, `pid`, `name`, `image`, `weigh`, `status`, `createtime`, `updatetime`) VALUES
+(1, 0, '默认分类', '', 1, 'normal', UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+```
+
+### 卸载SQL文件
+```sql
+-- uninstall.sql
+DROP TABLE IF EXISTS `__PREFIX__example`;
+DROP TABLE IF EXISTS `__PREFIX__example_category`;
+```
+
+---
+
+## 🌐 语言包规范
+
+### 中文语言包
+```php
+<?php
+// lang/zh-cn.php
+return [
+    // 基础词汇
+    'Example'         => '示例',
+    'Title'           => '标题',
+    'Content'         => '内容',
+    'Category'        => '分类',
+    'Image'           => '图片',
+    'Views'           => '浏览次数',
+    'Weigh'           => '权重',
+    'Status'          => '状态',
+    'Normal'          => '正常',
+    'Hidden'          => '隐藏',
+    'Createtime'      => '创建时间',
+    'Updatetime'      => '更新时间',
+    
+    // 操作词汇
+    'Add'             => '添加',
+    'Edit'            => '编辑',
+    'Delete'          => '删除',
+    'View'            => '查看',
+    'Search'          => '搜索',
+    'Reset'           => '重置',
+    'Submit'          => '提交',
+    'Cancel'          => '取消',
+    'Confirm'         => '确认',
+    'Save'            => '保存',
+    
+    // 提示信息
+    'Operation successful'     => '操作成功',
+    'Operation failed'         => '操作失败',
+    'Are you sure?'           => '您确定要执行此操作吗？',
+    'No data available'       => '暂无数据',
+    'Please select at least one record' => '请至少选择一条记录',
+    'Invalid parameters'      => '参数错误',
+    'Access denied'           => '访问被拒绝',
+    
+    // 验证信息
+    'Title cannot be empty'   => '标题不能为空',
+    'Content cannot be empty' => '内容不能为空',
+    'Category cannot be empty' => '分类不能为空',
+    'Invalid image format'    => '图片格式不正确',
+    'Image size too large'    => '图片尺寸过大',
+    
+    // 插件专用
+    'Plugin configuration'    => '插件配置',
+    'Plugin management'       => '插件管理',
+    'Plugin settings'         => '插件设置',
+];
+```
+
+---
+
+## 🔐 安全规范
+
+### 权限控制
+```php
+/**
+ * 检查权限
+ */
+public function checkAuth($action = '')
+{
+    $auth = $this->auth;
+    if (!$auth->isLogin()) {
+        $this->error('请先登录', null, ['url' => '/admin/login']);
+    }
+    
+    $controller = request()->controller();
+    $action = $action ?: request()->action();
+    $rule = strtolower($controller . '/' . $action);
+    
+    if (!$auth->check($rule)) {
+        $this->error('您没有权限访问');
+    }
+}
+
+/**
+ * 数据权限限制
+ */
+public function dataLimit($model, $field = 'user_id')
+{
+    $auth = $this->auth;
+    if ($auth->isSuperAdmin()) {
+        return $model;
+    }
+    
+    // 只能查看自己的数据
+    return $model->where($field, $auth->id);
+}
+```
+
+### 输入验证
+```php
+/**
+ * 验证输入数据
+ */
+public function validateInput($data, $rules = [])
+{
+    $validate = new \think\Validate($rules);
+    
+    if (!$validate->check($data)) {
+        $this->error($validate->getError());
+    }
+    
+    // 过滤危险字符
+    foreach ($data as $key => $value) {
+        if (is_string($value)) {
+            $data[$key] = htmlspecialchars(strip_tags($value));
+        }
+    }
+    
+    return $data;
+}
+
+/**
+ * 防止SQL注入
+ */
+public function safeSql($sql, $params = [])
+{
+    // 使用参数绑定
+    return \think\Db::query($sql, $params);
+}
+
+/**
+ * 防止XSS攻击
+ */
+public function filterXss($content)
+{
+    // 过滤危险标签和属性
+    $content = preg_replace('/<script[^>]*?>.*?<\/script>/si', '', $content);
+    $content = preg_replace('/<iframe[^>]*?>.*?<\/iframe>/si', '', $content);
+    $content = preg_replace('/on\w+\s*=\s*["\'][^"\']*["\']/i', '', $content);
+    
+    return $content;
+}
+```
+
+---
+
+## 📋 代码质量检查
+
+### 插件开发检查清单
+- [ ] 插件目录结构正确
+- [ ] info.ini配置完整
+- [ ] 插件主类继承Addons
+- [ ] 安装/卸载方法实现
+- [ ] 控制器继承正确基类
+- [ ] 模型定义规范
+- [ ] 视图模板结构完整
+- [ ] JavaScript模块化开发
+- [ ] 语言包翻译完整
+- [ ] 数据库SQL文件正确
+- [ ] 权限控制实现
+- [ ] 输入验证完善
+- [ ] 错误处理机制
+- [ ] 性能优化考虑
+
+### 功能测试要点
+- [ ] 插件安装功能正常
+- [ ] 插件卸载功能正常
+- [ ] 插件启用/禁用正常
+- [ ] 前台页面正常显示
+- [ ] 后台管理功能正常
+- [ ] 数据增删改查正常
+- [ ] 权限控制生效
+- [ ] 配置功能正常
+- [ ] 多语言支持正常
+- [ ] 响应式布局正常
+
+### 兼容性检查
+- [ ] PHP版本兼容性
+- [ ] ThinkPHP版本兼容性
+- [ ] FastAdmin版本兼容性
+- [ ] 数据库兼容性
+- [ ] 浏览器兼容性
+- [ ] 移动端兼容性
+- [ ] 插件间兼容性
+- [ ] 主题兼容性
+
+---
+
+**注意**: 插件开发应遵循FastAdmin的开发规范，确保插件的稳定性、安全性和兼容性。开发完成后应进行充分测试。
