@@ -1,0 +1,406 @@
+---
+alwaysApply: true
+priority: 12
+techStack: "FastAdmin LDCMS Context Detection"
+---
+
+# FastAdmin LDCMS 上下文检测与自动应用规则
+
+> **🎯 目标**: 自动检测LDCMS相关开发上下文，确保相关规则被正确应用
+> **🔍 检测范围**: 文件路径、代码内容、用户意图、项目结构
+> **⚡ 自动触发**: 当检测到LDCMS相关内容时，自动激活相关开发规则
+
+---
+
+## 🚨 LDCMS上下文强制检测规则
+
+**当AI检测到以下任何内容时，必须强制应用LDCMS开发规范：**
+
+### 📁 文件路径检测
+```javascript
+// 检测规则：文件路径包含以下关键词时自动应用LDCMS规则
+const LDCMS_PATH_PATTERNS = [
+    'addons/ldcms/',           // LDCMS插件目录
+    'addons\\ldcms\\',         // Windows路径
+    'ldcms/',                  // LDCMS相关目录
+    '/ldcms/',                 // 绝对路径
+    'view/default/',           // LDCMS模板目录
+    'view/en/',                // 英文模板
+    'view/ldcms2024/',         // 2024主题
+    'view/ldcms2025/',         // 2025主题
+    'controller/api/',         // LDCMS API控制器
+    'model/Document.php',      // LDCMS模型文件
+    'model/Category.php',
+    'model/Ad.php',
+    'model/Langs.php'
+];
+
+// 自动检测函数
+function detectLdcmsContext(filePath) {
+    return LDCMS_PATH_PATTERNS.some(pattern => 
+        filePath.toLowerCase().includes(pattern.toLowerCase())
+    );
+}
+```
+
+### 🔍 代码内容检测
+```php
+/**
+ * LDCMS代码特征检测
+ * 当代码中包含以下内容时，自动应用LDCMS规则
+ */
+class LdcmsContextDetector
+{
+    /**
+     * LDCMS特征关键词
+     */
+    private static $ldcmsKeywords = [
+        // 命名空间
+        'addons\\ldcms',
+        'namespace addons\\ldcms',
+        
+        // 类名
+        'class Document',
+        'class Category', 
+        'class Ad',
+        'class Langs',
+        'class Diyform',
+        'class Base extends',
+        
+        // 数据库表
+        'fa_ldcms_',
+        'ldcms_document',
+        'ldcms_category',
+        'ldcms_ad',
+        'ldcms_langs',
+        
+        // 模板标签
+        '{ldcms:',
+        '{/ldcms:',
+        'ldcms:document',
+        'ldcms:category',
+        'ldcms:ad',
+        
+        // 配置相关
+        'get_addon_config(\'ldcms\')',
+        'set_addon_config(\'ldcms\')',
+        
+        // 工具类
+        'LanguageHandler',
+        'MultiLanguageConfig',
+        'TemplateManager',
+        'SEOFriendlyURL',
+        
+        // 方法名
+        'getCurrentLanguage',
+        'getTemplatePath',
+        'renderLdcmsTemplate',
+        'getLdcmsConfig'
+    ];
+    
+    /**
+     * 检测代码是否包含LDCMS特征
+     */
+    public static function detectInCode($code)
+    {
+        $code = strtolower($code);
+        
+        foreach (self::$ldcmsKeywords as $keyword) {
+            if (strpos($code, strtolower($keyword)) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 检测用户意图中的LDCMS相关内容
+     */
+    public static function detectInUserIntent($userInput)
+    {
+        $ldcmsIntentKeywords = [
+            // 中文关键词
+            'LDCMS', 'ldcms',
+            '企业网站', '企业网站管理系统',
+            '多语言', '多模板',
+            '文档管理', '分类管理',
+            '广告管理', '自定义表单',
+            'fastadmin插件', 'FastAdmin插件',
+            
+            // 英文关键词
+            'enterprise cms',
+            'multi-language',
+            'multi-template',
+            'document management',
+            'category management',
+            'custom form',
+            'fastadmin addon'
+        ];
+        
+        $input = strtolower($userInput);
+        
+        foreach ($ldcmsIntentKeywords as $keyword) {
+            if (strpos($input, strtolower($keyword)) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+}
+```
+
+### 🏗️ 项目结构检测
+```yaml
+# 项目结构特征检测
+# 当项目包含以下结构时，自动识别为LDCMS项目
+
+LDCMS_PROJECT_STRUCTURE:
+  # 项目基本信息
+  project_name: "biubiustar"
+  project_domain: "biubiustar.local"
+  admin_url: "http://biubiustar.local/SWTvGsCQjH.php"
+  frontend_url: "http://biubiustar.local/"
+  project_path: "/Volumes/wwx/dev/WebProjects/biubiustar/"
+  
+  # 数据库配置
+  database:
+    name: "biubiustar"
+    host: "127.0.0.1:3306"
+    username: "biubiustar"
+    password: "Qwer1234..."
+    prefix: "fa_"
+  
+  required_directories:
+    - "addons/ldcms/"
+    - "addons/ldcms/controller/"
+    - "addons/ldcms/model/"
+    - "addons/ldcms/view/"
+  
+  required_files:
+    - "addons/ldcms/Ldcms.php"
+    - "addons/ldcms/config.php" 
+    - "addons/ldcms/info.ini"
+    - "addons/ldcms/install.sql"
+  
+  template_directories:
+    - "addons/ldcms/view/default/"
+    - "addons/ldcms/view/en/"
+    - "addons/ldcms/view/ldcms2024/"
+    - "addons/ldcms/view/ldcms2025/"
+  
+  database_tables:
+    - "fa_ldcms_document"
+    - "fa_ldcms_category"
+    - "fa_ldcms_ad"
+    - "fa_ldcms_langs"
+```
+
+---
+
+## 🔄 自动规则应用机制
+
+### 检测优先级（从高到低）
+```
+1. 🔥 文件路径直接匹配 (priority: 12)
+   - addons/ldcms/ 路径下的所有文件
+   
+2. 🔥 代码内容强特征匹配 (priority: 11)
+   - 包含LDCMS命名空间
+   - 包含LDCMS模型类
+   - 包含LDCMS模板标签
+   
+3. 🔥 用户意图明确表达 (priority: 10)
+   - 明确提到LDCMS
+   - 明确提到企业网站管理系统
+   - 明确提到多语言、多模板功能
+   
+4. 🔥 项目环境检测 (priority: 9)
+   - 项目包含LDCMS插件结构
+   - 数据库包含LDCMS表
+```
+
+### 自动应用的规则文件
+```
+当检测到LDCMS上下文时，自动应用以下规则文件：
+
+1. ldcms-enterprise-cms-standards.mdc (priority: 10)
+   - LDCMS核心开发规范
+   
+2. fastadmin-multilanguage-standards.mdc (priority: 9)  
+   - 多语言开发规范
+   
+3. fastadmin-multitemplate-standards.mdc (priority: 8)
+   - 多模板系统规范
+   
+4. ldcms-development-workflow.mdc (priority: 11)
+   - LDCMS开发工作流
+   
+5. ldcms-context-detection.mdc (priority: 12)
+   - 上下文检测规则（本文件）
+```
+
+---
+
+## 🎯 智能提示机制
+
+### 当检测到LDCMS上下文时的自动提示
+```php
+/**
+ * LDCMS智能提示系统
+ */
+class LdcmsSmartPrompts
+{
+    /**
+     * 根据上下文生成智能提示
+     */
+    public static function generateContextPrompt($context)
+    {
+        $prompts = [];
+        
+        // 基础提示
+        $prompts[] = "🎯 检测到LDCMS开发上下文，自动应用LDCMS开发规范";
+        
+        // 路径相关提示
+        if ($context['file_path']) {
+            if (strpos($context['file_path'], 'addons/ldcms/controller') !== false) {
+                $prompts[] = "📋 控制器开发：请继承addons\\ldcms\\controller\\Base类";
+                $prompts[] = "🌍 多语言：请使用LanguageHandler::getCurrentLanguage()";
+                $prompts[] = "🔗 项目域名：biubiustar.local";
+                $prompts[] = "🔐 后台管理：http://biubiustar.local/SWTvGsCQjH.php";
+            }
+            
+            if (strpos($context['file_path'], 'addons/ldcms/model') !== false) {
+                $prompts[] = "📋 模型开发：请使用fa_ldcms_前缀的数据表";
+                $prompts[] = "🌍 多语言：考虑继承MultiLangModel类";
+            }
+            
+            if (strpos($context['file_path'], 'addons/ldcms/view') !== false) {
+                $prompts[] = "📋 模板开发：请使用{ldcms:}标签系统";
+                $prompts[] = "🎨 多模板：确保兼容default、en、ldcms2024、ldcms2025主题";
+            }
+        }
+        
+        // 功能相关提示
+        if ($context['feature_type']) {
+            switch ($context['feature_type']) {
+                case 'content_management':
+                    $prompts[] = "📝 内容管理：使用Document和Category模型";
+                    $prompts[] = "🔍 SEO优化：设置seo_title、seo_keywords、seo_description";
+                    break;
+                    
+                case 'api_development':
+                    $prompts[] = "🔌 API开发：继承LdcmsApiController基类";
+                    $prompts[] = "🔐 API认证：使用LDCMS的API认证机制";
+                    break;
+                    
+                case 'template_customization':
+                    $prompts[] = "🎨 模板定制：基于现有模板进行修改";
+                    $prompts[] = "📱 响应式：确保移动端兼容性";
+                    break;
+            }
+        }
+        
+        // 数据库相关提示
+        if ($context['database_related']) {
+            $prompts[] = "🗄️ 数据库：使用biubiustar数据库，fa_前缀";
+            $prompts[] = "🔗 关联：考虑与现有LDCMS表的关联关系";
+        }
+        
+        return $prompts;
+    }
+    
+    /**
+     * 生成开发建议
+     */
+    public static function generateDevelopmentSuggestions($context)
+    {
+        $suggestions = [
+            "💡 建议使用LDCMS现有的工具类和辅助函数",
+            "💡 建议遵循LDCMS的命名规范和代码风格",
+            "💡 建议进行多语言和多模板兼容性测试",
+            "💡 建议查看LDCMS官方文档：https://doc.fastadmin.net/ldcms",
+            "💡 建议参考现有LDCMS代码的实现方式"
+        ];
+        
+        return $suggestions;
+    }
+}
+```
+
+---
+
+## 📋 上下文检测验证清单
+
+### AI助手自检清单
+```
+在提供任何代码建议或解决方案之前，请确认：
+
+✅ 是否检测到LDCMS相关上下文？
+   - 文件路径包含addons/ldcms/
+   - 代码包含LDCMS特征关键词
+   - 用户明确提到LDCMS相关需求
+
+✅ 是否自动应用了LDCMS规则？
+   - ldcms-enterprise-cms-standards.mdc
+   - fastadmin-multilanguage-standards.mdc  
+   - fastadmin-multitemplate-standards.mdc
+   - ldcms-development-workflow.mdc
+
+✅ 是否提供了LDCMS特定的解决方案？
+   - 使用LDCMS的命名空间和类
+   - 遵循LDCMS的数据结构
+   - 使用LDCMS的模板标签
+   - 考虑多语言和多模板支持
+
+✅ 是否给出了LDCMS相关的提示和建议？
+   - 开发规范提醒
+   - 兼容性建议
+   - 最佳实践推荐
+```
+
+### 用户验证清单
+```
+用户可以通过以下方式验证AI是否正确识别了LDCMS上下文：
+
+🔍 AI是否提到了以下内容：
+   - FastAdmin LDCMS插件
+   - addons/ldcms/目录结构
+   - fa_ldcms_数据表前缀
+   - 多语言支持（zh-cn、en、zh-tw）
+   - 多模板支持（default、ldcms2024、ldcms2025）
+   - LDCMS特有的类和方法
+
+🔍 AI提供的代码是否：
+   - 使用了正确的命名空间
+   - 继承了LDCMS的基类
+   - 使用了LDCMS的工具类
+   - 遵循了LDCMS的开发规范
+```
+
+---
+
+## ⚡ 快速激活命令
+
+**用户可以使用以下关键词快速激活LDCMS上下文：**
+
+```
+触发词：
+- "基于LDCMS"
+- "LDCMS插件开发"
+- "企业网站管理系统"
+- "FastAdmin LDCMS"
+- "多语言多模板"
+- "addons/ldcms"
+
+示例用法：
+- "基于LDCMS开发一个新闻模块"
+- "为LDCMS添加自定义字段功能"
+- "优化LDCMS的多语言支持"
+- "创建LDCMS的新模板主题"
+```
+
+---
+
+**重要提醒**: 此规则文件确保AI能够准确识别LDCMS开发上下文，自动应用相关规范，提供精准的开发指导！

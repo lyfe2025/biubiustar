@@ -1,0 +1,1297 @@
+---
+alwaysApply: true
+priority: 9
+techStack: "FastAdmin LDCMS MultiLanguage"
+contextPatterns:
+  - "addons/ldcms"
+  - "多语言"
+  - "multilang"
+  - "lang"
+  - "zh-cn"
+  - "en"
+  - "zh-tw"
+  - "LanguageHandler"
+  - "MultiLanguageConfig"
+---
+
+# FastAdmin LDCMS 多语言开发标准规范
+
+> **🎯 专为LDCMS插件设计**: 基于FastAdmin LDCMS企业网站管理系统的多语言开发规范
+> **🌍 支持语言**: 中文(zh-cn)、英文(en)、繁体中文(zh-tw)、日文(ja)、韩文(ko)
+> **🔧 技术实现**: LDCMS插件的数据库多语言、模板多语言、URL多语言
+> **⚠️ 重要**: 所有多语言功能都必须基于LDCMS插件的现有架构进行开发
+
+---
+
+## 🌍 多语言架构设计
+
+## 🚨 LDCMS多语言开发强制要求
+
+**所有多语言功能开发必须遵循以下LDCMS插件规范：**
+
+1. **🔥 使用LDCMS现有的语言表**: 必须基于 `fa_ldcms_langs` 表进行语言管理
+2. **🔥 遵循LDCMS的语言代码规范**: zh-cn, en, zh-tw 等
+3. **🔥 使用LDCMS的模板语言目录**: `addons/ldcms/view/{template}/` 结构
+4. **🔥 集成LDCMS的语言切换机制**: 与现有的语言切换功能兼容
+5. **🔥 使用LDCMS的URL语言前缀**: 遵循现有的URL结构规范
+
+### LDCMS插件语言配置体系
+```php
+/**
+ * LDCMS多语言配置管理（基于现有LDCMS插件）
+ * 位置：addons/ldcms/utils/LanguageConfig.php
+ */
+class LdcmsLanguageConfig
+{
+    /**
+     * 支持的语言配置
+     */
+    public static function getLanguageConfig()
+    {
+        return [
+            'zh-cn' => [
+                'name' => '简体中文',
+                'native_name' => '简体中文',
+                'locale' => 'zh-CN',
+                'flag' => 'cn',
+                'direction' => 'ltr',
+                'default' => true,
+                'enabled' => true,
+                'domain' => '', // 可绑定独立域名
+                'prefix' => '', // URL前缀，默认语言可为空
+                'charset' => 'UTF-8',
+                'date_format' => 'Y-m-d',
+                'time_format' => 'H:i:s',
+                'datetime_format' => 'Y-m-d H:i:s',
+                'currency' => 'CNY',
+                'currency_symbol' => '¥'
+            ],
+            'en' => [
+                'name' => 'English',
+                'native_name' => 'English',
+                'locale' => 'en-US',
+                'flag' => 'us',
+                'direction' => 'ltr',
+                'default' => false,
+                'enabled' => true,
+                'domain' => '',
+                'prefix' => 'en',
+                'charset' => 'UTF-8',
+                'date_format' => 'm/d/Y',
+                'time_format' => 'h:i A',
+                'datetime_format' => 'm/d/Y h:i A',
+                'currency' => 'USD',
+                'currency_symbol' => '$'
+            ],
+            'zh-tw' => [
+                'name' => '繁體中文',
+                'native_name' => '繁體中文',
+                'locale' => 'zh-TW',
+                'flag' => 'tw',
+                'direction' => 'ltr',
+                'default' => false,
+                'enabled' => false,
+                'domain' => '',
+                'prefix' => 'tw',
+                'charset' => 'UTF-8',
+                'date_format' => 'Y-m-d',
+                'time_format' => 'H:i:s',
+                'datetime_format' => 'Y-m-d H:i:s',
+                'currency' => 'TWD',
+                'currency_symbol' => 'NT$'
+            ],
+            'ja' => [
+                'name' => '日本語',
+                'native_name' => '日本語',
+                'locale' => 'ja-JP',
+                'flag' => 'jp',
+                'direction' => 'ltr',
+                'default' => false,
+                'enabled' => false,
+                'domain' => '',
+                'prefix' => 'ja',
+                'charset' => 'UTF-8',
+                'date_format' => 'Y年m月d日',
+                'time_format' => 'H:i',
+                'datetime_format' => 'Y年m月d日 H:i',
+                'currency' => 'JPY',
+                'currency_symbol' => '¥'
+            ],
+            'ko' => [
+                'name' => '한국어',
+                'native_name' => '한국어',
+                'locale' => 'ko-KR',
+                'flag' => 'kr',
+                'direction' => 'ltr',
+                'default' => false,
+                'enabled' => false,
+                'domain' => '',
+                'prefix' => 'ko',
+                'charset' => 'UTF-8',
+                'date_format' => 'Y년 m월 d일',
+                'time_format' => 'H:i',
+                'datetime_format' => 'Y년 m월 d일 H:i',
+                'currency' => 'KRW',
+                'currency_symbol' => '₩'
+            ]
+        ];
+    }
+    
+    /**
+     * 获取启用的语言
+     */
+    public static function getEnabledLanguages()
+    {
+        $languages = self::getLanguageConfig();
+        return array_filter($languages, function($lang) {
+            return $lang['enabled'];
+        });
+    }
+    
+    /**
+     * 获取默认语言
+     */
+    public static function getDefaultLanguage()
+    {
+        $languages = self::getLanguageConfig();
+        foreach ($languages as $code => $config) {
+            if ($config['default']) {
+                return $code;
+            }
+        }
+        return 'zh-cn';
+    }
+}
+```
+
+### 语言检测与切换
+```php
+/**
+ * 多语言处理器
+ */
+class LanguageHandler
+{
+    private static $currentLang = null;
+    private static $fallbackLang = 'zh-cn';
+    
+    /**
+     * 初始化语言设置
+     */
+    public static function initialize()
+    {
+        // 语言检测优先级：URL参数 > Cookie > 浏览器 > 默认
+        $lang = self::detectLanguage();
+        self::setCurrentLanguage($lang);
+        
+        // 设置ThinkPHP语言
+        \think\Lang::set(self::loadLanguagePack($lang));
+    }
+    
+    /**
+     * 检测当前语言
+     */
+    public static function detectLanguage()
+    {
+        $enabledLangs = array_keys(MultiLanguageConfig::getEnabledLanguages());
+        
+        // 1. URL参数检测
+        $urlLang = request()->param('lang');
+        if ($urlLang && in_array($urlLang, $enabledLangs)) {
+            return $urlLang;
+        }
+        
+        // 2. URL路径检测
+        $pathInfo = request()->pathinfo();
+        $segments = explode('/', trim($pathInfo, '/'));
+        if (!empty($segments[0]) && in_array($segments[0], $enabledLangs)) {
+            return $segments[0];
+        }
+        
+        // 3. Cookie检测
+        $cookieLang = cookie('language');
+        if ($cookieLang && in_array($cookieLang, $enabledLangs)) {
+            return $cookieLang;
+        }
+        
+        // 4. 浏览器语言检测
+        $browserLang = self::detectBrowserLanguage();
+        if ($browserLang && in_array($browserLang, $enabledLangs)) {
+            return $browserLang;
+        }
+        
+        // 5. 默认语言
+        return MultiLanguageConfig::getDefaultLanguage();
+    }
+    
+    /**
+     * 检测浏览器语言
+     */
+    private static function detectBrowserLanguage()
+    {
+        $acceptLang = request()->header('Accept-Language');
+        if (!$acceptLang) {
+            return null;
+        }
+        
+        // 解析Accept-Language头
+        $languages = [];
+        preg_match_all('/([a-z]{1,8}(?:-[a-z]{1,8})?)\s*(?:;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $acceptLang, $matches);
+        
+        if ($matches[1]) {
+            foreach ($matches[1] as $i => $lang) {
+                $quality = isset($matches[2][$i]) ? (float)$matches[2][$i] : 1.0;
+                $languages[strtolower($lang)] = $quality;
+            }
+            arsort($languages);
+            
+            // 匹配支持的语言
+            $langMap = [
+                'zh-cn' => ['zh-cn', 'zh', 'zh-hans'],
+                'en' => ['en', 'en-us', 'en-gb'],
+                'zh-tw' => ['zh-tw', 'zh-hant'],
+                'ja' => ['ja', 'ja-jp'],
+                'ko' => ['ko', 'ko-kr']
+            ];
+            
+            foreach ($languages as $browserLang => $quality) {
+                foreach ($langMap as $supportedLang => $patterns) {
+                    if (in_array($browserLang, $patterns)) {
+                        return $supportedLang;
+                    }
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * 设置当前语言
+     */
+    public static function setCurrentLanguage($lang)
+    {
+        $enabledLangs = array_keys(MultiLanguageConfig::getEnabledLanguages());
+        if (!in_array($lang, $enabledLangs)) {
+            $lang = MultiLanguageConfig::getDefaultLanguage();
+        }
+        
+        self::$currentLang = $lang;
+        
+        // 设置Cookie
+        cookie('language', $lang, 86400 * 30); // 30天
+        
+        // 设置全局变量
+        config('app.default_lang', $lang);
+        
+        return $lang;
+    }
+    
+    /**
+     * 获取当前语言
+     */
+    public static function getCurrentLanguage()
+    {
+        return self::$currentLang ?: MultiLanguageConfig::getDefaultLanguage();
+    }
+    
+    /**
+     * 加载语言包
+     */
+    public static function loadLanguagePack($lang)
+    {
+        $langFile = ADDON_PATH . 'ldcms/lang/' . $lang . '.php';
+        
+        if (file_exists($langFile)) {
+            return include $langFile;
+        }
+        
+        // 加载默认语言包
+        $defaultLangFile = ADDON_PATH . 'ldcms/lang/' . self::$fallbackLang . '.php';
+        if (file_exists($defaultLangFile)) {
+            return include $defaultLangFile;
+        }
+        
+        return [];
+    }
+    
+    /**
+     * 翻译文本
+     */
+    public static function translate($key, $params = [], $lang = null)
+    {
+        $lang = $lang ?: self::getCurrentLanguage();
+        $langPack = self::loadLanguagePack($lang);
+        
+        $text = isset($langPack[$key]) ? $langPack[$key] : $key;
+        
+        // 参数替换
+        if (!empty($params)) {
+            foreach ($params as $param => $value) {
+                $text = str_replace(':' . $param, $value, $text);
+            }
+        }
+        
+        return $text;
+    }
+    
+    /**
+     * 生成多语言URL
+     */
+    public static function generateUrl($route, $params = [], $lang = null)
+    {
+        $lang = $lang ?: self::getCurrentLanguage();
+        $langConfig = MultiLanguageConfig::getLanguageConfig()[$lang];
+        
+        // 域名绑定
+        if (!empty($langConfig['domain'])) {
+            $domain = $langConfig['domain'];
+        } else {
+            $domain = request()->domain();
+        }
+        
+        // URL前缀
+        $prefix = $langConfig['prefix'] ? '/' . $langConfig['prefix'] : '';
+        
+        // 生成URL
+        $url = $domain . $prefix . '/' . ltrim($route, '/');
+        
+        // 添加参数
+        if (!empty($params)) {
+            $url .= '?' . http_build_query($params);
+        }
+        
+        return $url;
+    }
+}
+```
+
+---
+
+## 🗃️ 数据库多语言设计
+
+### 多语言表设计规范
+```sql
+-- 方案一：单表多字段（适用于字段较少的情况）
+CREATE TABLE `fa_category` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name_zh_cn` varchar(255) DEFAULT '' COMMENT '中文名称',
+    `name_en` varchar(255) DEFAULT '' COMMENT '英文名称',
+    `name_zh_tw` varchar(255) DEFAULT '' COMMENT '繁体中文名称',
+    `description_zh_cn` text COMMENT '中文描述',
+    `description_en` text COMMENT '英文描述',
+    `description_zh_tw` text COMMENT '繁体中文描述',
+    `sort` int(10) DEFAULT '99',
+    `status` tinyint(1) DEFAULT '1',
+    `create_time` bigint(20) DEFAULT NULL,
+    `update_time` bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类表（多字段方案）';
+
+-- 方案二：分表存储（推荐方案）
+CREATE TABLE `fa_category` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `sort` int(10) DEFAULT '99',
+    `status` tinyint(1) DEFAULT '1',
+    `create_time` bigint(20) DEFAULT NULL,
+    `update_time` bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类主表';
+
+CREATE TABLE `fa_category_lang` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `category_id` int(11) NOT NULL COMMENT '分类ID',
+    `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言代码',
+    `name` varchar(255) DEFAULT '' COMMENT '名称',
+    `description` text COMMENT '描述',
+    `seo_title` varchar(255) DEFAULT '' COMMENT 'SEO标题',
+    `seo_keywords` varchar(255) DEFAULT '' COMMENT 'SEO关键词',
+    `seo_description` varchar(255) DEFAULT '' COMMENT 'SEO描述',
+    `create_time` bigint(20) DEFAULT NULL,
+    `update_time` bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `category_lang` (`category_id`, `lang`),
+    KEY `lang` (`lang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类语言表';
+
+-- 方案三：JSON字段存储（MySQL 5.7+）
+CREATE TABLE `fa_category_json` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `multilang_data` json COMMENT '多语言数据',
+    `sort` int(10) DEFAULT '99',
+    `status` tinyint(1) DEFAULT '1',
+    `create_time` bigint(20) DEFAULT NULL,
+    `update_time` bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类表（JSON方案）';
+
+-- JSON数据结构示例：
+-- {
+--     "zh-cn": {"name": "产品中心", "description": "产品介绍"},
+--     "en": {"name": "Products", "description": "Product Introduction"},
+--     "zh-tw": {"name": "產品中心", "description": "產品介紹"}
+-- }
+```
+
+### 多语言模型基类
+```php
+/**
+ * 多语言模型基类
+ */
+abstract class MultiLanguageModel extends \think\Model
+{
+    // 多语言字段映射
+    protected $langFields = [];
+    
+    // 当前语言
+    protected $currentLang = null;
+    
+    /**
+     * 初始化
+     */
+    protected function initialize()
+    {
+        parent::initialize();
+        $this->currentLang = LanguageHandler::getCurrentLanguage();
+    }
+    
+    /**
+     * 获取多语言字段
+     */
+    public function getLangFieldAttr($value, $data)
+    {
+        // 方案一：多字段方案
+        if ($this->isMultiFieldMode()) {
+            $fieldName = debug_backtrace()[1]['function'];
+            $fieldName = substr($fieldName, 3, -4); // 移除get和Attr
+            $langFieldName = strtolower($fieldName) . '_' . str_replace('-', '_', $this->currentLang);
+            
+            return isset($data[$langFieldName]) ? $data[$langFieldName] : '';
+        }
+        
+        // 方案二：关联表方案
+        if ($this->isRelationMode()) {
+            return $this->getLangData($fieldName);
+        }
+        
+        // 方案三：JSON字段方案
+        if ($this->isJsonMode()) {
+            $multilangData = json_decode($data['multilang_data'] ?? '{}', true);
+            return $multilangData[$this->currentLang][$fieldName] ?? '';
+        }
+        
+        return $value;
+    }
+    
+    /**
+     * 设置多语言字段
+     */
+    public function setLangFieldAttr($value, $field)
+    {
+        // 根据不同方案处理字段设置
+        if ($this->isMultiFieldMode()) {
+            $langFieldName = $field . '_' . str_replace('-', '_', $this->currentLang);
+            return $value;
+        }
+        
+        return $value;
+    }
+    
+    /**
+     * 获取关联语言数据
+     */
+    protected function getLangData($field = null)
+    {
+        $langTableName = $this->name . '_lang';
+        $langData = \think\Db::name($langTableName)
+                           ->where($this->name . '_id', $this->id)
+                           ->where('lang', $this->currentLang)
+                           ->find();
+        
+        return $field ? ($langData[$field] ?? '') : $langData;
+    }
+    
+    /**
+     * 保存多语言数据
+     */
+    public function saveLangData($langData, $lang = null)
+    {
+        $lang = $lang ?: $this->currentLang;
+        $langTableName = $this->name . '_lang';
+        
+        $existingData = \think\Db::name($langTableName)
+                               ->where($this->name . '_id', $this->id)
+                               ->where('lang', $lang)
+                               ->find();
+        
+        $data = array_merge($langData, [
+            $this->name . '_id' => $this->id,
+            'lang' => $lang,
+            'update_time' => time()
+        ]);
+        
+        if ($existingData) {
+            return \think\Db::name($langTableName)
+                           ->where('id', $existingData['id'])
+                           ->update($data);
+        } else {
+            $data['create_time'] = time();
+            return \think\Db::name($langTableName)->insert($data);
+        }
+    }
+    
+    /**
+     * 获取所有语言数据
+     */
+    public function getAllLangData()
+    {
+        $langTableName = $this->name . '_lang';
+        $langDataList = \think\Db::name($langTableName)
+                               ->where($this->name . '_id', $this->id)
+                               ->select();
+        
+        $result = [];
+        foreach ($langDataList as $langData) {
+            $result[$langData['lang']] = $langData;
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * 复制语言数据
+     */
+    public function copyLangData($fromLang, $toLang, $fields = [])
+    {
+        $langTableName = $this->name . '_lang';
+        
+        // 获取源语言数据
+        $sourceData = \think\Db::name($langTableName)
+                             ->where($this->name . '_id', $this->id)
+                             ->where('lang', $fromLang)
+                             ->find();
+        
+        if (!$sourceData) {
+            return false;
+        }
+        
+        // 准备目标语言数据
+        $targetData = $sourceData;
+        unset($targetData['id']);
+        $targetData['lang'] = $toLang;
+        $targetData['create_time'] = time();
+        $targetData['update_time'] = time();
+        
+        // 如果指定了特定字段，只复制这些字段
+        if (!empty($fields)) {
+            $newTargetData = [
+                $this->name . '_id' => $this->id,
+                'lang' => $toLang,
+                'create_time' => time(),
+                'update_time' => time()
+            ];
+            
+            foreach ($fields as $field) {
+                if (isset($sourceData[$field])) {
+                    $newTargetData[$field] = $sourceData[$field];
+                }
+            }
+            
+            $targetData = $newTargetData;
+        }
+        
+        // 检查目标语言数据是否已存在
+        $existingData = \think\Db::name($langTableName)
+                               ->where($this->name . '_id', $this->id)
+                               ->where('lang', $toLang)
+                               ->find();
+        
+        if ($existingData) {
+            return \think\Db::name($langTableName)
+                           ->where('id', $existingData['id'])
+                           ->update($targetData);
+        } else {
+            return \think\Db::name($langTableName)->insert($targetData);
+        }
+    }
+    
+    /**
+     * 检查是否为多字段模式
+     */
+    protected function isMultiFieldMode()
+    {
+        return isset($this->langMode) && $this->langMode === 'multifield';
+    }
+    
+    /**
+     * 检查是否为关联表模式
+     */
+    protected function isRelationMode()
+    {
+        return !isset($this->langMode) || $this->langMode === 'relation';
+    }
+    
+    /**
+     * 检查是否为JSON模式
+     */
+    protected function isJsonMode()
+    {
+        return isset($this->langMode) && $this->langMode === 'json';
+    }
+}
+```
+
+---
+
+## 🎨 模板多语言处理
+
+### 模板多语言标签
+```html
+<!-- 多语言文本输出 -->
+{:lang('hello')}                    <!-- 输出：你好 / Hello -->
+{:lang('welcome', ['name' => $user.name])}  <!-- 参数替换 -->
+
+<!-- 条件语言显示 -->
+{if condition="$Think.lang eq 'zh-cn'"}
+    <div class="chinese-content">中文内容</div>
+{elseif condition="$Think.lang eq 'en'"}
+    <div class="english-content">English Content</div>
+{/if}
+
+<!-- 多语言链接 -->
+<a href="{:multilang_url('index/about')}">{:lang('about_us')}</a>
+<a href="{:multilang_url('index/contact', [], 'en')}">{:lang('contact_us')}</a>
+
+<!-- 语言切换器 -->
+<div class="language-switcher">
+    {volist name=":get_enabled_languages()" id="lang_info" key="lang_code"}
+    <a href="{:multilang_url($Think.request.pathinfo, [], $lang_code)}" 
+       class="{eq name='lang_code' value='$Think.lang'}active{/eq}">
+        <img src="/static/flags/{$lang_info.flag}.png" alt="{$lang_info.name}">
+        {$lang_info.native_name}
+    </a>
+    {/volist}
+</div>
+
+<!-- 多语言表单 -->
+<form class="multilang-form">
+    {volist name=":get_enabled_languages()" id="lang_info" key="lang_code"}
+    <div class="lang-tab {eq name='lang_code' value='zh-cn'}active{/eq}" data-lang="{$lang_code}">
+        <h4>{$lang_info.native_name}</h4>
+        
+        <div class="form-group">
+            <label>{:lang('title')}:</label>
+            <input type="text" name="title[{$lang_code}]" value="{$data.title[$lang_code]|default=''}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>{:lang('content')}:</label>
+            <textarea name="content[{$lang_code}]" class="editor">{$data.content[$lang_code]|default=''}</textarea>
+        </div>
+    </div>
+    {/volist}
+</form>
+```
+
+### 模板函数扩展
+```php
+/**
+ * 多语言模板函数
+ */
+
+/**
+ * 多语言文本翻译
+ */
+function lang($key, $params = [])
+{
+    return LanguageHandler::translate($key, $params);
+}
+
+/**
+ * 生成多语言URL
+ */
+function multilang_url($route, $params = [], $lang = null)
+{
+    return LanguageHandler::generateUrl($route, $params, $lang);
+}
+
+/**
+ * 获取启用的语言列表
+ */
+function get_enabled_languages()
+{
+    return MultiLanguageConfig::getEnabledLanguages();
+}
+
+/**
+ * 获取当前语言配置
+ */
+function get_current_language_config()
+{
+    $currentLang = LanguageHandler::getCurrentLanguage();
+    $languages = MultiLanguageConfig::getLanguageConfig();
+    return $languages[$currentLang] ?? [];
+}
+
+/**
+ * 格式化多语言日期
+ */
+function format_multilang_date($timestamp, $format = null)
+{
+    $langConfig = get_current_language_config();
+    $format = $format ?: $langConfig['datetime_format'];
+    
+    return date($format, $timestamp);
+}
+
+/**
+ * 格式化多语言货币
+ */
+function format_multilang_currency($amount, $showSymbol = true)
+{
+    $langConfig = get_current_language_config();
+    $symbol = $showSymbol ? $langConfig['currency_symbol'] : '';
+    
+    return $symbol . number_format($amount, 2);
+}
+
+/**
+ * 获取多语言字段值
+ */
+function get_multilang_field($data, $field, $lang = null)
+{
+    $lang = $lang ?: LanguageHandler::getCurrentLanguage();
+    
+    // JSON格式数据
+    if (is_string($data) && json_decode($data, true)) {
+        $multilangData = json_decode($data, true);
+        return $multilangData[$lang][$field] ?? '';
+    }
+    
+    // 数组格式数据
+    if (is_array($data)) {
+        return $data[$lang][$field] ?? $data[$field][$lang] ?? '';
+    }
+    
+    return '';
+}
+```
+
+---
+
+## 🔧 URL多语言处理
+
+### URL路由规则
+```php
+/**
+ * 多语言路由配置
+ */
+class MultiLanguageRoute
+{
+    /**
+     * 注册多语言路由
+     */
+    public static function registerRoutes()
+    {
+        $languages = MultiLanguageConfig::getEnabledLanguages();
+        
+        foreach ($languages as $langCode => $langConfig) {
+            if (empty($langConfig['prefix'])) {
+                // 默认语言不需要前缀
+                self::registerDefaultLanguageRoutes();
+            } else {
+                // 其他语言需要前缀
+                self::registerPrefixLanguageRoutes($langCode, $langConfig['prefix']);
+            }
+        }
+    }
+    
+    /**
+     * 注册默认语言路由
+     */
+    private static function registerDefaultLanguageRoutes()
+    {
+        // 首页路由
+        \think\Route::get('/', 'addons/ldcms/Index/index');
+        
+        // 分类列表路由
+        \think\Route::get('category/<id:\d+>', 'addons/ldcms/Lists/index');
+        \think\Route::get('category/<urlname>', 'addons/ldcms/Lists/index');
+        
+        // 文档详情路由
+        \think\Route::get('detail/<id:\d+>', 'addons/ldcms/Detail/index');
+        \think\Route::get('detail/<id:\d+>.html', 'addons/ldcms/Detail/index');
+        
+        // 搜索路由
+        \think\Route::get('search', 'addons/ldcms/Search/index');
+        
+        // 自定义表单路由
+        \think\Route::get('form/<id:\d+>', 'addons/ldcms/Diyform/index');
+        \think\Route::post('form/<id:\d+>', 'addons/ldcms/Diyform/submit');
+    }
+    
+    /**
+     * 注册带前缀的语言路由
+     */
+    private static function registerPrefixLanguageRoutes($langCode, $prefix)
+    {
+        // 路由组
+        \think\Route::group($prefix, function() use ($langCode) {
+            // 设置当前语言
+            \think\Route::pattern([
+                'lang' => $langCode
+            ]);
+            
+            // 首页路由
+            \think\Route::get('/', 'addons/ldcms/Index/index')
+                       ->append(['lang' => $langCode]);
+            
+            // 分类列表路由
+            \think\Route::get('category/<id:\d+>', 'addons/ldcms/Lists/index')
+                       ->append(['lang' => $langCode]);
+            \think\Route::get('category/<urlname>', 'addons/ldcms/Lists/index')
+                       ->append(['lang' => $langCode]);
+            
+            // 文档详情路由
+            \think\Route::get('detail/<id:\d+>', 'addons/ldcms/Detail/index')
+                       ->append(['lang' => $langCode]);
+            \think\Route::get('detail/<id:\d+>.html', 'addons/ldcms/Detail/index')
+                       ->append(['lang' => $langCode]);
+            
+            // 搜索路由
+            \think\Route::get('search', 'addons/ldcms/Search/index')
+                       ->append(['lang' => $langCode]);
+        });
+    }
+    
+    /**
+     * URL生成规则
+     */
+    public static function buildUrl($route, $params = [], $lang = null)
+    {
+        $lang = $lang ?: LanguageHandler::getCurrentLanguage();
+        $langConfig = MultiLanguageConfig::getLanguageConfig()[$lang];
+        
+        // 域名处理
+        $domain = !empty($langConfig['domain']) ? $langConfig['domain'] : request()->domain();
+        
+        // 前缀处理
+        $prefix = !empty($langConfig['prefix']) ? '/' . $langConfig['prefix'] : '';
+        
+        // 构建URL
+        $url = $domain . $prefix . '/' . ltrim($route, '/');
+        
+        // 添加参数
+        if (!empty($params)) {
+            $url .= (strpos($url, '?') !== false ? '&' : '?') . http_build_query($params);
+        }
+        
+        return $url;
+    }
+}
+```
+
+### SEO友好URL
+```php
+/**
+ * SEO友好的多语言URL生成器
+ */
+class SEOFriendlyURL
+{
+    /**
+     * 生成分类URL
+     */
+    public static function categoryUrl($category, $lang = null)
+    {
+        $lang = $lang ?: LanguageHandler::getCurrentLanguage();
+        
+        // 获取分类的多语言数据
+        $categoryLangData = self::getCategoryLangData($category['id'], $lang);
+        
+        // 使用SEO友好的URL名称
+        $urlName = $categoryLangData['urlname'] ?? $category['urlname'] ?? 'category-' . $category['id'];
+        
+        return MultiLanguageRoute::buildUrl('category/' . $urlName, [], $lang);
+    }
+    
+    /**
+     * 生成文档URL
+     */
+    public static function documentUrl($document, $lang = null)
+    {
+        $lang = $lang ?: LanguageHandler::getCurrentLanguage();
+        
+        // 获取文档的多语言数据
+        $documentLangData = self::getDocumentLangData($document['id'], $lang);
+        
+        // 生成SEO友好的URL
+        $urlName = $documentLangData['urlname'] ?? self::generateUrlName($documentLangData['title'] ?? $document['title']);
+        
+        return MultiLanguageRoute::buildUrl('detail/' . $document['id'] . '-' . $urlName . '.html', [], $lang);
+    }
+    
+    /**
+     * 生成URL名称
+     */
+    private static function generateUrlName($title)
+    {
+        // 中文转拼音
+        if (preg_match('/[\x{4e00}-\x{9fff}]+/u', $title)) {
+            $urlName = \overtrue\Pinyin\Pinyin::slug($title);
+        } else {
+            // 英文处理
+            $urlName = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title), '-'));
+        }
+        
+        return substr($urlName, 0, 100); // 限制长度
+    }
+    
+    /**
+     * 获取分类语言数据
+     */
+    private static function getCategoryLangData($categoryId, $lang)
+    {
+        return \think\Db::name('ldcms_category_lang')
+                       ->where('category_id', $categoryId)
+                       ->where('lang', $lang)
+                       ->find() ?: [];
+    }
+    
+    /**
+     * 获取文档语言数据
+     */
+    private static function getDocumentLangData($documentId, $lang)
+    {
+        return \think\Db::name('ldcms_document_lang')
+                       ->where('document_id', $documentId)
+                       ->where('lang', $lang)
+                       ->find() ?: [];
+    }
+}
+```
+
+---
+
+## 📝 内容翻译管理
+
+### 翻译工作流
+```php
+/**
+ * 翻译管理器
+ */
+class TranslationManager
+{
+    /**
+     * 创建翻译任务
+     */
+    public static function createTranslationTask($sourceId, $sourceType, $sourceLang, $targetLangs, $fields = [])
+    {
+        $taskId = \think\Db::name('translation_tasks')->insertGetId([
+            'source_id' => $sourceId,
+            'source_type' => $sourceType,
+            'source_lang' => $sourceLang,
+            'target_langs' => json_encode($targetLangs),
+            'fields' => json_encode($fields),
+            'status' => 'pending',
+            'create_time' => time(),
+            'update_time' => time()
+        ]);
+        
+        // 创建具体的翻译项目
+        foreach ($targetLangs as $targetLang) {
+            foreach ($fields as $field) {
+                \think\Db::name('translation_items')->insert([
+                    'task_id' => $taskId,
+                    'source_lang' => $sourceLang,
+                    'target_lang' => $targetLang,
+                    'field_name' => $field,
+                    'source_text' => self::getSourceText($sourceId, $sourceType, $field, $sourceLang),
+                    'translated_text' => '',
+                    'status' => 'pending',
+                    'create_time' => time(),
+                    'update_time' => time()
+                ]);
+            }
+        }
+        
+        return $taskId;
+    }
+    
+    /**
+     * 自动翻译（调用翻译API）
+     */
+    public static function autoTranslate($taskId, $provider = 'google')
+    {
+        $items = \think\Db::name('translation_items')
+                         ->where('task_id', $taskId)
+                         ->where('status', 'pending')
+                         ->select();
+        
+        foreach ($items as $item) {
+            try {
+                $translatedText = self::callTranslationAPI(
+                    $item['source_text'],
+                    $item['source_lang'],
+                    $item['target_lang'],
+                    $provider
+                );
+                
+                \think\Db::name('translation_items')
+                        ->where('id', $item['id'])
+                        ->update([
+                            'translated_text' => $translatedText,
+                            'status' => 'translated',
+                            'update_time' => time()
+                        ]);
+                        
+            } catch (\Exception $e) {
+                \think\Db::name('translation_items')
+                        ->where('id', $item['id'])
+                        ->update([
+                            'status' => 'failed',
+                            'error_message' => $e->getMessage(),
+                            'update_time' => time()
+                        ]);
+            }
+        }
+        
+        // 更新任务状态
+        self::updateTaskStatus($taskId);
+    }
+    
+    /**
+     * 人工翻译提交
+     */
+    public static function submitManualTranslation($itemId, $translatedText, $translatorId)
+    {
+        \think\Db::name('translation_items')
+                ->where('id', $itemId)
+                ->update([
+                    'translated_text' => $translatedText,
+                    'status' => 'translated',
+                    'translator_id' => $translatorId,
+                    'update_time' => time()
+                ]);
+        
+        // 更新任务状态
+        $item = \think\Db::name('translation_items')->find($itemId);
+        self::updateTaskStatus($item['task_id']);
+    }
+    
+    /**
+     * 应用翻译结果
+     */
+    public static function applyTranslations($taskId)
+    {
+        $task = \think\Db::name('translation_tasks')->find($taskId);
+        if (!$task || $task['status'] !== 'completed') {
+            throw new \Exception('翻译任务未完成');
+        }
+        
+        $items = \think\Db::name('translation_items')
+                         ->where('task_id', $taskId)
+                         ->where('status', 'translated')
+                         ->select();
+        
+        foreach ($items as $item) {
+            self::saveTranslatedContent(
+                $task['source_id'],
+                $task['source_type'],
+                $item['field_name'],
+                $item['target_lang'],
+                $item['translated_text']
+            );
+        }
+        
+        // 标记任务为已应用
+        \think\Db::name('translation_tasks')
+                ->where('id', $taskId)
+                ->update([
+                    'status' => 'applied',
+                    'update_time' => time()
+                ]);
+    }
+    
+    /**
+     * 调用翻译API
+     */
+    private static function callTranslationAPI($text, $sourceLang, $targetLang, $provider)
+    {
+        switch ($provider) {
+            case 'google':
+                return self::googleTranslate($text, $sourceLang, $targetLang);
+            case 'baidu':
+                return self::baiduTranslate($text, $sourceLang, $targetLang);
+            case 'tencent':
+                return self::tencentTranslate($text, $sourceLang, $targetLang);
+            default:
+                throw new \Exception('不支持的翻译服务提供商');
+        }
+    }
+    
+    /**
+     * Google翻译API
+     */
+    private static function googleTranslate($text, $sourceLang, $targetLang)
+    {
+        $config = config('translation.google');
+        $apiKey = $config['api_key'];
+        
+        $url = 'https://translation.googleapis.com/language/translate/v2';
+        $params = [
+            'key' => $apiKey,
+            'q' => $text,
+            'source' => self::convertLangCode($sourceLang, 'google'),
+            'target' => self::convertLangCode($targetLang, 'google'),
+            'format' => 'text'
+        ];
+        
+        $response = self::httpPost($url, $params);
+        $result = json_decode($response, true);
+        
+        if (isset($result['data']['translations'][0]['translatedText'])) {
+            return $result['data']['translations'][0]['translatedText'];
+        }
+        
+        throw new \Exception('Google翻译API调用失败');
+    }
+    
+    /**
+     * 百度翻译API
+     */
+    private static function baiduTranslate($text, $sourceLang, $targetLang)
+    {
+        $config = config('translation.baidu');
+        $appId = $config['app_id'];
+        $secretKey = $config['secret_key'];
+        
+        $salt = time();
+        $sign = md5($appId . $text . $salt . $secretKey);
+        
+        $url = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
+        $params = [
+            'q' => $text,
+            'from' => self::convertLangCode($sourceLang, 'baidu'),
+            'to' => self::convertLangCode($targetLang, 'baidu'),
+            'appid' => $appId,
+            'salt' => $salt,
+            'sign' => $sign
+        ];
+        
+        $response = self::httpPost($url, $params);
+        $result = json_decode($response, true);
+        
+        if (isset($result['trans_result'][0]['dst'])) {
+            return $result['trans_result'][0]['dst'];
+        }
+        
+        throw new \Exception('百度翻译API调用失败');
+    }
+    
+    /**
+     * 语言代码转换
+     */
+    private static function convertLangCode($langCode, $provider)
+    {
+        $langMap = [
+            'google' => [
+                'zh-cn' => 'zh-CN',
+                'zh-tw' => 'zh-TW',
+                'en' => 'en',
+                'ja' => 'ja',
+                'ko' => 'ko'
+            ],
+            'baidu' => [
+                'zh-cn' => 'zh',
+                'zh-tw' => 'cht',
+                'en' => 'en',
+                'ja' => 'jp',
+                'ko' => 'kor'
+            ]
+        ];
+        
+        return $langMap[$provider][$langCode] ?? $langCode;
+    }
+    
+    /**
+     * HTTP POST请求
+     */
+    private static function httpPost($url, $params)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        
+        $response = curl_exec($ch);
+        
+        if (curl_error($ch)) {
+            throw new \Exception('HTTP请求失败：' . curl_error($ch));
+        }
+        
+        curl_close($ch);
+        return $response;
+    }
+}
+```
+
+---
+
+## 📋 多语言开发检查清单
+
+### 基础配置检查
+- [ ] 语言配置文件完整
+- [ ] 默认语言设置正确
+- [ ] 语言检测逻辑正常
+- [ ] Cookie语言存储
+- [ ] 浏览器语言检测
+- [ ] URL语言参数处理
+- [ ] 域名绑定配置
+
+### 数据库设计检查
+- [ ] 多语言表结构设计
+- [ ] 语言字段索引优化
+- [ ] 数据完整性约束
+- [ ] 语言数据关联正确
+- [ ] 默认语言数据存在
+- [ ] 数据迁移脚本
+
+### 模板多语言检查
+- [ ] 语言包文件完整
+- [ ] 模板语言标签正确
+- [ ] 语言切换功能
+- [ ] 多语言表单处理
+- [ ] 日期时间本地化
+- [ ] 货币格式本地化
+- [ ] 数字格式本地化
+
+### URL多语言检查
+- [ ] 多语言路由规则
+- [ ] SEO友好URL
+- [ ] 语言前缀处理
+- [ ] 重定向规则
+- [ ] Canonical标签
+- [ ] Hreflang标签
+- [ ] 站点地图多语言
+
+### API多语言检查
+- [ ] API语言参数
+- [ ] 响应数据多语言
+- [ ] 错误信息多语言
+- [ ] API文档多语言
+- [ ] 接口版本控制
+- [ ] 缓存键多语言
+
+### SEO优化检查
+- [ ] 多语言页面标题
+- [ ] Meta描述多语言
+- [ ] Meta关键词多语言
+- [ ] 结构化数据多语言
+- [ ] 面包屑导航多语言
+- [ ] 搜索引擎提交
+
+---
+
+**注意**: 多语言开发需要考虑文化差异、阅读习惯、法律法规等因素，不仅仅是语言翻译。建议聘请专业的本地化团队进行内容审核。

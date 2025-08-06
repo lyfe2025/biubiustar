@@ -13,10 +13,31 @@ techStack: "FastAdmin v5 + ThinkPHP"
 
 ## 🏗️ 项目架构规范
 
+### 🔧 当前项目配置信息
+```yaml
+# FastAdmin项目配置（biubiustar项目）
+项目名称: biubiustar
+项目域名: biubiustar.local
+后台管理地址: http://biubiustar.local/SWTvGsCQjH.php
+前台访问地址: http://biubiustar.local/
+项目根目录: /Volumes/wwx/dev/WebProjects/biubiustar/
+
+# 数据库配置
+数据库名: biubiustar
+数据库用户: biubiustar
+数据库密码: Qwer1234...
+数据库主机: 127.0.0.1:3306
+表前缀: fa_
+
+# 已安装插件
+LDCMS企业网站管理系统: v1.4.3 (多语言+多模板)
+```
+
 ### 目录结构标准
 ```
 biubiustar/
 ├── addons/                 # 插件目录
+│   └── ldcms/             # LDCMS企业网站管理系统插件 ⭐
 ├── application/            # 应用目录
 │   ├── admin/             # 后台管理模块
 │   ├── api/               # API接口模块  

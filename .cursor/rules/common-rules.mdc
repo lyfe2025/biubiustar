@@ -20,8 +20,20 @@ function MANDATORY_SPECIALIZED_RULES_CHECK() {
   const specializedFiles = existingRules.filter(file => 
     !['common-rules.mdc', 'collaboration-standards.mdc', 
       'project-management-practices.mdc', 'rule-file-management.mdc',
-      'project-initialization.mdc', 'detailed-guides.mdc'].includes(file)
+      'project-initialization.mdc', 'detailed-guides.mdc', 'setup-rules.sh'].includes(file)
   );
+  
+  // 🔥 LDCMS专用规则强制优先检查
+  const ldcmsRules = specializedFiles.filter(file => 
+    file.includes('ldcms') || file.includes('multilanguage') || file.includes('multitemplate')
+  );
+  
+  // LDCMS上下文检测
+  const isLdcmsContext = detectLdcmsContext();
+  if (isLdcmsContext) {
+    console.log('🎯 检测到LDCMS开发上下文，强制应用LDCMS专用规则');
+    ldcmsRules.forEach(rule => FORCE_LOAD_AND_APPLY(rule));
+  }
   
   // 步骤2: 按优先级排序并强制应用
   const prioritizedRules = sortByPriority(specializedFiles);
@@ -29,10 +41,23 @@ function MANDATORY_SPECIALIZED_RULES_CHECK() {
     FORCE_LOAD_AND_APPLY(ruleFile); // 强制加载，无条件应用
   }
   
-  // 步骤3: 技术栈检测与专用规则生成
+  // 步骤3: FastAdmin LDCMS技术栈强制检测
   const techStack = detectTechStack();
+  
+  // 🔥 强制检测LDCMS相关技术栈
+  if (projectContains('addons/ldcms/') || projectContains('fa_ldcms_')) {
+    const ldcmsStack = [
+      { name: 'ldcms-enterprise-cms', version: 'standards' },
+      { name: 'fastadmin-multilanguage', version: 'standards' },
+      { name: 'fastadmin-multitemplate', version: 'standards' },
+      { name: 'ldcms-development', version: 'workflow' },
+      { name: 'ldcms-context', version: 'detection' }
+    ];
+    techStack.push(...ldcmsStack);
+  }
+  
   for (const tech of techStack) {
-    const expectedRuleFile = `${tech.name}-v${tech.version}-standards.mdc`;
+    const expectedRuleFile = `${tech.name}-${tech.version}.mdc`;
     if (!exists(expectedRuleFile)) {
       IMMEDIATE_GENERATE_RULE_FILE(expectedRuleFile);
       FORCE_LOAD_AND_APPLY(expectedRuleFile); // 生成后立即应用

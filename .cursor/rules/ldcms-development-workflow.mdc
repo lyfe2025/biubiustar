@@ -1,0 +1,483 @@
+---
+alwaysApply: true
+priority: 11
+techStack: "FastAdmin LDCMS Workflow"
+contextPatterns:
+  - "addons/ldcms"
+  - "LDCMS"
+  - "企业网站"
+  - "开发"
+  - "workflow"
+---
+
+# FastAdmin LDCMS 开发工作流标准规范
+
+> **🎯 核心原则**: 所有开发工作都基于FastAdmin的LDCMS企业网站管理系统插件
+> **📋 工作流程**: 严格按照LDCMS插件的架构和规范进行开发
+> **⚠️ 强制要求**: 任何功能开发都必须与现有LDCMS插件兼容
+
+---
+
+## 🚨 LDCMS开发强制检查清单
+
+**开始任何开发工作前，必须确认以下事项：**
+
+### 📋 项目环境确认
+- [ ] ✅ 项目基于FastAdmin框架
+- [ ] ✅ 已安装LDCMS企业网站管理系统插件（v1.4.3）
+- [ ] ✅ 项目域名：biubiustar.local
+- [ ] ✅ 后台管理地址：http://biubiustar.local/SWTvGsCQjH.php
+- [ ] ✅ 数据库：biubiustar，表前缀：fa_
+- [ ] ✅ LDCMS插件目录：`addons/ldcms/`
+- [ ] ✅ 现有模板：default、en、ldcms2024、ldcms2025等
+
+### 🔍 开发前分析
+- [ ] ✅ 功能需求是否与LDCMS插件相关
+- [ ] ✅ 是否需要多语言支持（zh-cn、en、zh-tw）
+- [ ] ✅ 是否需要多模板支持
+- [ ] ✅ 是否涉及LDCMS现有数据模型
+- [ ] ✅ 是否需要API接口支持
+
+---
+
+## 🔄 LDCMS开发工作流程
+
+### 阶段1：需求分析与设计
+```mermaid
+graph TD
+    A[接收开发需求] --> B{是否基于LDCMS?}
+    B -->|是| C[分析LDCMS现有功能]
+    B -->|否| D[❌ 拒绝：必须基于LDCMS]
+    C --> E[检查多语言需求]
+    E --> F[检查多模板需求]
+    F --> G[设计数据库结构]
+    G --> H[设计API接口]
+    H --> I[开始开发]
+```
+
+#### 1.1 功能需求确认
+```php
+/**
+ * LDCMS功能需求分析模板
+ */
+class LdcmsRequirementAnalysis
+{
+    public function analyzeRequirement($requirement)
+    {
+        return [
+            // 基础信息
+            'project_type' => 'FastAdmin LDCMS Plugin',
+            'plugin_version' => '1.4.3',
+            'project_domain' => 'biubiustar.local',
+            'admin_url' => 'http://biubiustar.local/SWTvGsCQjH.php',
+            'frontend_url' => 'http://biubiustar.local/',
+            'database' => 'biubiustar (fa_prefix)',
+            'project_path' => '/Volumes/wwx/dev/WebProjects/biubiustar/',
+            
+            // 功能分析
+            'feature_type' => $this->determineFeatureType($requirement),
+            'multilang_required' => $this->checkMultiLanguageNeed($requirement),
+            'multitemplate_required' => $this->checkMultiTemplateNeed($requirement),
+            'api_required' => $this->checkApiNeed($requirement),
+            'custom_model_required' => $this->checkCustomModelNeed($requirement),
+            
+            // LDCMS集成点
+            'ldcms_models' => $this->getRelatedLdcmsModels($requirement),
+            'ldcms_controllers' => $this->getRelatedLdcmsControllers($requirement),
+            'ldcms_templates' => $this->getRelatedLdcmsTemplates($requirement),
+            
+            // 开发计划
+            'development_steps' => $this->generateDevelopmentSteps($requirement),
+            'compatibility_check' => $this->checkLdcmsCompatibility($requirement)
+        ];
+    }
+    
+    private function determineFeatureType($requirement)
+    {
+        // 确定功能类型：内容管理、用户功能、API接口、模板定制等
+        if (strpos($requirement, '内容') !== false || strpos($requirement, 'content') !== false) {
+            return 'content_management';
+        }
+        if (strpos($requirement, '模板') !== false || strpos($requirement, 'template') !== false) {
+            return 'template_customization';
+        }
+        if (strpos($requirement, 'API') !== false || strpos($requirement, 'api') !== false) {
+            return 'api_development';
+        }
+        if (strpos($requirement, '表单') !== false || strpos($requirement, 'form') !== false) {
+            return 'form_management';
+        }
+        
+        return 'general_feature';
+    }
+    
+    private function getRelatedLdcmsModels($requirement)
+    {
+        $models = [];
+        
+        // 根据需求确定相关的LDCMS模型
+        if (strpos($requirement, '文档') !== false || strpos($requirement, '内容') !== false) {
+            $models[] = 'addons\\ldcms\\model\\Document';
+        }
+        if (strpos($requirement, '分类') !== false || strpos($requirement, 'category') !== false) {
+            $models[] = 'addons\\ldcms\\model\\Category';
+        }
+        if (strpos($requirement, '广告') !== false || strpos($requirement, 'ad') !== false) {
+            $models[] = 'addons\\ldcms\\model\\Ad';
+        }
+        if (strpos($requirement, '表单') !== false || strpos($requirement, 'form') !== false) {
+            $models[] = 'addons\\ldcms\\model\\Diyform';
+        }
+        
+        return $models;
+    }
+}
+```
+
+### 阶段2：数据库设计
+```php
+/**
+ * LDCMS数据库设计规范
+ */
+class LdcmsDatabaseDesign
+{
+    /**
+     * 设计LDCMS兼容的数据表
+     */
+    public function designTable($tableName, $fields, $isMultiLang = false)
+    {
+        // 强制使用fa_前缀
+        if (!str_starts_with($tableName, 'fa_')) {
+            $tableName = 'fa_' . $tableName;
+        }
+        
+        // 如果不是ldcms相关表，建议添加ldcms前缀
+        if (!str_contains($tableName, 'ldcms')) {
+            $tableName = str_replace('fa_', 'fa_ldcms_', $tableName);
+        }
+        
+        $sql = "CREATE TABLE `{$tableName}` (\n";
+        $sql .= "  `id` int(11) NOT NULL AUTO_INCREMENT,\n";
+        
+        // 添加自定义字段
+        foreach ($fields as $field) {
+            $sql .= $this->generateFieldSql($field);
+        }
+        
+        // 多语言支持
+        if ($isMultiLang) {
+            $sql .= "  `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言代码',\n";
+        }
+        
+        // 标准LDCMS字段
+        $sql .= "  `sort` int(10) DEFAULT '99' COMMENT '排序',\n";
+        $sql .= "  `status` tinyint(1) DEFAULT '1' COMMENT '状态',\n";
+        $sql .= "  `create_time` bigint(20) DEFAULT NULL COMMENT '创建时间',\n";
+        $sql .= "  `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',\n";
+        $sql .= "  PRIMARY KEY (`id`),\n";
+        
+        // 多语言索引
+        if ($isMultiLang) {
+            $sql .= "  KEY `lang` (`lang`),\n";
+        }
+        
+        $sql .= "  KEY `status` (`status`),\n";
+        $sql .= "  KEY `sort` (`sort`)\n";
+        $sql .= ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='{$tableName}表';\n";
+        
+        return $sql;
+    }
+    
+    /**
+     * 检查与现有LDCMS表的兼容性
+     */
+    public function checkCompatibility($newTable)
+    {
+        $ldcmsTables = [
+            'fa_ldcms_document',
+            'fa_ldcms_category', 
+            'fa_ldcms_ad',
+            'fa_ldcms_langs',
+            'fa_ldcms_tags',
+            'fa_ldcms_models',
+            'fa_ldcms_fields',
+            'fa_ldcms_diyform',
+            'fa_ldcms_diyform_data',
+            'fa_ldcms_diyform_fields',
+            'fa_ldcms_links'
+        ];
+        
+        // 检查是否与现有表冲突
+        // 检查外键关系
+        // 检查字段命名规范
+        
+        return [
+            'compatible' => true,
+            'warnings' => [],
+            'suggestions' => []
+        ];
+    }
+}
+```
+
+### 阶段3：模型开发
+```php
+/**
+ * LDCMS模型开发规范
+ */
+class LdcmsModelDevelopment
+{
+    /**
+     * 创建LDCMS兼容的模型类
+     */
+    public function createModel($modelName, $tableName, $features = [])
+    {
+        $namespace = 'addons\\ldcms\\model';
+        $extends = 'MultiLangModel'; // 如果支持多语言
+        
+        if (!in_array('multilang', $features)) {
+            $extends = '\\think\\Model';
+        }
+        
+        $modelCode = "<?php\n\n";
+        $modelCode .= "namespace {$namespace};\n\n";
+        $modelCode .= "use think\\Model;\n";
+        
+        if (in_array('multilang', $features)) {
+            $modelCode .= "use addons\\ldcms\\model\\MultiLangModel;\n";
+        }
+        
+        $modelCode .= "\n/**\n";
+        $modelCode .= " * {$modelName}模型\n";
+        $modelCode .= " * 基于LDCMS插件架构开发\n";
+        $modelCode .= " */\n";
+        $modelCode .= "class {$modelName} extends {$extends}\n";
+        $modelCode .= "{\n";
+        $modelCode .= "    protected \$name = '{$tableName}';\n";
+        $modelCode .= "    \n";
+        $modelCode .= "    // 自动写入时间戳\n";
+        $modelCode .= "    protected \$autoWriteTimestamp = 'int';\n";
+        $modelCode .= "    protected \$createTime = 'create_time';\n";
+        $modelCode .= "    protected \$updateTime = 'update_time';\n";
+        $modelCode .= "    \n";
+        
+        // 多语言支持
+        if (in_array('multilang', $features)) {
+            $modelCode .= "    // 多语言模式\n";
+            $modelCode .= "    protected \$langMode = 'relation';\n";
+            $modelCode .= "    \n";
+            $modelCode .= "    /**\n";
+            $modelCode .= "     * 获取当前语言数据\n";
+            $modelCode .= "     */\n";
+            $modelCode .= "    public function scopeLang(\$query, \$lang = '')\n";
+            $modelCode .= "    {\n";
+            $modelCode .= "        \$lang = \$lang ?: \\addons\\ldcms\\utils\\LanguageHandler::getCurrentLanguage();\n";
+            $modelCode .= "        return \$query->where('lang', \$lang);\n";
+            $modelCode .= "    }\n";
+            $modelCode .= "    \n";
+        }
+        
+        // 状态查询
+        $modelCode .= "    /**\n";
+        $modelCode .= "     * 获取启用状态的数据\n";
+        $modelCode .= "     */\n";
+        $modelCode .= "    public function scopeEnabled(\$query)\n";
+        $modelCode .= "    {\n";
+        $modelCode .= "        return \$query->where('status', 1);\n";
+        $modelCode .= "    }\n";
+        $modelCode .= "    \n";
+        
+        // 排序查询
+        $modelCode .= "    /**\n";
+        $modelCode .= "     * 按排序字段排序\n";
+        $modelCode .= "     */\n";
+        $modelCode .= "    public function scopeOrdered(\$query)\n";
+        $modelCode .= "    {\n";
+        $modelCode .= "        return \$query->order('sort asc, id desc');\n";
+        $modelCode .= "    }\n";
+        
+        $modelCode .= "}\n";
+        
+        return $modelCode;
+    }
+}
+```
+
+### 阶段4：控制器开发
+```php
+/**
+ * LDCMS控制器开发规范
+ */
+class LdcmsControllerDevelopment
+{
+    /**
+     * 创建LDCMS兼容的控制器
+     */
+    public function createController($controllerName, $features = [])
+    {
+        $namespace = 'addons\\ldcms\\controller';
+        
+        $controllerCode = "<?php\n\n";
+        $controllerCode .= "namespace {$namespace};\n\n";
+        $controllerCode .= "use addons\\ldcms\\controller\\Base;\n";
+        $controllerCode .= "use addons\\ldcms\\utils\\LanguageHandler;\n";
+        $controllerCode .= "use think\\Request;\n";
+        $controllerCode .= "use think\\Response;\n\n";
+        $controllerCode .= "/**\n";
+        $controllerCode .= " * {$controllerName}控制器\n";
+        $controllerCode .= " * 基于LDCMS插件架构开发\n";
+        $controllerCode .= " */\n";
+        $controllerCode .= "class {$controllerName} extends Base\n";
+        $controllerCode .= "{\n";
+        $controllerCode .= "    /**\n";
+        $controllerCode .= "     * 初始化\n";
+        $controllerCode .= "     */\n";
+        $controllerCode .= "    protected function initialize()\n";
+        $controllerCode .= "    {\n";
+        $controllerCode .= "        parent::initialize();\n";
+        $controllerCode .= "        \n";
+        $controllerCode .= "        // LDCMS初始化逻辑\n";
+        $controllerCode .= "        \$this->initLdcmsEnvironment();\n";
+        $controllerCode .= "    }\n";
+        $controllerCode .= "    \n";
+        $controllerCode .= "    /**\n";
+        $controllerCode .= "     * 初始化LDCMS环境\n";
+        $controllerCode .= "     */\n";
+        $controllerCode .= "    private function initLdcmsEnvironment()\n";
+        $controllerCode .= "    {\n";
+        $controllerCode .= "        // 设置当前语言\n";
+        $controllerCode .= "        \$this->lang = LanguageHandler::getCurrentLanguage();\n";
+        $controllerCode .= "        \n";
+        $controllerCode .= "        // 设置模板变量\n";
+        $controllerCode .= "        \$this->assign([\n";
+        $controllerCode .= "            'lang' => \$this->lang,\n";
+        $controllerCode .= "            'site' => \$this->getSiteConfig(),\n";
+        $controllerCode .= "            'seo' => \$this->getSeoConfig()\n";
+        $controllerCode .= "        ]);\n";
+        $controllerCode .= "    }\n";
+        $controllerCode .= "    \n";
+        $controllerCode .= "    /**\n";
+        $controllerCode .= "     * 首页\n";
+        $controllerCode .= "     */\n";
+        $controllerCode .= "    public function index()\n";
+        $controllerCode .= "    {\n";
+        $controllerCode .= "        // LDCMS标准页面渲染\n";
+        $controllerCode .= "        return \$this->renderLdcmsTemplate('index');\n";
+        $controllerCode .= "    }\n";
+        $controllerCode .= "}\n";
+        
+        return $controllerCode;
+    }
+}
+```
+
+### 阶段5：模板开发
+```php
+/**
+ * LDCMS模板开发规范
+ */
+class LdcmsTemplateDevelopment
+{
+    /**
+     * 创建LDCMS兼容的模板文件
+     */
+    public function createTemplate($templateName, $templateType = 'page')
+    {
+        $templateCode = "<!DOCTYPE html>\n";
+        $templateCode .= "<html lang=\"{\$lang}\">\n";
+        $templateCode .= "<head>\n";
+        $templateCode .= "    <meta charset=\"utf-8\">\n";
+        $templateCode .= "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
+        $templateCode .= "    <title>{\$seo.title}</title>\n";
+        $templateCode .= "    <meta name=\"keywords\" content=\"{\$seo.keywords}\">\n";
+        $templateCode .= "    <meta name=\"description\" content=\"{\$seo.description}\">\n";
+        $templateCode .= "</head>\n";
+        $templateCode .= "<body>\n";
+        $templateCode .= "    <!-- LDCMS模板：{$templateName} -->\n";
+        $templateCode .= "    \n";
+        
+        switch ($templateType) {
+            case 'list':
+                $templateCode .= $this->generateListTemplate();
+                break;
+            case 'detail':
+                $templateCode .= $this->generateDetailTemplate();
+                break;
+            case 'form':
+                $templateCode .= $this->generateFormTemplate();
+                break;
+            default:
+                $templateCode .= $this->generatePageTemplate();
+        }
+        
+        $templateCode .= "    \n";
+        $templateCode .= "</body>\n";
+        $templateCode .= "</html>\n";
+        
+        return $templateCode;
+    }
+    
+    private function generateListTemplate()
+    {
+        return "    <!-- 分类列表 -->\n" .
+               "    {ldcms:document cid=\"{\$category.id}\" limit=\"10\"}\n" .
+               "    <div class=\"document-list\">\n" .
+               "        <h2>{\$document.title}</h2>\n" .
+               "        <p>{\$document.description}</p>\n" .
+               "        <a href=\"{\$document.url}\">阅读更多</a>\n" .
+               "    </div>\n" .
+               "    {/ldcms:document}\n";
+    }
+    
+    private function generateDetailTemplate()
+    {
+        return "    <!-- 文档详情 -->\n" .
+               "    <article class=\"document-detail\">\n" .
+               "        <h1>{\$document.title}</h1>\n" .
+               "        <div class=\"meta\">\n" .
+               "            <span>发布时间：{\$document.create_time|date='Y-m-d'}</span>\n" .
+               "            <span>浏览次数：{\$document.views}</span>\n" .
+               "        </div>\n" .
+               "        <div class=\"content\">\n" .
+               "            {\$document.content|raw}\n" .
+               "        </div>\n" .
+               "    </article>\n";
+    }
+}
+```
+
+---
+
+## 📋 LDCMS开发检查清单
+
+### 开发前检查
+- [ ] 确认基于LDCMS插件开发
+- [ ] 检查多语言需求
+- [ ] 检查多模板需求
+- [ ] 确认数据库设计符合LDCMS规范
+- [ ] 确认API接口设计
+
+### 开发中检查
+- [ ] 使用LDCMS命名空间
+- [ ] 继承LDCMS基类
+- [ ] 使用LDCMS工具类
+- [ ] 遵循LDCMS数据结构
+- [ ] 使用LDCMS模板标签
+
+### 开发后检查
+- [ ] 兼容性测试
+- [ ] 多语言功能测试
+- [ ] 多模板功能测试
+- [ ] 性能测试
+- [ ] 安全性测试
+
+### 部署前检查
+- [ ] 代码规范检查
+- [ ] 功能完整性检查
+- [ ] 文档完整性检查
+- [ ] 测试用例覆盖
+- [ ] 备份现有数据
+
+---
+
+**注意**: 严格按照此工作流进行开发，确保所有功能都与LDCMS插件完美集成！

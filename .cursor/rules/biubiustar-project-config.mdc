@@ -1,0 +1,223 @@
+---
+alwaysApply: true
+priority: 13
+techStack: "biubiustar Project Config"
+contextPatterns:
+  - "biubiustar"
+  - "SWTvGsCQjH.php"
+  - "biubiustar.local"
+---
+
+# biubiustar 项目配置信息
+
+> **🎯 项目名称**: biubiustar
+> **🏢 项目类型**: FastAdmin + LDCMS企业网站管理系统
+> **🌍 项目域名**: biubiustar.local
+> **📅 创建日期**: 2024年
+
+---
+
+## 🔧 项目基本配置
+
+### 🌐 访问地址
+```yaml
+# 项目访问地址
+前台地址: http://biubiustar.local/
+后台管理地址: http://biubiustar.local/SWTvGsCQjH.php
+LDCMS插件地址: http://biubiustar.local/addons/ldcms/
+
+# 开发环境信息
+项目域名: biubiustar.local
+本地开发路径: /Volumes/wwx/dev/WebProjects/biubiustar/
+```
+
+### 🗄️ 数据库配置
+```yaml
+# 数据库连接信息
+数据库名称: biubiustar
+数据库用户: biubiustar
+数据库密码: Qwer1234...
+数据库主机: 127.0.0.1
+数据库端口: 3306
+表前缀: fa_
+字符集: utf8mb4
+```
+
+### 📦 已安装插件
+```yaml
+# FastAdmin插件列表
+LDCMS企业网站管理系统:
+  版本: v1.4.3
+  功能: 多语言 + 多模板
+  路径: addons/ldcms/
+  状态: 已启用
+  
+  # LDCMS模板列表
+  已安装模板:
+    - default (默认中文模板)
+    - en (英文模板)
+    - ldcms2024 (2024主题中文版)
+    - ldcms2024en (2024主题英文版)
+    - ldcms2025 (2025主题中文版)
+    - ldcms2025en (2025主题英文版)
+  
+  # LDCMS语言支持
+  支持语言:
+    - zh-cn (简体中文) - 默认
+    - en (英语)
+    - zh-tw (繁体中文)
+```
+
+---
+
+## 🏗️ 项目架构信息
+
+### 📁 关键目录结构
+```
+/Volumes/wwx/dev/WebProjects/biubiustar/
+├── 📁 addons/                          # 插件目录
+│   └── 📁 ldcms/                       # LDCMS插件 ⭐
+│       ├── 📄 Ldcms.php                # 插件主类
+│       ├── 📄 config.php               # 插件配置
+│       ├── 📄 info.ini                 # 插件信息
+│       ├── 📁 controller/              # 前台控制器
+│       ├── 📁 model/                   # 数据模型
+│       ├── 📁 view/                    # 模板目录
+│       │   ├── 📁 default/             # 默认模板
+│       │   ├── 📁 en/                  # 英文模板
+│       │   ├── 📁 ldcms2024/           # 2024主题
+│       │   └── 📁 ldcms2025/           # 2025主题
+│       ├── 📁 lang/                    # 语言包
+│       └── 📁 utils/                   # 工具类
+├── 📁 application/                     # 应用目录
+│   ├── 📁 admin/                       # 后台管理
+│   ├── 📁 api/                         # API接口
+│   ├── 📁 index/                       # 前台首页
+│   └── 📁 common/                      # 公共模块
+├── 📁 public/                          # 公共资源
+├── 📄 .env                             # 环境配置
+└── 📄 composer.json                    # 依赖配置
+```
+
+### 🗃️ 数据库表结构
+```sql
+-- FastAdmin核心表（fa_前缀）
+fa_admin                    -- 管理员表
+fa_admin_log                -- 管理员日志表
+fa_auth_group               -- 权限组表
+fa_auth_group_access        -- 权限组用户关联表
+fa_auth_rule                -- 权限规则表
+fa_category                 -- 分类表
+fa_config                   -- 配置表
+fa_user                     -- 用户表
+
+-- LDCMS插件表（fa_ldcms_前缀）
+fa_ldcms_document           -- 文档内容表
+fa_ldcms_category           -- 分类表
+fa_ldcms_ad                 -- 广告表
+fa_ldcms_langs              -- 语言配置表
+fa_ldcms_tags               -- 标签表
+fa_ldcms_models             -- 自定义模型表
+fa_ldcms_fields             -- 自定义字段表
+fa_ldcms_diyform            -- 自定义表单表
+fa_ldcms_diyform_data       -- 表单数据表
+fa_ldcms_diyform_fields     -- 表单字段表
+fa_ldcms_links              -- 友情链接表
+```
+
+---
+
+## 🔐 安全配置
+
+### 🚨 重要安全信息
+```yaml
+# 后台访问安全
+后台入口文件: SWTvGsCQjH.php
+说明: 这是FastAdmin的安全后台入口文件，避免使用默认的admin.php
+
+# 访问控制
+- 后台地址已做安全处理，使用随机文件名
+- 数据库密码使用强密码：Qwer1234...
+- 建议定期更换数据库密码
+- 建议配置SSL证书（HTTPS）
+```
+
+### 🛡️ 开发安全建议
+```yaml
+开发环境安全:
+  - 不要将.env文件提交到版本控制
+  - 数据库密码不要硬编码在代码中
+  - 后台入口文件名不要暴露
+  - 定期更新FastAdmin和LDCMS插件版本
+  - 开发完成后及时修改默认密码
+```
+
+---
+
+## 🚀 快速开发指南
+
+### 📋 开发前检查清单
+```yaml
+环境确认:
+  - ✅ 项目域名：biubiustar.local 可正常访问
+  - ✅ 后台地址：http://biubiustar.local/SWTvGsCQjH.php 可正常登录
+  - ✅ 数据库连接正常（biubiustar数据库）
+  - ✅ LDCMS插件正常运行
+  - ✅ 多语言功能正常切换
+  - ✅ 多模板功能正常切换
+
+开发规范:
+  - 🔥 所有开发都基于LDCMS插件进行
+  - 🔥 严格遵循FastAdmin开发规范
+  - 🔥 考虑多语言和多模板兼容性
+  - 🔥 使用fa_前缀的数据表
+  - 🔥 遵循LDCMS的命名空间规范
+```
+
+### 🎯 常用开发路径
+```yaml
+# 开发时常用的文件路径
+LDCMS控制器: addons/ldcms/controller/
+LDCMS模型: addons/ldcms/model/
+LDCMS模板: addons/ldcms/view/
+LDCMS语言包: addons/ldcms/lang/
+LDCMS配置: addons/ldcms/config.php
+
+# 前台访问路径
+首页: http://biubiustar.local/
+LDCMS首页: http://biubiustar.local/addons/ldcms/
+API接口: http://biubiustar.local/addons/ldcms/api/
+
+# 后台管理路径
+后台首页: http://biubiustar.local/SWTvGsCQjH.php
+LDCMS管理: 后台 -> 插件管理 -> LDCMS企业网站管理系统
+```
+
+---
+
+## 📞 技术支持
+
+### 📚 相关文档
+```yaml
+FastAdmin官方文档: https://doc.fastadmin.net/
+LDCMS插件文档: https://doc.fastadmin.net/ldcms
+ThinkPHP 5.1文档: https://www.kancloud.cn/manual/thinkphp5_1/
+
+社区支持:
+  FastAdmin社区: https://ask.fastadmin.net/
+  GitHub仓库: https://github.com/karsonzhang/fastadmin
+```
+
+### 🔧 故障排除
+```yaml
+常见问题:
+  1. 后台无法访问 -> 检查SWTvGsCQjH.php文件是否存在
+  2. 数据库连接失败 -> 检查.env文件数据库配置
+  3. LDCMS插件异常 -> 检查addons/ldcms/目录权限
+  4. 模板显示异常 -> 检查模板文件路径和权限
+  5. 多语言切换失败 -> 检查fa_ldcms_langs表数据
+```
+
+---
+
+**重要提醒**: 此配置文件包含敏感信息，请确保在生产环境中妥善保护！
