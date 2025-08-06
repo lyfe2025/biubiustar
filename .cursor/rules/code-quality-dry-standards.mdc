@@ -1,10 +1,98 @@
 ---
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "code-quality-dry-standards"
+description: "代码质量DRY原则标准规范，包含重复代码检测、重构指导、代码质量提升等指导"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
 alwaysApply: false
-conditions:
-  - involves_code_changes
-  - involves_refactoring
-  - code_quality_review
-  - duplicate_code_detected
+priority: 7
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["DRY", "代码重复", "重构", "代码质量"]
+    secondary: ["优化", "简化", "抽象", "复用"]
+    technical: ["refactor", "duplicate", "quality", "clean code"]
+  
+  paths:
+    exact: []
+    pattern: ["**/*.php", "**/*.js", "**/*.css"]
+  
+  contexts:
+    development_phase: ["代码重构", "质量优化", "代码审查"]
+    project_type: ["代码优化", "重构项目", "质量提升"]
+    user_intent: ["代码优化", "重复消除", "重构", "质量提升"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["DRY", "代码重复", "重构", "代码质量", "重复代码"]
+    fuzzy_match: ["优化代码", "简化", "抽象", "复用"]
+  
+  file_operations:
+    reading: ["源代码文件"]
+    editing: ["重构代码", "优化代码"]
+    creating: ["抽象类", "公共函数", "工具类"]
+  
+  code_patterns:
+    namespaces: []
+    functions: ["refactor", "optimize", "abstract"]
+    classes: ["Utils", "Helper", "Common"]
+    comments: ["重复", "优化", "重构", "DRY"]
+  
+  intent_analysis:
+    primary_intent: ["code_refactoring", "quality_improvement", "duplicate_elimination"]
+    secondary_intent: ["code_optimization", "abstraction", "reusability"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: []
+  recommended_with: ["fastadmin-v5-standards.mdc", "thinkphp-v5-development-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户发现代码重复需要重构"
+      trigger_example: "这段代码重复了很多次，如何优化？"
+      expected_behavior: "AI应该提供DRY原则的重构方案和具体实现"
+    - scenario: "用户需要提升代码质量"
+      trigger_example: "如何让代码更简洁易维护？"
+      expected_behavior: "AI应该提供代码质量提升的具体建议"
+  
+  secondary:
+    - scenario: "用户进行代码审查"
+      trigger_example: "这个模块的代码质量怎么样？"
+      expected_behavior: "AI应该基于DRY原则提供代码质量评估"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及代码重复、重构、代码质量、DRY原则等关键词时应立即加载此规则"
+  how_to_apply: "严格按照DRY原则提供重构建议，优先考虑代码的可维护性和复用性"
+  priority_reason: "代码质量直接影响项目的长期维护和开发效率"
+  coordination: "与具体的开发规范协调，确保重构后的代码符合项目标准"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到代码重复或质量问题"]
+  cache_duration: "25"
+  unload_conditions: ["连续4次对话未涉及代码质量相关内容"]
 ---
 # 代码质量 - DRY 原则专用规则
 

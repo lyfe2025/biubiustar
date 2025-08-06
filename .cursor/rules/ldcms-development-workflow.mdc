@@ -1,13 +1,95 @@
 ---
-alwaysApply: true
-priority: 11
-techStack: "FastAdmin LDCMS Workflow"
-contextPatterns:
-  - "addons/ldcms"
-  - "LDCMS"
-  - "企业网站"
-  - "开发"
-  - "workflow"
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "ldcms-development-workflow"
+description: "FastAdmin LDCMS开发工作流程规范，包含开发流程、测试部署、维护管理等工作流指导"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
+priority: 4
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["LDCMS工作流", "开发流程", "部署流程"]
+    secondary: ["测试", "发布", "维护", "更新", "workflow"]
+    technical: ["workflow", "deploy", "release", "maintenance"]
+  
+  paths:
+    exact: ["addons/ldcms/"]
+    pattern: ["**/workflow/**", "**/deploy/**"]
+  
+  contexts:
+    development_phase: ["项目管理", "流程规范", "团队协作"]
+    project_type: ["LDCMS项目", "企业网站项目"]
+    user_intent: ["流程管理", "项目部署", "团队协作"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["工作流", "开发流程", "部署流程", "项目管理", "workflow"]
+    fuzzy_match: ["流程", "管理", "协作", "规范"]
+  
+  file_operations:
+    reading: ["项目配置文件", "部署脚本"]
+    editing: ["工作流配置", "部署配置"]
+    creating: ["新的工作流程", "部署方案"]
+  
+  code_patterns:
+    namespaces: ["workflow", "deploy"]
+    functions: ["deploy", "release", "test", "build"]
+    classes: ["Workflow", "Deploy", "Release"]
+    comments: ["工作流", "部署", "流程", "workflow"]
+  
+  intent_analysis:
+    primary_intent: ["workflow_management", "project_deployment", "team_collaboration"]
+    secondary_intent: ["process_optimization", "quality_assurance"]
+    complexity_level: ["medium"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["ldcms-enterprise-cms-standards.mdc"]
+  recommended_with: ["project-management-practices.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要了解LDCMS开发流程"
+      trigger_example: "LDCMS项目的开发流程是什么？"
+      expected_behavior: "AI应该提供完整的开发工作流程指导"
+  
+  secondary:
+    - scenario: "用户需要部署LDCMS项目"
+      trigger_example: "如何部署LDCMS到生产环境？"
+      expected_behavior: "AI应该提供详细的部署流程和注意事项"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户询问LDCMS工作流程、开发流程、部署管理等内容时应立即加载此规则"
+  how_to_apply: "提供系统性的工作流程指导，注重实际操作性和团队协作效率"
+  priority_reason: "工作流程规范能提高开发效率和项目质量"
+  coordination: "与LDCMS核心规范和项目管理规范协调工作"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到项目管理需求"]
+  cache_duration: "20"
+  unload_conditions: ["连续5次对话未涉及工作流相关内容"]
 ---
 
 # FastAdmin LDCMS 开发工作流标准规范

@@ -1,7 +1,101 @@
 ---
-alwaysApply: true
-priority: 1
-techStack: "ThinkPHP 5.1"
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "thinkphp-v5-development-standards"
+description: "ThinkPHP 5.1框架开发标准规范，MVC架构和RESTful API开发指导"
+version: "5.1.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
+priority: 6
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["ThinkPHP", "thinkphp", "TP5"]
+    secondary: ["MVC", "控制器", "模型", "视图", "中间件"]
+    technical: ["think\\", "Controller", "Model", "Request", "Response"]
+  
+  paths:
+    exact: ["application/", "config/", "route/"]
+    pattern: ["**/controller/**", "**/model/**", "**/view/**"]
+  
+  contexts:
+    development_phase: ["框架开发", "MVC开发", "API开发"]
+    project_type: ["Web应用", "API服务", "后台系统"]
+    user_intent: ["数据库操作", "路由配置", "中间件", "验证器"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["ThinkPHP", "thinkphp", "TP5", "think框架"]
+    fuzzy_match: ["控制器", "模型", "数据库", "路由"]
+  
+  file_operations:
+    reading: ["application/目录下的文件"]
+    editing: ["控制器文件", "模型文件", "配置文件"]
+    creating: ["新的控制器", "数据模型", "中间件"]
+  
+  code_patterns:
+    namespaces: ["think\\", "app\\"]
+    functions: ["index", "create", "save", "update", "delete"]
+    classes: ["Controller", "Model", "Request", "Validate"]
+    comments: ["ThinkPHP", "控制器", "模型"]
+  
+  intent_analysis:
+    primary_intent: ["framework_development", "mvc_architecture", "database_operations"]
+    secondary_intent: ["api_development", "route_configuration", "validation"]
+    complexity_level: ["simple", "medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: []
+  recommended_with: ["fastadmin-v5-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要使用ThinkPHP开发功能"
+      trigger_example: "ThinkPHP如何连接数据库？"
+      expected_behavior: "AI应该提供ThinkPHP标准的数据库配置和使用方法"
+    - scenario: "用户要创建控制器或模型"
+      trigger_example: "怎么在ThinkPHP中创建用户模型？"
+      expected_behavior: "AI应该提供标准的MVC开发指导"
+  
+  secondary:
+    - scenario: "用户遇到ThinkPHP框架错误"
+      trigger_example: "ThinkPHP路由不生效"
+      expected_behavior: "AI应该基于框架规范提供排错建议"
+    - scenario: "用户需要配置ThinkPHP功能"
+      trigger_example: "如何配置ThinkPHP的缓存？"
+      expected_behavior: "AI应该提供配置方法和最佳实践"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及ThinkPHP、TP5、MVC开发、数据库操作，或操作application/目录时应立即加载此规则"
+  how_to_apply: "严格按照ThinkPHP 5.1的开发规范和最佳实践提供建议，确保代码符合框架要求"
+  priority_reason: "ThinkPHP是项目的核心框架，其开发规范是所有功能开发的基础"
+  coordination: "与FastAdmin规范协调工作，为上层应用框架提供稳定的基础支持"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到项目包含application目录", "用户历史操作涉及框架开发"]
+  cache_duration: "25"
+  unload_conditions: ["连续5次对话未涉及ThinkPHP相关内容"]
 ---
 
 # ThinkPHP 5.1 开发标准规范

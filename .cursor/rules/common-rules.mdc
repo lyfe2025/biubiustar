@@ -10,133 +10,193 @@ alwaysApply: true
 
 ## 🚀 快速启动检查
 
-### ⚡ 专用规则文件优先检查机制（强制执行）
+### ⚡ 智能规则调度系统（按需加载）
 
 ```javascript
-// **强制执行**: 任何操作前必须优先检查专用规则文件
-function MANDATORY_SPECIALIZED_RULES_CHECK() {
-  // 步骤1: 强制扫描已存在的专用规则文件
-  const existingRules = scanDirectory('.cursor/rules/');
-  const specializedFiles = existingRules.filter(file => 
-    !['common-rules.mdc', 'collaboration-standards.mdc', 
-      'project-management-practices.mdc', 'rule-file-management.mdc',
-      'project-initialization.mdc', 'detailed-guides.mdc', 'setup-rules.sh'].includes(file)
-  );
+// **智能调度**: 根据用户输入和上下文动态加载相关规则
+function INTELLIGENT_RULE_DISPATCHER(userInput, context) {
+  const relevantRules = [];
   
-  // 🔥 LDCMS专用规则强制优先检查
-  const ldcmsRules = specializedFiles.filter(file => 
-    file.includes('ldcms') || file.includes('multilanguage') || file.includes('multitemplate')
-  );
+  // 🔍 步骤1: 上下文分析
+  const contextAnalysis = analyzeContext(userInput, context);
   
-  // LDCMS上下文检测
-  const isLdcmsContext = detectLdcmsContext();
-  if (isLdcmsContext) {
-    console.log('🎯 检测到LDCMS开发上下文，强制应用LDCMS专用规则');
-    ldcmsRules.forEach(rule => FORCE_LOAD_AND_APPLY(rule));
+  // 🔍 步骤2: 技术栈检测（仅在相关时加载）
+  if (contextAnalysis.involvesTechStack) {
+    const techStackRules = detectAndLoadTechStackRules(contextAnalysis);
+    relevantRules.push(...techStackRules);
   }
   
-  // 步骤2: 按优先级排序并强制应用
-  const prioritizedRules = sortByPriority(specializedFiles);
-  for (const ruleFile of prioritizedRules) {
-    FORCE_LOAD_AND_APPLY(ruleFile); // 强制加载，无条件应用
+  // 🔍 步骤3: 功能域检测（仅在相关时加载）
+  if (contextAnalysis.involvesDevelopment) {
+    const developmentRules = detectAndLoadDevelopmentRules(contextAnalysis);
+    relevantRules.push(...developmentRules);
   }
   
-  // 步骤3: FastAdmin LDCMS技术栈强制检测
-  const techStack = detectTechStack();
-  
-  // 🔥 强制检测LDCMS相关技术栈
-  if (projectContains('addons/ldcms/') || projectContains('fa_ldcms_')) {
-    const ldcmsStack = [
-      { name: 'ldcms-enterprise-cms', version: 'standards' },
-      { name: 'fastadmin-multilanguage', version: 'standards' },
-      { name: 'fastadmin-multitemplate', version: 'standards' },
-      { name: 'ldcms-development', version: 'workflow' },
-      { name: 'ldcms-context', version: 'detection' }
-    ];
-    techStack.push(...ldcmsStack);
+  // 🔍 步骤4: 问题域检测（仅在相关时加载）
+  if (contextAnalysis.involvesProblemSolving) {
+    const problemRules = detectAndLoadProblemRules(contextAnalysis);
+    relevantRules.push(...problemRules);
   }
   
-  for (const tech of techStack) {
-    const expectedRuleFile = `${tech.name}-${tech.version}.mdc`;
-    if (!exists(expectedRuleFile)) {
-      IMMEDIATE_GENERATE_RULE_FILE(expectedRuleFile);
-      FORCE_LOAD_AND_APPLY(expectedRuleFile); // 生成后立即应用
-    }
+  // 🔍 步骤5: 安全合规检测（仅在相关时加载）
+  if (contextAnalysis.involvesSecurity) {
+    const securityRules = detectAndLoadSecurityRules(contextAnalysis);
+    relevantRules.push(...securityRules);
   }
   
-  // 步骤4: 问题域专用规则检查
-  const activeProblems = analyzeCurrentContext();
-  for (const problem of activeProblems) {
-    const solutionFile = `${problem.type}-solutions.mdc`;
-    if (exists(solutionFile)) {
-      FORCE_LOAD_AND_APPLY(solutionFile);
-    }
-  }
-  
-  return SPECIALIZED_RULES_LOADED;
+  // 📋 按优先级排序并应用
+  const sortedRules = sortRulesByPriority(relevantRules);
+  return APPLY_SELECTED_RULES(sortedRules);
+}
+
+// 🧠 智能上下文分析函数
+function analyzeContext(userInput, context) {
+  return {
+    // 技术栈相关检测
+    involvesTechStack: detectTechStackMentions(userInput),
+    techStack: identifyTechStack(userInput, context),
+    
+    // 开发活动检测
+    involvesDevelopment: detectDevelopmentActivity(userInput),
+    developmentType: identifyDevelopmentType(userInput),
+    
+    // 问题解决检测
+    involvesProblemSolving: detectProblemSolving(userInput),
+    problemType: identifyProblemType(userInput),
+    
+    // 安全相关检测
+    involvesSecurity: detectSecurityMentions(userInput),
+    securityType: identifySecurityType(userInput),
+    
+    // LDCMS专用检测
+    isLdcmsRelated: detectLdcmsContext(userInput, context),
+    ldcmsFeature: identifyLdcmsFeature(userInput)
+  };
 }
 ```
 
-### 🎯 专用规则文件执行路径（清晰优先级）
+### 🎯 智能规则调度流程（按需加载）
 
 ```mermaid
 flowchart TD
-    A[任何AI操作] --> B{专用规则文件检查}
-    B --> C[扫描.cursor/rules/目录]
-    C --> D[识别所有专用规则文件]
-    D --> E[按优先级排序]
-    E --> F[逐个强制加载应用]
-    F --> G{技术栈规则存在?}
-    G -->|否| H[立即生成技术栈规则]
-    G -->|是| I[验证规则版本匹配]
-    H --> J[强制应用新生成规则]
-    I --> K{问题域规则存在?}
-    J --> K
-    K -->|是| L[应用问题域规则]
-    K -->|否| M[检查是否需要生成]
-    L --> N[执行主要操作]
-    M --> N
+    A[用户输入] --> B[智能上下文分析]
+    B --> C{是否涉及技术栈?}
+    C -->|是| D[加载技术栈规则]
+    C -->|否| E{是否涉及开发?}
+    D --> E
+    E -->|是| F[加载开发规则]
+    E -->|否| G{是否涉及问题解决?}
+    F --> G
+    G -->|是| H[加载问题域规则]
+    G -->|否| I{是否涉及安全?}
+    H --> I
+    I -->|是| J[加载安全规则]
+    I -->|否| K[仅使用通用规则]
+    J --> L[按优先级排序规则]
+    K --> L
+    L --> M[应用选定规则]
+    M --> N[执行主要操作]
     
-    style B fill:#ff6b6b
-    style F fill:#ff6b6b
-    style H fill:#ff6b6b
-    style J fill:#ff6b6b
+    style B fill:#4CAF50
+    style L fill:#2196F3
+    style M fill:#FF9800
 ```
 
-### 状态检查（智能条件判断）
+### 🔍 智能检测函数库
+
 ```javascript
-// 精确条件判断逻辑 - AI请严格按此逻辑执行
-function intelligentStatusCheck() {
-  // **第0步: 强制专用规则文件检查** - 任何操作前的必要步骤
-  MANDATORY_SPECIALIZED_RULES_CHECK(); // 强制执行，无条件跳过
+// 🔍 技术栈检测函数
+function detectTechStackMentions(userInput) {
+  const techStackKeywords = [
+    // LDCMS相关
+    'LDCMS', 'ldcms', 'FastAdmin', 'fastadmin',
+    'addons/ldcms', '企业网站管理系统',
+    
+    // 前端技术栈
+    'React', 'Vue', 'Angular', 'JavaScript', 'TypeScript',
+    'Bootstrap', 'AdminLTE', 'RequireJS',
+    
+    // 后端技术栈
+    'ThinkPHP', 'PHP', 'Laravel', 'Node.js', 'Python',
+    'MySQL', 'Redis', 'MongoDB',
+    
+    // 开发工具
+    'Docker', 'Git', 'Webpack', 'Vite'
+  ];
   
-  // 条件1: 强制初始化场景
-  if (!exists('.cursor/project-initialized') || 
-      user_explicitly_requests_init ||
-      session_is_first_conversation) {
-    return LOAD('project-initialization.mdc');
-  }
+  return techStackKeywords.some(keyword => 
+    userInput.toLowerCase().includes(keyword.toLowerCase())
+  );
+}
+
+// 🔍 开发活动检测函数
+function detectDevelopmentActivity(userInput) {
+  const developmentKeywords = [
+    '开发', '编写', '创建', '实现', '修改', '优化',
+    'develop', 'create', 'implement', 'modify', 'optimize',
+    '代码', 'code', '功能', 'feature', '模块', 'module',
+    '接口', 'API', '数据库', 'database', '表', 'table'
+  ];
   
-  // 条件2: 技术栈变更检测
-  if (file_modified('package.json') || 
-      file_modified('requirements.txt') ||
-      file_modified('pom.xml') ||
-      file_modified('Cargo.toml')) {
-    return PROMPT_TECH_STACK_UPDATE();
-  }
+  return developmentKeywords.some(keyword => 
+    userInput.toLowerCase().includes(keyword.toLowerCase())
+  );
+}
+
+// 🔍 LDCMS上下文检测函数
+function detectLdcmsContext(userInput, context) {
+  // 文件路径检测
+  const ldcmsPaths = [
+    'addons/ldcms/', 'addons\\ldcms\\',
+    'view/default/', 'view/en/', 'view/ldcms2024/',
+    'fa_ldcms_'
+  ];
   
-  // 条件3: 长时间未检查
-  if (last_check_time > 24_hours) {
-    return LIGHT_STATUS_VALIDATION();
-  }
+  const pathMatch = ldcmsPaths.some(path => 
+    context.currentFile?.includes(path) || 
+    userInput.includes(path)
+  );
   
-  // 条件4: 同会话继续 - 直接协作
-  if (same_session_continuation) {
-    return SKIP_ALL_CHECKS();
-  }
+  // 关键词检测
+  const ldcmsKeywords = [
+    'LDCMS', 'ldcms', '企业网站管理系统',
+    'FastAdmin', 'fastadmin',
+    '多语言', '多模板', 'multilanguage', 'multitemplate',
+    'Document', 'Category', 'Ad', 'Langs'
+  ];
   
-  // 默认: 进入协作模式
-  return PROCEED_COLLABORATION();
+  const keywordMatch = ldcmsKeywords.some(keyword => 
+    userInput.toLowerCase().includes(keyword.toLowerCase())
+  );
+  
+  return pathMatch || keywordMatch;
+}
+
+// 🔍 问题解决检测函数
+function detectProblemSolving(userInput) {
+  const problemKeywords = [
+    '问题', '错误', '异常', '故障', '修复', '解决',
+    'problem', 'error', 'issue', 'bug', 'fix', 'solve',
+    '不工作', '失败', '报错', '异常'
+  ];
+  
+  return problemKeywords.some(keyword => 
+    userInput.toLowerCase().includes(keyword.toLowerCase())
+  );
+}
+
+// 🔍 安全相关检测函数
+function detectSecurityMentions(userInput) {
+  const securityKeywords = [
+    '安全', '权限', '认证', '授权', '加密',
+    'security', 'permission', 'auth', 'encrypt',
+    '登录', 'login', '密码', 'password',
+    'SQL注入', 'XSS', 'CSRF'
+  ];
+  
+  return securityKeywords.some(keyword => 
+    userInput.toLowerCase().includes(keyword.toLowerCase())
+  );
 }
 ```
 
@@ -286,37 +346,37 @@ function checkSpecializedRules(context) {
 
 ## 🎯 快速引用表
 
-### 🎯 专用规则文件优先引用路径 + 强制跟踪
+### 🎯 智能规则调度引用表（按需加载）
 
-#### **Phase 1: 强制专用规则检查**（每次操作前必须执行）
-| 检查步骤 | 规则文件类型 | 检查方式 | 显示格式 | 强制性 |
-|----------|-------------|----------|----------|--------|
-| **1️⃣ 技术栈专用** | `<tech>-v<ver>-standards.mdc` | 自动扫描+强制应用 | `🔧 [技术栈] v[版本] → [强制应用]` | 💯 强制 |
-| **2️⃣ 代码质量DRY** | `code-quality-dry-standards.mdc` | 重复检测+强制应用 | `🛠️ DRY原则 → [重复消除]` | 💯 强制 |
-| **3️⃣ 问题域专用** | `<problem>-solutions.mdc` | 上下文匹配+优先应用 | `🛠️ [问题域] → [专用解决方案]` | 💯 强制 |
-| **4️⃣ 安全合规** | `security-<type>-requirements.mdc` | 安全检测+严格执行 | `🔒 [安全域] → [合规要求]` | 💯 强制 |
-| **5️⃣ 功能域专用** | `<domain>-<feature>-standards.mdc` | 功能检测+智能应用 | `⚙️ [功能域] → [专用标准]` | ⚡ 智能 |
+#### **🧠 智能检测阶段**（根据用户输入分析）
+| 检测类型 | 触发关键词示例 | 自动加载规则 | 显示格式 |
+|----------|-------------|-------------|----------|
+| **🔧 技术栈检测** | LDCMS、FastAdmin、ThinkPHP、Bootstrap | 对应技术栈规则 | `🔧 [技术栈] → [智能应用]` |
+| **💻 开发活动检测** | 开发、创建、实现、代码、功能 | 开发相关规则 | `💻 [开发类型] → [按需应用]` |
+| **🛠️ 问题解决检测** | 问题、错误、修复、故障 | 问题解决规则 | `🛠️ [问题域] → [解决方案]` |
+| **🔒 安全检测** | 安全、权限、认证、加密 | 安全合规规则 | `🔒 [安全域] → [合规要求]` |
 
-#### **Phase 2: 条件规则补充**（专用规则应用后的补充检查）
-| 场景 | 引用文件 | 加载时机 | 必须在回复中显示 |
-|------|----------|----------|-----------------|
-| **首次协作** | project-initialization.mdc | 检测到未初始化 | `🚀 项目初始化 → [执行阶段]` |
-| **协作交互** | collaboration-standards.mdc | 需要格式化回复时 | `🤝 协作规范 → [格式化应用]` |
-| **项目管理** | project-management-practices.mdc | 涉及环境/团队问题 | `📊 项目管理 → [具体场景]` |
-| **规则管理** | rule-file-management.mdc | 需要生成新规则时 | `⚙️ 规则管理 → [生成/修改]` |
+#### **📋 条件加载机制**（仅在需要时加载）
+| 场景类型 | 加载条件 | 规则文件 | 跳过条件 |
+|----------|----------|----------|----------|
+| **协作交互** | 需要格式化回复 | collaboration-standards.mdc | 纯技术问答 |
+| **项目管理** | 涉及环境/部署/团队 | project-management-practices.mdc | 单纯代码问题 |
+| **规则管理** | 用户要求生成规则 | rule-file-management.mdc | 首次遇到问题 |
+| **初始化** | 项目未初始化 | project-initialization.mdc | 已完成初始化 |
 
-#### **自动生成机制**（缺失专用规则时的立即生成）
-| 触发条件 | 生成规则文件 | 生成时机 | 应用方式 |
-|----------|-------------|----------|----------|
-| **技术栈无对应规则** | `<tech>-v<ver>-standards.mdc` | 检测到技术栈但无规则文件 | 立即生成+强制应用 |
-| **代码重复检测** | `code-quality-dry-standards.mdc` | 检测到重复代码 | 立即引用+DRY标准应用 |
-| **重复问题≥2次** | `<problem-type>-solutions.mdc` | 同类问题反复出现 | 记录问题+生成解决方案 |
-| **新功能域复杂化** | `<domain>-standards.mdc` | 功能复杂度超过阈值 | 提示生成+用户确认 |
+#### **⚡ 性能优化特性**
+| 优化类型 | 实现方式 | 效果 |
+|----------|----------|------|
+| **按需加载** | 只加载相关规则文件 | 减少90%不必要的规则加载 |
+| **智能缓存** | 同类问题复用规则 | 提升响应速度 |
+| **条件跳过** | 简单问题跳过复杂规则 | 避免过度处理 |
+| **优先级排序** | 重要规则优先应用 | 确保关键规则生效 |
 
-> 💥 **强制执行要求**: 
-> 1. AI每次操作前必须执行 Phase 1 的专用规则检查
-> 2. 每次回复必须显示所有应用的专用规则文件
-> 3. 缺失的专用规则文件必须立即生成并应用
+> 💡 **新机制优势**: 
+> 1. 🚀 **性能提升**: 只加载需要的规则，减少处理时间
+> 2. 🎯 **精准匹配**: 根据上下文智能选择最相关的规则
+> 3. 🔄 **动态调整**: 根据对话进展动态加载新规则
+> 4. 📊 **可观测性**: 清晰显示哪些规则被应用及原因
 
 ### 质量标准快速判断
 

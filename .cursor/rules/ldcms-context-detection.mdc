@@ -1,7 +1,95 @@
 ---
-alwaysApply: true
-priority: 12
-techStack: "FastAdmin LDCMS Context Detection"
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "ldcms-context-detection"
+description: "FastAdmin LDCMS上下文检测规范，自动识别LDCMS相关开发场景并应用对应规则"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
+priority: 2
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["上下文检测", "context", "detection", "自动识别"]
+    secondary: ["场景识别", "智能匹配", "规则应用"]
+    technical: ["context_detection", "auto_apply", "smart_matching"]
+  
+  paths:
+    exact: ["addons/ldcms/"]
+    pattern: ["**/context/**", "**/detection/**"]
+  
+  contexts:
+    development_phase: ["智能检测", "自动化", "规则管理"]
+    project_type: ["上下文系统", "智能助手"]
+    user_intent: ["自动化", "智能识别", "规则优化"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["上下文检测", "context detection", "自动识别", "智能匹配"]
+    fuzzy_match: ["检测", "识别", "匹配", "自动"]
+  
+  file_operations:
+    reading: ["检测配置文件"]
+    editing: ["上下文规则", "检测逻辑"]
+    creating: ["新的检测规则", "智能匹配算法"]
+  
+  code_patterns:
+    namespaces: ["context", "detection"]
+    functions: ["detect", "match", "apply", "identify"]
+    classes: ["Context", "Detection", "Matcher"]
+    comments: ["检测", "上下文", "context"]
+  
+  intent_analysis:
+    primary_intent: ["context_detection", "auto_rule_application", "intelligent_matching"]
+    secondary_intent: ["system_optimization", "automation"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["common-rules.mdc"]
+  recommended_with: ["ldcms-enterprise-cms-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要了解智能检测机制"
+      trigger_example: "AI是如何自动识别LDCMS相关需求的？"
+      expected_behavior: "AI应该解释上下文检测的工作原理和机制"
+  
+  secondary:
+    - scenario: "用户要优化规则匹配"
+      trigger_example: "如何提高规则匹配的准确性？"
+      expected_behavior: "AI应该提供检测优化建议"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户询问上下文检测、智能匹配、自动规则应用等内容时应立即加载此规则"
+  how_to_apply: "解释智能检测机制的工作原理，提供优化建议"
+  priority_reason: "上下文检测是智能调度系统的核心组件"
+  coordination: "与所有其他规则协调，作为智能调度的基础机制"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["用户询问系统机制"]
+  cache_duration: "15"
+  unload_conditions: ["连续5次对话未涉及检测相关内容"]
 ---
 
 # FastAdmin LDCMS 上下文检测与自动应用规则

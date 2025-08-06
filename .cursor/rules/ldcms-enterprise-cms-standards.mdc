@@ -1,17 +1,101 @@
 ---
-alwaysApply: true
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "ldcms-enterprise-cms-standards"
+description: "FastAdmin LDCMS企业网站管理系统的核心开发规范，包含多语言、多模板、自定义模型支持"
+version: "1.4.3"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
 priority: 10
-techStack: "FastAdmin LDCMS Plugin"
-contextPatterns:
-  - "addons/ldcms"
-  - "LDCMS"
-  - "ldcms"
-  - "企业网站"
-  - "多语言"
-  - "多模板"
-  - "Document"
-  - "Category"
-  - "Langs"
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["LDCMS", "ldcms", "企业网站管理系统"]
+    secondary: ["多语言", "多模板", "Document", "Category", "Langs"]
+    technical: ["addons/ldcms", "fa_ldcms_", "LanguageHandler", "TemplateManager"]
+  
+  paths:
+    exact: ["addons/ldcms/"]
+    pattern: ["**/ldcms/**", "**/LDCMS/**"]
+  
+  contexts:
+    development_phase: ["开发阶段", "功能扩展", "模块开发"]
+    project_type: ["CMS开发", "企业网站开发", "插件开发"]
+    user_intent: ["功能实现", "模块开发", "内容管理", "系统集成"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["LDCMS", "企业网站管理系统", "内容管理系统"]
+    fuzzy_match: ["企业网站", "内容管理", "CMS系统", "网站后台"]
+  
+  file_operations:
+    reading: ["addons/ldcms/目录下的任何文件"]
+    editing: ["LDCMS相关的控制器、模型、视图文件"]
+    creating: ["新的LDCMS功能模块", "LDCMS插件扩展"]
+  
+  code_patterns:
+    namespaces: ["addons\\ldcms"]
+    functions: ["getLdcmsConfig", "renderLdcmsTemplate", "getDocumentList"]
+    classes: ["Document", "Category", "Langs", "Ad"]
+    comments: ["LDCMS", "企业网站", "内容管理"]
+  
+  intent_analysis:
+    primary_intent: ["cms_development", "plugin_development", "content_management"]
+    secondary_intent: ["multilanguage_setup", "template_customization", "seo_optimization"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["fastadmin-v5-standards.mdc"]
+  recommended_with: ["fastadmin-multilanguage-standards.mdc", "fastadmin-multitemplate-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户要为LDCMS开发新功能模块"
+      trigger_example: "帮我为LDCMS添加一个新的文档管理模块"
+      expected_behavior: "AI应该加载LDCMS规范，提供符合LDCMS架构的开发指导"
+    - scenario: "用户需要扩展LDCMS现有功能"
+      trigger_example: "如何给LDCMS的文档模块添加评论功能？"
+      expected_behavior: "AI应该基于LDCMS现有架构提供扩展方案"
+  
+  secondary:
+    - scenario: "用户询问LDCMS配置问题"
+      trigger_example: "LDCMS的多语言功能怎么配置？"
+      expected_behavior: "AI应该基于LDCMS规范提供准确的配置指导"
+    - scenario: "用户遇到LDCMS相关错误"
+      trigger_example: "LDCMS模板渲染出错了"
+      expected_behavior: "AI应该根据LDCMS规范提供排错建议"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及LDCMS、企业网站管理、内容管理系统，或操作addons/ldcms/目录时应立即加载此规则"
+  how_to_apply: "严格按照LDCMS的开发规范和架构提供建议，确保代码符合插件的设计模式和最佳实践"
+  priority_reason: "LDCMS是项目的核心CMS插件，其开发规范对整个企业网站系统至关重要"
+  coordination: "与FastAdmin基础规范、多语言规范和多模板规范协调工作，确保架构一致性"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到项目包含addons/ldcms目录", "用户历史操作涉及LDCMS"]
+  cache_duration: "30"
+  unload_conditions: ["连续5次对话未涉及LDCMS相关内容"]
 ---
 
 # FastAdmin LDCMS 企业网站管理系统核心开发规范

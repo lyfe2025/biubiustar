@@ -1,7 +1,101 @@
 ---
-alwaysApply: true
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "fastadmin-performance-optimization"
+description: "FastAdmin性能优化标准规范，包含数据库优化、缓存策略、前端优化等性能提升指导"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
 priority: 6
-techStack: "FastAdmin Performance"
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["性能", "优化", "performance", "缓存", "慢查询"]
+    secondary: ["加速", "提升", "响应时间", "并发", "负载"]
+    technical: ["cache", "redis", "memcache", "索引", "SQL优化", "CDN"]
+  
+  paths:
+    exact: ["config/cache.php", "config/database.php"]
+    pattern: ["**/cache/**", "**/optimize/**"]
+  
+  contexts:
+    development_phase: ["性能优化", "系统调优", "生产部署"]
+    project_type: ["高并发系统", "大数据处理", "性能敏感应用"]
+    user_intent: ["性能提升", "速度优化", "资源优化", "并发优化"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["性能", "优化", "performance", "缓存", "慢查询", "加速"]
+    fuzzy_match: ["响应慢", "卡顿", "速度", "效率", "并发"]
+  
+  file_operations:
+    reading: ["缓存配置文件", "数据库配置文件"]
+    editing: ["性能相关配置", "缓存策略", "数据库优化"]
+    creating: ["缓存机制", "性能监控", "优化方案"]
+  
+  code_patterns:
+    namespaces: ["think\\cache", "think\\db"]
+    functions: ["cache", "redis", "optimize", "index", "query"]
+    classes: ["Cache", "Redis", "Database", "Performance"]
+    comments: ["性能", "优化", "缓存", "索引"]
+  
+  intent_analysis:
+    primary_intent: ["performance_optimization", "system_tuning", "speed_improvement"]
+    secondary_intent: ["cache_implementation", "database_optimization", "concurrent_handling"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["fastadmin-v5-standards.mdc"]
+  recommended_with: ["thinkphp-v5-development-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户遇到系统性能问题需要优化"
+      trigger_example: "FastAdmin后台响应很慢，如何优化？"
+      expected_behavior: "AI应该提供系统性的性能诊断和优化方案"
+    - scenario: "用户需要实现缓存机制"
+      trigger_example: "如何为FastAdmin添加Redis缓存？"
+      expected_behavior: "AI应该提供完整的缓存实现方案和配置方法"
+  
+  secondary:
+    - scenario: "用户要优化数据库查询"
+      trigger_example: "FastAdmin的数据表查询太慢怎么办？"
+      expected_behavior: "AI应该提供数据库优化和索引建议"
+    - scenario: "用户需要提升并发处理能力"
+      trigger_example: "如何提高FastAdmin的并发访问能力？"
+      expected_behavior: "AI应该提供并发优化和负载均衡建议"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及性能、优化、缓存、慢查询、响应时间等关键词，或遇到性能问题时应立即加载此规则"
+  how_to_apply: "系统性地分析性能瓶颈，提供针对性的优化方案，优先考虑投入产出比高的优化措施"
+  priority_reason: "性能优化直接影响用户体验和系统稳定性，是生产环境的重要考量"
+  coordination: "与FastAdmin基础规范和数据库规范协调，确保优化措施的兼容性和有效性"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到性能相关问题", "用户历史操作涉及系统优化"]
+  cache_duration: "30"
+  unload_conditions: ["连续4次对话未涉及性能相关内容"]
 ---
 
 # FastAdmin 性能优化标准规范

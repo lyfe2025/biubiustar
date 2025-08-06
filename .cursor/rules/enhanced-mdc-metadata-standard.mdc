@@ -1,0 +1,315 @@
+# 增强版MDC规则文件元数据标准
+
+> **🎯 目标**: 为MDC规则文件定义标准化的元数据格式，便于AI自动识别和调度
+> **📋 适用范围**: 所有.cursor/rules/目录下的规则文件
+> **⚡ 核心价值**: 让AI能够精准理解何时、如何调用特定规则文件
+
+---
+
+## 🔧 标准MDC文件头部格式
+
+### 基础格式模板
+```yaml
+---
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "规则文件的唯一标识名称"
+description: "规则文件的简要描述，说明其主要用途"
+version: "1.0.0"
+lastUpdated: "2024-01-01"
+
+# 调度控制
+alwaysApply: false  # 默认为false，仅核心规则为true
+priority: 5         # 1-10，数字越大优先级越高
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  # 关键词检测 - AI会扫描用户输入中的这些关键词
+  keywords: 
+    - primary: ["主要关键词1", "主要关键词2"]      # 必须匹配的关键词
+    - secondary: ["次要关键词1", "次要关键词2"]    # 可选匹配的关键词
+    - technical: ["技术术语1", "技术术语2"]       # 技术相关关键词
+  
+  # 路径检测 - 当操作这些路径时自动触发
+  paths: 
+    - exact: ["precise/path/"]                    # 精确路径匹配
+    - pattern: ["**/pattern/**", "glob/*/match"]  # 模式匹配
+  
+  # 上下文检测 - 开发场景和意图识别
+  contexts:
+    - development_phase: ["开发阶段", "测试阶段", "部署阶段"]
+    - project_type: ["web开发", "插件开发", "API开发"]
+    - user_intent: ["功能实现", "问题解决", "性能优化"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  # 用户明确提及
+  explicit_mentions:
+    - exact_match: ["精确匹配的短语"]
+    - fuzzy_match: ["模糊匹配的概念"]
+  
+  # 文件操作触发
+  file_operations:
+    - reading: ["读取特定文件时触发"]
+    - editing: ["编辑特定文件时触发"] 
+    - creating: ["创建特定类型文件时触发"]
+  
+  # 代码内容检测
+  code_patterns:
+    - namespaces: ["特定命名空间"]
+    - functions: ["特定函数名"]
+    - classes: ["特定类名"]
+    - comments: ["特定注释模式"]
+  
+  # 意图分析结果
+  intent_analysis:
+    - primary_intent: ["主要意图类型"]
+    - secondary_intent: ["次要意图类型"]
+    - complexity_level: ["simple", "medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  # 必须同时加载的规则
+  required_with: ["rule-file-1.mdc", "rule-file-2.mdc"]
+  
+  # 建议同时加载的规则  
+  recommended_with: ["optional-rule-1.mdc", "optional-rule-2.mdc"]
+  
+  # 冲突的规则（不能同时加载）
+  conflicts_with: ["conflicting-rule.mdc"]
+  
+  # 依赖的基础规则
+  depends_on: ["base-rule.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  # 主要使用场景
+  primary:
+    - scenario: "场景描述"
+      trigger_example: "用户输入示例"
+      expected_behavior: "预期AI行为"
+  
+  # 次要使用场景  
+  secondary:
+    - scenario: "次要场景描述"
+      trigger_example: "触发示例"
+      expected_behavior: "预期行为"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  # 何时应该加载此规则
+  when_to_load: "明确描述AI应该在什么情况下加载此规则文件"
+  
+  # 如何应用此规则
+  how_to_apply: "描述AI应该如何使用此规则文件中的内容"
+  
+  # 优先级说明
+  priority_reason: "解释为什么设置这个优先级"
+  
+  # 与其他规则的协调
+  coordination: "说明如何与其他规则协调工作"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  # 预加载条件
+  preload_conditions: ["满足什么条件时可以预加载"]
+  
+  # 缓存策略
+  cache_duration: "缓存时间（分钟）"
+  
+  # 卸载条件
+  unload_conditions: ["什么情况下可以卸载此规则"]
+
+---
+```
+
+---
+
+## 🎯 实际应用示例
+
+### 示例1: LDCMS规则文件的增强元数据
+
+```yaml
+---
+# ===========================================
+# 🤖 AI自动调度配置
+# ===========================================
+ruleName: "ldcms-enterprise-cms-standards"
+description: "FastAdmin LDCMS企业网站管理系统的核心开发规范，包含多语言、多模板支持"
+version: "1.4.3"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
+priority: 10
+
+# ===========================================
+# 🔍 智能检测配置
+# ===========================================
+detection:
+  keywords:
+    primary: ["LDCMS", "ldcms", "企业网站管理系统"]
+    secondary: ["多语言", "多模板", "Document", "Category"]
+    technical: ["addons/ldcms", "fa_ldcms_", "LanguageHandler"]
+  
+  paths:
+    exact: ["addons/ldcms/"]
+    pattern: ["**/ldcms/**", "**/LDCMS/**"]
+  
+  contexts:
+    development_phase: ["开发阶段", "功能扩展"]
+    project_type: ["CMS开发", "企业网站开发", "插件开发"]
+    user_intent: ["功能实现", "模块开发", "内容管理"]
+
+# ===========================================
+# ⚡ 触发条件配置
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["LDCMS", "企业网站管理系统", "内容管理系统"]
+    fuzzy_match: ["企业网站", "内容管理", "CMS系统"]
+  
+  file_operations:
+    reading: ["addons/ldcms/目录下的任何文件"]
+    editing: ["LDCMS相关的控制器、模型、视图文件"]
+    creating: ["新的LDCMS功能模块"]
+  
+  code_patterns:
+    namespaces: ["addons\\ldcms"]
+    functions: ["getLdcmsConfig", "renderLdcmsTemplate"]
+    classes: ["Document", "Category", "Langs"]
+    comments: ["LDCMS", "企业网站"]
+  
+  intent_analysis:
+    primary_intent: ["cms_development", "plugin_development"]
+    secondary_intent: ["multilanguage_setup", "template_customization"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["fastadmin-v5-standards.mdc"]
+  recommended_with: ["fastadmin-multilanguage-standards.mdc", "fastadmin-multitemplate-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户要为LDCMS开发新功能"
+      trigger_example: "帮我为LDCMS添加一个新的文档管理模块"
+      expected_behavior: "AI应该加载LDCMS规范，提供符合LDCMS架构的开发指导"
+  
+  secondary:
+    - scenario: "用户询问LDCMS相关问题"
+      trigger_example: "LDCMS的多语言功能怎么配置？"
+      expected_behavior: "AI应该基于LDCMS规范提供准确的配置指导"
+
+# ===========================================
+# 🎯 AI指令配置
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及LDCMS、企业网站管理、或操作addons/ldcms/目录时应立即加载"
+  how_to_apply: "严格按照LDCMS的开发规范提供建议，确保代码符合插件架构要求"
+  priority_reason: "LDCMS是项目的核心插件，其规范对整个项目至关重要"
+  coordination: "与FastAdmin基础规范和多语言规范协调工作，避免冲突"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到项目包含addons/ldcms目录"]
+  cache_duration: "30"
+  unload_conditions: ["连续3次对话未涉及LDCMS相关内容"]
+
+---
+```
+
+---
+
+## 🚀 AI调度机制改进
+
+### 增强的调度算法
+```javascript
+// 增强版智能规则调度算法
+function ENHANCED_RULE_DISPATCHER(userInput, context, fileContext) {
+  const relevantRules = [];
+  
+  // 步骤1: 扫描所有规则文件的元数据
+  const allRules = scanRulesWithMetadata('.cursor/rules/');
+  
+  // 步骤2: 多维度匹配分析
+  for (const rule of allRules) {
+    const matchScore = calculateMatchScore(rule, userInput, context, fileContext);
+    
+    if (matchScore > MATCH_THRESHOLD) {
+      relevantRules.push({
+        rule: rule,
+        score: matchScore,
+        reason: getMatchReason(rule, userInput, context)
+      });
+    }
+  }
+  
+  // 步骤3: 按优先级和匹配度排序
+  const sortedRules = relevantRules.sort((a, b) => {
+    return (b.rule.priority * b.score) - (a.rule.priority * a.score);
+  });
+  
+  // 步骤4: 处理关联规则
+  const finalRules = processRuleRelationships(sortedRules);
+  
+  // 步骤5: 应用规则并显示调度信息
+  return applyRulesWithLogging(finalRules);
+}
+
+// 多维度匹配评分
+function calculateMatchScore(rule, userInput, context, fileContext) {
+  let score = 0;
+  
+  // 关键词匹配 (权重: 40%)
+  score += matchKeywords(rule.detection.keywords, userInput) * 0.4;
+  
+  // 路径匹配 (权重: 20%)
+  score += matchPaths(rule.detection.paths, fileContext) * 0.2;
+  
+  // 上下文匹配 (权重: 25%)
+  score += matchContexts(rule.detection.contexts, context) * 0.25;
+  
+  // 意图匹配 (权重: 15%)
+  score += matchIntent(rule.triggers.intent_analysis, context.analyzedIntent) * 0.15;
+  
+  return Math.min(score, 1.0); // 确保分数不超过1
+}
+```
+
+---
+
+## 📋 实施计划
+
+### 阶段1: 更新现有规则文件元数据 ✅
+为所有现有规则文件添加增强的元数据格式
+
+### 阶段2: 测试调度机制
+创建测试用例验证AI是否能正确识别和调用规则
+
+### 阶段3: 优化和调整
+根据实际使用效果调整元数据和调度逻辑
+
+---
+
+**总结**: 通过增强MDC元数据格式，我们可以让AI更精准地理解何时调用哪些规则文件，真正实现智能化的按需调度！

@@ -1,11 +1,20 @@
 ---
-alwaysApply: true
-priority: 13
-techStack: "biubiustar Project Config"
-contextPatterns:
-  - "biubiustar"
-  - "SWTvGsCQjH.php"
-  - "biubiustar.local"
+# 智能调度配置 - 项目配置信息
+detection:
+  keywords: ["biubiustar", "SWTvGsCQjH.php", "biubiustar.local"]
+  paths: ["/Volumes/wwx/dev/WebProjects/biubiustar/"]
+  contexts: ["project_config", "biubiustar_project"]
+  priority: 13
+  
+# 触发条件 - 当涉及项目配置时自动加载
+triggers:
+  - user_mentions: ["biubiustar", "项目配置", "数据库配置"]
+  - file_paths: ["/Volumes/wwx/dev/WebProjects/biubiustar/"]
+  - code_contains: ["biubiustar.local", "SWTvGsCQjH.php"]
+  - intent_matches: ["project_setup", "environment_config"]
+
+# 按需加载，不是每次都需要
+alwaysApply: false
 ---
 
 # biubiustar 项目配置信息

@@ -1,18 +1,102 @@
 ---
-alwaysApply: true
-priority: 8
-techStack: "FastAdmin LDCMS MultiTemplate"
-contextPatterns:
-  - "addons/ldcms/view"
-  - "模板"
-  - "template"
-  - "default"
-  - "ldcms2024"
-  - "ldcms2025"
-  - "TemplateManager"
-  - "{ldcms:"
----
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "fastadmin-multitemplate-standards"
+description: "FastAdmin LDCMS多模板系统开发标准规范，支持多套主题模板和自定义模板开发"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
 
+alwaysApply: false
+priority: 8
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["模板", "template", "多模板", "主题"]
+    secondary: ["default", "ldcms2024", "ldcms2025", "view", "theme"]
+    technical: ["TemplateManager", "{ldcms:", "renderLdcmsTemplate", "getTemplate"]
+  
+  paths:
+    exact: ["addons/ldcms/view/", "view/", "template/"]
+    pattern: ["**/view/**", "**/template/**", "**/theme/**"]
+  
+  contexts:
+    development_phase: ["模板开发", "主题定制", "前端开发"]
+    project_type: ["模板系统", "主题开发", "前端定制"]
+    user_intent: ["模板定制", "主题切换", "界面美化", "前端优化"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["模板", "多模板", "主题", "模板系统", "template"]
+    fuzzy_match: ["界面定制", "前端模板", "网站主题", "页面模板"]
+  
+  file_operations:
+    reading: ["addons/ldcms/view/目录下的模板文件"]
+    editing: ["HTML模板文件", "CSS样式文件", "JS脚本文件"]
+    creating: ["新的模板套件", "自定义主题", "页面模板"]
+  
+  code_patterns:
+    namespaces: ["addons\\ldcms\\view"]
+    functions: ["renderLdcmsTemplate", "getTemplate", "setTemplate", "loadTemplate"]
+    classes: ["TemplateManager", "ThemeConfig", "ViewEngine"]
+    comments: ["模板", "template", "主题", "theme"]
+  
+  intent_analysis:
+    primary_intent: ["template_development", "theme_customization", "frontend_design"]
+    secondary_intent: ["template_switching", "ui_customization", "responsive_design"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["ldcms-enterprise-cms-standards.mdc"]
+  recommended_with: ["bootstrap-adminlte-ui-standards.mdc", "fastadmin-multilanguage-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要开发新的模板套件"
+      trigger_example: "如何为LDCMS创建一个新的企业模板？"
+      expected_behavior: "AI应该提供完整的模板开发指南，包括目录结构、命名规范、标签使用"
+    - scenario: "用户要定制现有模板"
+      trigger_example: "怎么修改default模板的首页布局？"
+      expected_behavior: "AI应该提供模板定制的具体方法和注意事项"
+  
+  secondary:
+    - scenario: "用户遇到模板渲染问题"
+      trigger_example: "LDCMS模板标签不生效"
+      expected_behavior: "AI应该基于模板规范提供排错和解决方案"
+    - scenario: "用户需要实现模板切换功能"
+      trigger_example: "如何让用户在前台选择不同主题？"
+      expected_behavior: "AI应该提供模板切换的实现方法"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及模板、主题、template、前端定制，或操作view/目录时应立即加载此规则"
+  how_to_apply: "严格按照多模板开发规范提供建议，确保模板结构、标签使用、样式规范的一致性"
+  priority_reason: "多模板系统是LDCMS的重要特性，影响用户体验和网站外观"
+  coordination: "与LDCMS核心规范和多语言规范协调，确保模板与语言系统的兼容性"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到项目包含view/目录", "用户历史操作涉及模板开发"]
+  cache_duration: "20"
+  unload_conditions: ["连续5次对话未涉及模板相关内容"]
+---
 # FastAdmin LDCMS 多模板系统开发标准规范
 
 > **🎯 专为LDCMS插件设计**: 基于FastAdmin LDCMS企业网站管理系统的多模板开发规范

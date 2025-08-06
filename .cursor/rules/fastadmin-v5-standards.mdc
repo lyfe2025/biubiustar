@@ -1,7 +1,101 @@
 ---
-alwaysApply: true
-priority: 0
-techStack: "FastAdmin v5 + ThinkPHP"
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "fastadmin-v5-standards"
+description: "FastAdmin v5框架开发标准规范，基于ThinkPHP的后台管理系统开发指导"
+version: "5.1.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
+priority: 7
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["FastAdmin", "fastadmin", "后台管理"]
+    secondary: ["ThinkPHP", "AdminLTE", "Bootstrap", "CRUD"]
+    technical: ["fa_", "FastAdmin", "Admin\\", "application\\admin"]
+  
+  paths:
+    exact: ["application/admin/", "public/assets/js/backend/"]
+    pattern: ["**/admin/**", "**/backend/**", "**/fastadmin/**"]
+  
+  contexts:
+    development_phase: ["后台开发", "管理系统开发", "CRUD开发"]
+    project_type: ["后台管理系统", "权限管理", "数据管理"]
+    user_intent: ["后台功能", "管理界面", "数据操作", "权限控制"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["FastAdmin", "fastadmin", "后台管理", "管理系统"]
+    fuzzy_match: ["后台", "管理", "admin", "backend"]
+  
+  file_operations:
+    reading: ["application/admin/目录下的文件"]
+    editing: ["后台控制器", "后台模型", "后台视图"]
+    creating: ["新的后台功能", "CRUD模块", "管理页面"]
+  
+  code_patterns:
+    namespaces: ["app\\admin", "application\\admin"]
+    functions: ["index", "add", "edit", "del", "multi"]
+    classes: ["Backend", "Admin", "Controller"]
+    comments: ["FastAdmin", "后台", "管理"]
+  
+  intent_analysis:
+    primary_intent: ["backend_development", "admin_system", "crud_operations"]
+    secondary_intent: ["permission_management", "data_management", "ui_development"]
+    complexity_level: ["simple", "medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["thinkphp-v5-development-standards.mdc"]
+  recommended_with: ["bootstrap-adminlte-ui-standards.mdc", "fastadmin-crud-generation-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要开发FastAdmin后台功能"
+      trigger_example: "如何在FastAdmin中添加一个新的管理模块？"
+      expected_behavior: "AI应该提供FastAdmin标准的开发流程和代码规范"
+    - scenario: "用户要创建CRUD功能"
+      trigger_example: "FastAdmin怎么快速生成用户管理功能？"
+      expected_behavior: "AI应该提供CRUD生成和定制的完整指导"
+  
+  secondary:
+    - scenario: "用户遇到FastAdmin相关错误"
+      trigger_example: "FastAdmin后台页面报错404"
+      expected_behavior: "AI应该基于FastAdmin规范提供排错建议"
+    - scenario: "用户需要定制后台界面"
+      trigger_example: "如何修改FastAdmin的后台菜单？"
+      expected_behavior: "AI应该提供界面定制的方法和最佳实践"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及FastAdmin、后台管理、admin相关开发，或操作application/admin/目录时应立即加载此规则"
+  how_to_apply: "严格按照FastAdmin的开发规范和最佳实践提供建议，确保代码符合框架要求"
+  priority_reason: "FastAdmin是项目的核心后台框架，其开发规范对整个后台系统至关重要"
+  coordination: "与ThinkPHP规范和UI规范协调工作，确保后台开发的一致性和稳定性"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到项目包含application/admin目录", "用户历史操作涉及后台开发"]
+  cache_duration: "30"
+  unload_conditions: ["连续5次对话未涉及FastAdmin相关内容"]
 ---
 
 # FastAdmin v5 开发标准规范

@@ -1,5 +1,95 @@
 ---
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "collaboration-standards"
+description: "协作标准规范，包含团队协作、沟通规范、代码审查等协作指导"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
 alwaysApply: false
+priority: 2
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["协作", "collaboration", "团队", "沟通"]
+    secondary: ["审查", "review", "管理", "规范"]
+    technical: ["team", "management", "workflow"]
+  
+  paths:
+    exact: []
+    pattern: ["**/team/**", "**/collaboration/**"]
+  
+  contexts:
+    development_phase: ["团队协作", "项目管理"]
+    project_type: ["团队项目", "协作开发"]
+    user_intent: ["团队管理", "协作规范"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["协作", "collaboration", "团队", "沟通"]
+    fuzzy_match: ["管理", "规范", "流程"]
+  
+  file_operations:
+    reading: []
+    editing: []
+    creating: []
+  
+  code_patterns:
+    namespaces: []
+    functions: []
+    classes: []
+    comments: ["协作", "团队"]
+  
+  intent_analysis:
+    primary_intent: ["team_collaboration", "project_management"]
+    secondary_intent: ["communication", "workflow_optimization"]
+    complexity_level: ["simple", "medium"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: []
+  recommended_with: ["project-management-practices.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要了解团队协作规范"
+      trigger_example: "团队开发的协作流程是什么？"
+      expected_behavior: "AI应该提供团队协作的最佳实践"
+  
+  secondary:
+    - scenario: "用户遇到团队协作问题"
+      trigger_example: "如何提高团队开发效率？"
+      expected_behavior: "AI应该提供协作优化建议"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户询问团队协作、项目管理、沟通规范等内容时应立即加载此规则"
+  how_to_apply: "提供实用的团队协作指导，注重沟通效率和项目质量"
+  priority_reason: "团队协作直接影响项目成功和开发效率"
+  coordination: "与项目管理规范协调工作"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到团队协作需求"]
+  cache_duration: "15"
+  unload_conditions: ["连续5次对话未涉及协作相关内容"]
 ---
 # 协作交互规范专用文件
 

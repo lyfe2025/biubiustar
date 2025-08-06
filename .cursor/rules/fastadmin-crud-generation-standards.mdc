@@ -1,7 +1,101 @@
 ---
-alwaysApply: true
-priority: 3
-techStack: "FastAdmin CRUD Generator"
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "fastadmin-crud-generation-standards"
+description: "FastAdmin CRUD生成标准规范，一键生成增删改查功能的开发指导和最佳实践"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
+priority: 5
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["CRUD", "crud", "增删改查", "一键生成"]
+    secondary: ["数据管理", "表格", "列表", "表单", "管理模块"]
+    technical: ["fa:crud", "build", "generator", "scaffolding"]
+  
+  paths:
+    exact: ["application/admin/controller/", "application/admin/model/"]
+    pattern: ["**/crud/**", "**/generator/**"]
+  
+  contexts:
+    development_phase: ["快速开发", "原型开发", "管理模块开发"]
+    project_type: ["后台管理", "数据管理", "内容管理"]
+    user_intent: ["快速生成", "数据操作", "管理界面", "表单处理"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["CRUD", "crud", "增删改查", "一键生成", "快速生成"]
+    fuzzy_match: ["数据管理", "管理模块", "表格操作", "数据表"]
+  
+  file_operations:
+    reading: ["数据表相关的控制器和模型"]
+    editing: ["CRUD相关的控制器", "表单验证", "数据处理"]
+    creating: ["新的数据管理模块", "管理页面", "数据表操作"]
+  
+  code_patterns:
+    namespaces: ["app\\admin\\controller"]
+    functions: ["index", "add", "edit", "del", "multi", "import", "export"]
+    classes: ["Controller", "Model", "Validate"]
+    comments: ["CRUD", "数据管理", "表格", "表单"]
+  
+  intent_analysis:
+    primary_intent: ["crud_development", "data_management", "admin_interface"]
+    secondary_intent: ["form_processing", "table_operations", "data_validation"]
+    complexity_level: ["simple", "medium"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["fastadmin-v5-standards.mdc"]
+  recommended_with: ["thinkphp-v5-development-standards.mdc", "bootstrap-adminlte-ui-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要快速创建数据管理功能"
+      trigger_example: "如何用FastAdmin一键生成用户管理CRUD？"
+      expected_behavior: "AI应该提供完整的CRUD生成流程和定制方法"
+    - scenario: "用户要定制生成的CRUD功能"
+      trigger_example: "FastAdmin生成的表单需要添加自定义字段"
+      expected_behavior: "AI应该提供CRUD定制和扩展的具体方法"
+  
+  secondary:
+    - scenario: "用户遇到CRUD生成问题"
+      trigger_example: "FastAdmin CRUD生成失败怎么办？"
+      expected_behavior: "AI应该提供问题诊断和解决方案"
+    - scenario: "用户需要批量数据操作功能"
+      trigger_example: "如何实现批量删除和导入导出？"
+      expected_behavior: "AI应该提供批量操作的实现方法"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及CRUD、增删改查、一键生成、数据管理等关键词，或需要快速开发管理功能时应立即加载此规则"
+  how_to_apply: "提供标准化的CRUD开发流程，注重代码规范和可维护性，优先使用FastAdmin的内置功能"
+  priority_reason: "CRUD是后台管理系统的核心功能，快速生成能显著提升开发效率"
+  coordination: "与FastAdmin基础规范和UI规范协调，确保生成的代码符合项目标准"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到数据管理相关需求", "用户历史操作涉及CRUD开发"]
+  cache_duration: "25"
+  unload_conditions: ["连续4次对话未涉及CRUD相关内容"]
 ---
 
 # FastAdmin CRUD生成标准规范

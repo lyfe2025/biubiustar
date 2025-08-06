@@ -1,7 +1,101 @@
 ---
-alwaysApply: true
-priority: 5
-techStack: "FastAdmin Security"
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "fastadmin-security-standards"
+description: "FastAdmin安全开发标准规范，包含权限验证、数据安全、防护机制等安全开发指导"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
+priority: 9
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["安全", "security", "权限", "认证", "授权"]
+    secondary: ["漏洞", "防护", "加密", "验证", "登录"]
+    technical: ["Auth", "Permission", "Token", "Session", "CSRF", "XSS", "SQL注入"]
+  
+  paths:
+    exact: ["application/admin/controller/", "application/common/controller/"]
+    pattern: ["**/auth/**", "**/security/**", "**/permission/**"]
+  
+  contexts:
+    development_phase: ["安全开发", "权限设计", "安全测试"]
+    project_type: ["权限管理", "用户认证", "数据安全"]
+    user_intent: ["安全防护", "权限控制", "漏洞修复", "安全审计"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["安全", "security", "权限", "认证", "授权", "漏洞"]
+    fuzzy_match: ["登录验证", "数据保护", "防护机制", "安全问题"]
+  
+  file_operations:
+    reading: ["权限相关的控制器和模型文件"]
+    editing: ["认证逻辑", "权限验证", "安全配置"]
+    creating: ["新的权限模块", "安全中间件", "认证机制"]
+  
+  code_patterns:
+    namespaces: ["app\\admin\\controller\\auth"]
+    functions: ["login", "logout", "check", "verify", "auth"]
+    classes: ["Auth", "Permission", "Security", "Token"]
+    comments: ["权限", "安全", "认证", "防护"]
+  
+  intent_analysis:
+    primary_intent: ["security_development", "permission_management", "vulnerability_fix"]
+    secondary_intent: ["authentication", "authorization", "data_protection"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["fastadmin-v5-standards.mdc"]
+  recommended_with: ["thinkphp-v5-development-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要实现权限验证功能"
+      trigger_example: "如何在FastAdmin中添加角色权限控制？"
+      expected_behavior: "AI应该提供完整的权限设计方案和安全实现代码"
+    - scenario: "用户遇到安全漏洞需要修复"
+      trigger_example: "FastAdmin存在SQL注入漏洞如何修复？"
+      expected_behavior: "AI应该提供具体的漏洞修复方案和防护措施"
+  
+  secondary:
+    - scenario: "用户需要加强系统安全性"
+      trigger_example: "如何提高FastAdmin的登录安全性？"
+      expected_behavior: "AI应该提供多层安全防护建议和实现方法"
+    - scenario: "用户要进行安全审计"
+      trigger_example: "FastAdmin安全检查清单有哪些？"
+      expected_behavior: "AI应该提供完整的安全审计指导"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及安全、权限、认证、漏洞、防护等关键词，或涉及安全相关开发时应立即加载此规则"
+  how_to_apply: "严格按照安全开发最佳实践提供建议，优先考虑安全性而非便利性，确保代码符合安全标准"
+  priority_reason: "安全是系统的基础要求，任何安全问题都可能导致严重后果，因此设置高优先级"
+  coordination: "与FastAdmin基础规范协调，确保安全措施与框架功能的兼容性"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到涉及权限或认证相关操作", "用户历史操作涉及安全功能"]
+  cache_duration: "35"
+  unload_conditions: ["连续3次对话未涉及安全相关内容"]
 ---
 
 # FastAdmin 安全开发标准规范

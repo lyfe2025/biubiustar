@@ -1,17 +1,101 @@
 ---
-alwaysApply: true
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "fastadmin-multilanguage-standards"
+description: "FastAdmin LDCMS多语言开发标准规范，支持中英日韩等多语言国际化功能"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
 priority: 9
-techStack: "FastAdmin LDCMS MultiLanguage"
-contextPatterns:
-  - "addons/ldcms"
-  - "多语言"
-  - "multilang"
-  - "lang"
-  - "zh-cn"
-  - "en"
-  - "zh-tw"
-  - "LanguageHandler"
-  - "MultiLanguageConfig"
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["多语言", "multilang", "国际化", "i18n"]
+    secondary: ["lang", "zh-cn", "en", "zh-tw", "ja", "ko"]
+    technical: ["LanguageHandler", "MultiLanguageConfig", "getCurrentLanguage", "setLanguage"]
+  
+  paths:
+    exact: ["lang/", "addons/ldcms/lang/"]
+    pattern: ["**/lang/**", "**/language/**", "**/locale/**"]
+  
+  contexts:
+    development_phase: ["国际化开发", "多语言配置", "语言包维护"]
+    project_type: ["多语言网站", "国际化项目", "CMS多语言"]
+    user_intent: ["多语言支持", "语言切换", "翻译管理", "本地化"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["多语言", "多语言支持", "国际化", "i18n", "本地化"]
+    fuzzy_match: ["语言切换", "翻译", "中英文", "多国语言"]
+  
+  file_operations:
+    reading: ["lang/目录下的语言包文件"]
+    editing: ["语言配置文件", "翻译文件"]
+    creating: ["新的语言包", "多语言模板"]
+  
+  code_patterns:
+    namespaces: ["addons\\ldcms\\lang"]
+    functions: ["getCurrentLanguage", "setLanguage", "translate", "__"]
+    classes: ["LanguageHandler", "MultiLanguageConfig", "Langs"]
+    comments: ["多语言", "国际化", "i18n", "翻译"]
+  
+  intent_analysis:
+    primary_intent: ["multilanguage_development", "i18n_implementation", "localization"]
+    secondary_intent: ["language_switching", "translation_management", "locale_setup"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["ldcms-enterprise-cms-standards.mdc"]
+  recommended_with: ["fastadmin-multitemplate-standards.mdc", "fastadmin-v5-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要为项目添加多语言支持"
+      trigger_example: "如何为LDCMS添加多语言功能？"
+      expected_behavior: "AI应该提供完整的多语言实现方案，包括配置、模板、数据库设计"
+    - scenario: "用户要配置语言切换功能"
+      trigger_example: "怎么实现前台的中英文切换？"
+      expected_behavior: "AI应该提供语言切换的具体实现代码和配置方法"
+  
+  secondary:
+    - scenario: "用户遇到多语言相关错误"
+      trigger_example: "多语言模板渲染异常"
+      expected_behavior: "AI应该基于多语言规范提供排错指导"
+    - scenario: "用户需要扩展支持的语言"
+      trigger_example: "如何添加日文支持？"
+      expected_behavior: "AI应该提供新语言添加的完整流程"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及多语言、国际化、i18n、语言切换，或操作lang/目录时应立即加载此规则"
+  how_to_apply: "严格按照多语言开发规范提供建议，确保语言包结构、命名规范、切换逻辑的一致性"
+  priority_reason: "多语言功能是LDCMS的核心特性之一，需要高优先级确保实现质量"
+  coordination: "与LDCMS核心规范和多模板规范协调，确保多语言与模板系统的兼容性"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到项目包含lang/目录", "用户历史操作涉及多语言"]
+  cache_duration: "25"
+  unload_conditions: ["连续5次对话未涉及多语言相关内容"]
 ---
 
 # FastAdmin LDCMS 多语言开发标准规范

@@ -1,0 +1,149 @@
+# 智能调度机制测试用例
+
+> **🎯 目标**: 验证增强的MDC元数据是否能让AI正确识别和调度规则文件
+> **📋 测试范围**: 各种用户输入场景下的规则调度准确性
+> **⚡ 验证方法**: 通过实际对话测试AI的规则选择行为
+
+---
+
+## 🧪 测试用例设计
+
+### 测试场景1: LDCMS开发需求
+**用户输入**: `"帮我为LDCMS添加一个新的产品展示模块"`
+
+**预期AI行为**:
+```
+🔍 智能检测结果:
+✅ 检测到关键词: "LDCMS" (primary)
+✅ 检测到意图: "功能实现", "模块开发" 
+✅ 匹配场景: "用户要为LDCMS开发新功能模块"
+
+📋 应该自动加载的规则文件:
+🔧 ldcms-enterprise-cms-standards.mdc (priority: 10, 匹配度: 95%)
+🔧 fastadmin-v5-standards.mdc (required_with, priority: 0)
+🌍 fastadmin-multilanguage-standards.mdc (recommended_with, priority: 9)
+📱 fastadmin-multitemplate-standards.mdc (recommended_with, priority: 8)
+
+❌ 应该跳过的规则文件:
+❌ bootstrap-adminlte-ui-standards.mdc (无UI开发需求)
+❌ fastadmin-security-standards.mdc (非安全相关)
+❌ fastadmin-performance-optimization.mdc (非性能优化)
+```
+
+### 测试场景2: 纯技术咨询
+**用户输入**: `"ThinkPHP的数据库连接配置怎么写？"`
+
+**预期AI行为**:
+```
+🔍 智能检测结果:
+✅ 检测到关键词: "ThinkPHP" (technical)
+✅ 检测到意图: "技术咨询", "配置问题"
+✅ 复杂度: "simple"
+
+📋 应该自动加载的规则文件:
+🔧 thinkphp-v5-development-standards.mdc (priority: 1, 匹配度: 85%)
+🔧 common-rules.mdc (always apply)
+
+❌ 应该跳过的规则文件:
+❌ ldcms-enterprise-cms-standards.mdc (不涉及LDCMS)
+❌ fastadmin-multilanguage-standards.mdc (不涉及多语言)
+❌ 所有其他专用规则文件
+```
+
+### 测试场景3: 前端UI开发
+**用户输入**: `"我想美化FastAdmin的后台界面，使用Bootstrap样式"`
+
+**预期AI行为**:
+```
+🔍 智能检测结果:
+✅ 检测到关键词: "FastAdmin", "后台界面", "Bootstrap"
+✅ 检测到意图: "UI开发", "界面美化"
+✅ 项目类型: "web开发", "前端开发"
+
+📋 应该自动加载的规则文件:
+🎨 bootstrap-adminlte-ui-standards.mdc (priority: 2, 匹配度: 90%)
+🔧 fastadmin-v5-standards.mdc (required_with, priority: 0)
+🔧 common-rules.mdc (always apply)
+
+❌ 应该跳过的规则文件:
+❌ ldcms-enterprise-cms-standards.mdc (不涉及LDCMS)
+❌ thinkphp-v5-development-standards.mdc (非后端开发)
+❌ fastadmin-security-standards.mdc (非安全相关)
+```
+
+### 测试场景4: 安全相关问题
+**用户输入**: `"FastAdmin的权限验证机制有漏洞，如何修复？"`
+
+**预期AI行为**:
+```
+🔍 智能检测结果:
+✅ 检测到关键词: "FastAdmin", "权限验证", "漏洞"
+✅ 检测到意图: "安全修复", "问题解决"
+✅ 复杂度: "complex"
+
+📋 应该自动加载的规则文件:
+🔒 fastadmin-security-standards.mdc (priority: 5, 匹配度: 95%)
+🔧 fastadmin-v5-standards.mdc (required_with, priority: 0)
+🔧 common-rules.mdc (always apply)
+
+❌ 应该跳过的规则文件:
+❌ bootstrap-adminlte-ui-standards.mdc (非UI问题)
+❌ fastadmin-performance-optimization.mdc (非性能问题)
+❌ fastadmin-multilanguage-standards.mdc (非多语言问题)
+```
+
+---
+
+## 🔍 验证方法
+
+### 方法1: 直接对话测试
+在实际对话中使用上述测试用例，观察AI是否：
+1. **正确识别**: 能否准确识别用户意图和技术栈
+2. **精准调度**: 是否加载了预期的规则文件
+3. **合理跳过**: 是否跳过了不相关的规则文件
+4. **显示透明**: 是否清晰显示调度逻辑和原因
+
+### 方法2: 规则匹配度分析
+通过分析用户输入与规则元数据的匹配程度：
+- **关键词匹配度**: 计算关键词覆盖率
+- **上下文匹配度**: 评估场景匹配准确性
+- **意图分析准确度**: 验证AI意图理解是否正确
+- **优先级合理性**: 检查规则加载顺序是否合理
+
+### 方法3: 性能对比测试
+对比新旧调度机制的性能：
+- **响应时间**: 测量AI响应速度
+- **资源占用**: 监控内存和处理开销
+- **准确率**: 统计调度准确率
+- **用户满意度**: 评估回答质量和相关性
+
+---
+
+## 📊 测试结果记录模板
+
+### 测试记录表
+| 测试场景 | 用户输入 | 预期加载规则 | 实际加载规则 | 匹配度 | 响应时间 | 结果评价 |
+|----------|----------|-------------|-------------|--------|----------|----------|
+| LDCMS开发 | "为LDCMS添加产品模块" | ldcms-standards + 3个相关 | ? | ? | ? | ✅/❌ |
+| 技术咨询 | "ThinkPHP数据库配置" | thinkphp-standards | ? | ? | ? | ✅/❌ |
+| UI开发 | "美化FastAdmin界面" | bootstrap-ui-standards | ? | ? | ? | ✅/❌ |
+| 安全问题 | "权限验证漏洞修复" | security-standards | ? | ? | ? | ✅/❌ |
+
+### 问题记录和改进建议
+- **发现的问题**: 记录调度不准确的情况
+- **改进建议**: 提出元数据优化方案
+- **优化方向**: 调整关键词、触发条件、优先级等
+
+---
+
+## 🎯 预期效果
+
+通过增强的MDC元数据格式，我们期望实现：
+
+1. **🔍 精准识别**: AI能准确理解用户需求和技术上下文
+2. **⚡ 智能调度**: 自动加载最相关的规则文件
+3. **🎯 高效过滤**: 跳过不相关的规则，提升性能
+4. **📊 透明可控**: 清晰显示调度逻辑和决策过程
+5. **🔄 持续优化**: 根据使用效果不断改进调度算法
+
+**最终目标**: 让AI真正能够根据用户需求智能调度专用规则文件，提供精准、高效的开发指导！

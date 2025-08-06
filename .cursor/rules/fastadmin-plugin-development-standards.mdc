@@ -1,7 +1,101 @@
 ---
-alwaysApply: true
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "fastadmin-plugin-development-standards"
+description: "FastAdmin插件开发标准规范，包含插件架构、开发流程、发布规范等插件系统指导"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
 priority: 4
-techStack: "FastAdmin Plugin System"
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["插件", "plugin", "addon", "扩展"]
+    secondary: ["模块", "组件", "功能包", "第三方"]
+    technical: ["addons/", "Plugin", "Addon", "Extension"]
+  
+  paths:
+    exact: ["addons/", "application/admin/controller/addon/"]
+    pattern: ["**/addons/**", "**/plugins/**", "**/extensions/**"]
+  
+  contexts:
+    development_phase: ["插件开发", "功能扩展", "模块化开发"]
+    project_type: ["插件系统", "功能扩展", "第三方集成"]
+    user_intent: ["插件开发", "功能扩展", "模块集成", "插件管理"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["插件", "plugin", "addon", "扩展", "模块"]
+    fuzzy_match: ["功能包", "组件", "第三方", "集成"]
+  
+  file_operations:
+    reading: ["addons/目录下的文件"]
+    editing: ["插件配置文件", "插件控制器", "插件模型"]
+    creating: ["新插件", "插件功能", "插件模块"]
+  
+  code_patterns:
+    namespaces: ["addons\\"]
+    functions: ["install", "uninstall", "enable", "disable", "config"]
+    classes: ["Plugin", "Addon", "Extension", "Controller"]
+    comments: ["插件", "plugin", "addon", "扩展"]
+  
+  intent_analysis:
+    primary_intent: ["plugin_development", "addon_creation", "module_extension"]
+    secondary_intent: ["plugin_management", "third_party_integration", "system_extension"]
+    complexity_level: ["medium", "complex"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: ["fastadmin-v5-standards.mdc"]
+  recommended_with: ["thinkphp-v5-development-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要开发FastAdmin插件"
+      trigger_example: "如何为FastAdmin开发一个新的插件？"
+      expected_behavior: "AI应该提供完整的插件开发流程和架构指导"
+    - scenario: "用户要扩展现有插件功能"
+      trigger_example: "如何给现有插件添加新功能？"
+      expected_behavior: "AI应该提供插件扩展的方法和最佳实践"
+  
+  secondary:
+    - scenario: "用户遇到插件开发问题"
+      trigger_example: "FastAdmin插件安装失败怎么办？"
+      expected_behavior: "AI应该提供插件问题诊断和解决方案"
+    - scenario: "用户需要管理插件"
+      trigger_example: "如何管理FastAdmin的插件启用和禁用？"
+      expected_behavior: "AI应该提供插件管理的方法和注意事项"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及插件、plugin、addon、扩展等关键词，或操作addons/目录时应立即加载此规则"
+  how_to_apply: "严格按照FastAdmin插件开发规范提供指导，确保插件的兼容性和稳定性"
+  priority_reason: "插件系统是FastAdmin的重要特性，规范的插件开发能确保系统的可扩展性"
+  coordination: "与FastAdmin基础规范协调，确保插件与核心系统的兼容性"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到addons目录", "用户历史操作涉及插件开发"]
+  cache_duration: "25"
+  unload_conditions: ["连续4次对话未涉及插件相关内容"]
 ---
 
 # FastAdmin 插件开发标准规范

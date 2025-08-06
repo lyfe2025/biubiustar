@@ -1,7 +1,101 @@
 ---
-alwaysApply: true
-priority: 2
-techStack: "Bootstrap + AdminLTE + RequireJS + Less"
+# ===========================================
+# 🤖 AI自动调度配置 (必需)
+# ===========================================
+ruleName: "bootstrap-adminlte-ui-standards"
+description: "Bootstrap + AdminLTE前端UI开发标准，包含响应式设计、组件使用、样式规范等前端开发指导"
+version: "1.0.0"
+lastUpdated: "2024-12-19"
+
+alwaysApply: false
+priority: 3
+
+# ===========================================
+# 🔍 智能检测配置 (核心)
+# ===========================================
+detection:
+  keywords:
+    primary: ["Bootstrap", "AdminLTE", "UI", "前端", "界面"]
+    secondary: ["响应式", "组件", "样式", "CSS", "JavaScript"]
+    technical: ["bootstrap", "adminlte", "jquery", "requirejs", "less"]
+  
+  paths:
+    exact: ["public/assets/css/", "public/assets/js/", "application/admin/view/"]
+    pattern: ["**/css/**", "**/js/**", "**/assets/**", "**/view/**"]
+  
+  contexts:
+    development_phase: ["前端开发", "UI设计", "界面优化"]
+    project_type: ["后台界面", "管理系统UI", "响应式网站"]
+    user_intent: ["界面美化", "UI组件", "样式定制", "交互优化"]
+
+# ===========================================
+# ⚡ 触发条件配置 (精确)
+# ===========================================
+triggers:
+  explicit_mentions:
+    exact_match: ["Bootstrap", "AdminLTE", "UI", "前端", "界面", "样式"]
+    fuzzy_match: ["美化", "组件", "响应式", "CSS", "JavaScript"]
+  
+  file_operations:
+    reading: ["CSS样式文件", "JavaScript脚本文件", "HTML模板文件"]
+    editing: ["样式表", "前端脚本", "界面模板"]
+    creating: ["新的UI组件", "自定义样式", "前端功能"]
+  
+  code_patterns:
+    namespaces: ["public/assets"]
+    functions: ["$(document).ready", "bootstrap", "adminlte"]
+    classes: ["btn", "form-control", "table", "modal"]
+    comments: ["Bootstrap", "AdminLTE", "UI", "样式"]
+  
+  intent_analysis:
+    primary_intent: ["ui_development", "frontend_design", "interface_customization"]
+    secondary_intent: ["responsive_design", "component_usage", "style_optimization"]
+    complexity_level: ["simple", "medium"]
+
+# ===========================================
+# 🔗 关联规则配置
+# ===========================================
+relationships:
+  required_with: []
+  recommended_with: ["fastadmin-v5-standards.mdc", "fastadmin-crud-generation-standards.mdc"]
+  depends_on: ["common-rules.mdc"]
+
+# ===========================================
+# 📊 使用场景描述 (帮助AI理解)
+# ===========================================
+use_cases:
+  primary:
+    - scenario: "用户需要美化后台界面"
+      trigger_example: "如何用Bootstrap美化FastAdmin的后台界面？"
+      expected_behavior: "AI应该提供UI美化的具体方法和组件使用指导"
+    - scenario: "用户要实现响应式设计"
+      trigger_example: "怎么让后台管理界面支持移动端访问？"
+      expected_behavior: "AI应该提供响应式设计的实现方案"
+  
+  secondary:
+    - scenario: "用户遇到前端样式问题"
+      trigger_example: "AdminLTE的表格样式显示异常"
+      expected_behavior: "AI应该提供样式问题的诊断和解决方案"
+    - scenario: "用户需要自定义UI组件"
+      trigger_example: "如何创建自定义的Bootstrap组件？"
+      expected_behavior: "AI应该提供组件开发的方法和最佳实践"
+
+# ===========================================
+# 🎯 AI指令配置 (明确指导)
+# ===========================================
+ai_instructions:
+  when_to_load: "当用户提及Bootstrap、AdminLTE、UI、前端、界面等关键词，或涉及前端开发时应立即加载此规则"
+  how_to_apply: "提供标准化的前端开发指导，注重用户体验和响应式设计，遵循Bootstrap和AdminLTE的设计规范"
+  priority_reason: "前端UI直接影响用户体验，是系统的重要组成部分"
+  coordination: "与FastAdmin基础规范协调，确保前端实现与后端功能的完美配合"
+
+# ===========================================
+# 📈 性能优化配置
+# ===========================================
+performance:
+  preload_conditions: ["检测到前端开发需求", "用户历史操作涉及UI开发"]
+  cache_duration: "20"
+  unload_conditions: ["连续4次对话未涉及前端相关内容"]
 ---
 
 # Bootstrap + AdminLTE 前端UI开发标准
