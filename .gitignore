@@ -17,3 +17,6 @@ composer.lock
 .vscode
 node_modules
 .user.ini
+
+# Cursor IDE 规则配置（可选：如果团队共享规则则注释掉下面的行）
+# .cursor/
