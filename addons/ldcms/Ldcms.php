@@ -28,7 +28,7 @@ class Ldcms extends Addons
         Menu::create($menu);
         $dir = ADDON_PATH . 'ldcms'.DS;
         /*template*/
-        $views = ['default','en','ldcms2024','ldcms2024en','ldcms2025','ldcms2025en','biubiustar2025vn','biubiustar2025en','biubiustar2025sctc'];
+        $views = ['default','en','ldcms2024','ldcms2024en','ldcms2025','ldcms2025en','biubiustar2025vn','biubiustar2025en','biubiustar2025zh-cn','biubiustar2025zh-tw'];
         foreach ($views as $view) {
             $file = $dir.'view'.DS.'template_'.$view.'.zip';
             Common::unzip($dir.'view'.DS, $file);
@@ -88,7 +88,7 @@ class Ldcms extends Addons
         /*升级时删除模板压缩包*/
         $dir = ADDON_PATH . 'ldcms'.DS.'view'.DS;
 
-        $views = ['default','en','ldcms2024','ldcms2024en','ldcms2025','ldcms2025en','biubiustar2025vn','biubiustar2025en','biubiustar2025sctc'];
+        $views = ['default','en','ldcms2024','ldcms2024en','ldcms2025','ldcms2025en','biubiustar2025vn','biubiustar2025en','biubiustar2025zh-cn','biubiustar2025zh-tw'];
         foreach ($views as $view) {
             /*1.3.0 新模板不存在则进行解压缩*/
             if (!file_exists($dir.$view)) {
