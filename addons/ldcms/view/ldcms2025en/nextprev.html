@@ -1,0 +1,17 @@
+<div class="next-prev">
+    <div class="row">
+        {ld:prev}
+        <div class="next-prev-left col-12 col-lg-6">
+            <p>Prev：<a href="{$item.url}" title="{$item.title}"> {$item.title} </a></p>
+        </div>
+        {else /}
+        <div class="next-prev-left col-12 col-lg-6"><p>Prev：Not Data</p></div>
+        {/ld:prev} {ld:sort cid="$category['id']"} {/ld:sort} {ld:next}
+        <div class="next-prev-right col-12 col-lg-6">
+            <p>Next：<a href="{$item.url}" title="{$item.title}"> {$item.title} </a></p>
+        </div>
+        {else /}
+        <div class="next-prev-right col-12 col-lg-6"><p>Next：Not Data</p></div>
+        {/ld:next}
+    </div>
+</div>

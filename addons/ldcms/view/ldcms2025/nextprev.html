@@ -1,0 +1,17 @@
+<div class="next-prev">
+    <div class="row">
+        {ld:prev}
+        <div class="next-prev-left col-12 col-lg-6">
+            <p>上一篇：<a href="{$item.url}" title="{$item.title}"> {$item.title} </a></p>
+        </div>
+        {else /}
+        <div class="next-prev-left col-12 col-lg-6"><p>上一篇：没有了</p></div>
+        {/ld:prev} {ld:sort cid="$category['id']"} {/ld:sort} {ld:next}
+        <div class="next-prev-right col-12 col-lg-6">
+            <p>下一篇：<a href="{$item.url}" title="{$item.title}"> {$item.title} </a></p>
+        </div>
+        {else /}
+        <div class="next-prev-right col-12 col-lg-6"><p>下一篇：没有了</p></div>
+        {/ld:next}
+    </div>
+</div>

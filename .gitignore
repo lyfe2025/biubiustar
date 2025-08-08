@@ -2,9 +2,18 @@
 /thinkphp/
 /vendor/
 /runtime/*
+# 精确控制addons目录
 /addons/*
+!/addons/ldcms/
+/addons/ldcms/testdata.sql
+/addons/ldcms/cache/
+/addons/ldcms/temp/
+# 精确控制public/assets目录
 /public/assets/libs/
+# 只忽略上传的插件资源，保留核心资源
 /public/assets/addons/*
+!/public/assets/addons/ldcms/
+# 忽略用户上传文件
 /public/uploads/*
 .DS_Store
 .idea

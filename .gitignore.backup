@@ -1,0 +1,22 @@
+/nbproject/
+/thinkphp/
+/vendor/
+/runtime/*
+/addons/*
+/public/assets/libs/
+/public/assets/addons/*
+/public/uploads/*
+.DS_Store
+.idea
+composer.lock
+*.log
+*.css.map
+!.gitkeep
+.env
+.svn
+.vscode
+node_modules
+.user.ini
+
+# Cursor IDE 规则配置（可选：如果团队共享规则则注释掉下面的行）
+# .cursor/
