@@ -1,0 +1,59 @@
+{extend name="base" /} {block name="main"}
+<!-- neibanner -->
+{ld:sort cid="$topid"}
+<div class="neibanner">
+    <img src="{$item.big_image}" alt="{$item.name}" />
+    <div class="neibannerdesc">
+        <div class="container neibannerdesc-title">
+            <p>{$item.ename}</p>
+            <h2>{$item.name}</h2>
+        </div>
+
+        <!-- 内页导航 -->
+        {include file="neinav" /}
+        <!-- 内页导航 end -->
+    </div>
+</div>
+{/ld:sort}
+<!-- neibanner end -->
+
+<section class="page-content">
+    <div class="container">
+        <div class="page-content-card card">
+            <div class="card-body">
+                <h2 class="page-content-title">{$content.title}</h2>
+                <div class="page-content-timeline row">
+                    <div class="col-12 col-md-6 page-content-timeline-left">
+                        <p>
+                            {ld:sort cid="$category['id']"}
+                            <a href="{$item.url}">#{$item.name}</a>
+                            {/ld:sort}
+                            <span>·</span><i>{$content.show_time|ld_fdate='Y-m-d H:i:s'}</i>
+                        </p>
+                    </div>
+                    <div class="col-12 col-md-6 page-content-timeline-right d-none d-lg-flex">
+                        <a class="qrcode_ewm" href="javascript:;">
+                            <img src="__ADDON__/ldcms2024/images/newswxico.png" alt />
+                        </a>
+                        <div class="qrcode_ewmimg" style="display: none;" id="qrcode"></div>
+                        <a class="a-weibo" data-title="{$content.title}" href="javascript:;">
+                            <img src="__ADDON__/ldcms2024/images/newsxlico.png" alt />
+                        </a>
+                    </div>
+                </div>
+                {$content.content}
+
+                <div class="page-content-detags">
+                    <p>
+                        <span>相关标签：</span>
+                        {ld:tags id="$content['id']" cid="$category['id']" limit='16'}
+                        <a href="{$item.url}" target="_blank">{$item.title}</a>
+                        {/ld:tags}
+                    </p>
+                </div>
+                {include file="nextprev" /}
+            </div>
+        </div>
+    </div>
+</section>
+{/block}

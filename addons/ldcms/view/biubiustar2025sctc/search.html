@@ -1,0 +1,51 @@
+{extend name="base" /} {block name="main"}
+<!-- neibanner -->
+{ld:sort cid="$topid"}
+<div class="neibanner">
+    <img src="__ADDON__/ldcms2025/images/banner2.jpg" alt="{$item.name}" />
+    <div class="neibannerdesc">
+        <div class="container neibannerdesc-title">
+            <p>search</p>
+            <h2>搜索结果</h2>
+        </div>
+    </div>
+</div>
+{/ld:sort}
+<!-- neibanner end -->
+<style>
+    .search-empty{
+        text-align: center;
+    }
+</style>
+<section class="page-content">
+    <div class="container">
+        <form action="" class="search-container">
+            <div class="col-xs-12 col-sm-12 col-md-4 mx-auto">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" value="{$search|htmlentities}" />
+                    <button class="btn btn-danger submit" type="submit" >{:__('Search')}</button>
+                </div>
+            </div>
+        </form>
+        <div class="newslistp_bot searchpage">
+            <ul class="row">
+                {ld:search limit='12' page='true' empty="$empty"}
+                <li class="col-12 col-lg-4 col-xl-3  col-sm-6 ">
+                    <a href="{$item.url}" title="{$item.title}">
+                        <div class="newslistp_botimg">
+                            <img src="{$item.image}" alt="{$item.title}" />
+                        </div>
+                        <div class="newslistp_botdes search_pdesc d-flex flex-wrap justify-content-between">
+                            <h3 class="text-ellipsis-2">{$item.title}</h3>
+                            <p>阅读全文 ></p>
+                        </div>
+                    </a>
+                </li>
+                {/ld:search}
+            </ul>
+        </div>
+        <div class="page-pagination">{$pages}</div>
+    </div>
+</section>
+
+{/block}

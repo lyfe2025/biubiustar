@@ -1,0 +1,36 @@
+{extend name="base" /}
+{block name="main"}
+<!-- neibanner -->
+{ld:sort cid="$topid"}
+<div class="neibanner">
+    <img src="{$item.big_image}" alt="{$item.name}" />
+    <div class="neibannerdesc">
+        <div class="container neibannerdesc-title">
+            <p>{$item.ename}</p>
+            <h2>{$item.name}</h2>
+        </div>
+
+        <!-- 内页导航 -->
+        {include file="neinav" /}
+        <!-- 内页导航 end -->
+    </div>
+</div>
+{/ld:sort}
+<!-- neibanner end -->
+
+<div class="page-list">
+    <section class="custom-wrapper bg-light">
+        <div class="container">
+            <div class="custom-list row bg-white">
+                {ld:list limit='60'}
+                <div class="col-6 col-md-4  col-lg-2 custom-item">
+                    <div class="pic wow slideInUp animated" style="visibility: visible; animation-name: slideInUp">
+                        <img src="{$item.image}" alt="{$item.title}" />
+                    </div>
+                </div>
+                {/ld:list}
+            </div>
+        </div>
+    </section>
+</div>
+{/block}

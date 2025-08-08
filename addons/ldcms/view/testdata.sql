@@ -1,7 +1,7 @@
 -- SQL Dump by Erik Edgren
 -- version 1.0
 --
--- SQL Dump created: August 9th, 2025 @ 1:32 am
+-- SQL Dump created: August 9th, 2025 @ 1:35 am
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -1076,7 +1076,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_langs` (
   `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
   `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='多语言表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='多语言表';
 
 
 --
@@ -1084,8 +1084,9 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_langs` (
 --
 
 INSERT INTO `__PREFIX__ldcms_langs` (`id`, `title`, `sub_title`, `code`, `domain`, `status`, `is_default`, `sort`, `create_time`, `update_time`) VALUES
-(1, '简体中文', 'CN', 'zh-cn', '', 1, 1, 0, 1675334627, 1748006962),
-(2, 'English', 'EN', 'en', '', 1, 0, 0, 1675334645, 1748006928);
+(1, '简体中文', 'CN', 'zh-cn', '', 1, 0, 0, 1675334627, 1748006962),
+(2, 'English', 'EN', 'en', '', 1, 0, 1, 1675334645, 1748006928),
+(3, 'Tiếng Việt', 'VN', 'vi-vn', '', 1, 1, 2, 1735513200, 1735513200);
 --
 -- Remove the table if it exists
 --

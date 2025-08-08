@@ -1,0 +1,55 @@
+{extend name="base" /} {block name="main"}
+<!-- neibanner -->
+{ld:sort cid="$topid"}
+<div class="neibanner">
+    <img src="{$item.big_image}" alt="{$item.name}" />
+    <div class="neibannerdesc">
+        <div class="container neibannerdesc-title">
+            <p>{$item.ename}</p>
+            <h2>{$item.name}</h2>
+        </div>
+
+        <!-- 内页导航 -->
+        {include file="neinav" /}
+        <!-- 内页导航 end -->
+    </div>
+</div>
+{/ld:sort}
+<!-- neibanner end -->
+
+<section class="page-content download-wrapper">
+    <div class="container">
+        <div class="page-content-card card">
+            <div class="card-body">
+                <div class="row list-header">
+                    <div class="col-8 col-lg-8">
+                        名称
+                    </div>
+                    <div class="d-none d-lg-flex col-lg-2">
+                        发布时间
+                    </div>
+                    <div class="col-4 col-lg-2 text-end">
+                        操作
+                    </div>
+                </div>
+                {ld:list cid="$cate['id']" ext="downlinks" alias="dlist"}
+                <div class="row">
+                    <div class="col-8 col-lg-8">
+                        <h5 class="card-title text-ellipsis">{$dlist.title}</h5>
+                    </div>
+                    <div class="create_time d-none d-lg-flex col-lg-2">
+                        {$dlist.create_time}
+                    </div>
+                    <div class="col-4 col-lg-2 text-end">
+                        <a href="{$dlist.downlinks}" target="_blank" title="{$dlist.title}"class="btn btn-primary">
+                           <i class="fa fa-download"></i> 下载文件
+                        </a>
+                    </div>
+                </div>
+                {/ld:list}
+            </div>
+            <div class="page-pagination">{$pages}</div>
+        </div>
+    </div>
+</section>
+{/block}

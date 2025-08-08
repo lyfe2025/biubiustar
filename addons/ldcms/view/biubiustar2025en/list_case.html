@@ -1,0 +1,45 @@
+{extend name="base" /} {block name="main"}
+<!-- neibanner -->
+{ld:sort cid="$topid"}
+<div class="neibanner">
+    <img src="{$item.big_image}" alt="{$item.name}" />
+    <div class="neibannerdesc">
+        <div class="container neibannerdesc-title">
+            <p>{$item.ename}</p>
+            <h2>{$item.name}</h2>
+        </div>
+
+        <!-- 内页导航 -->
+        {include file="neinav" /}
+        <!-- 内页导航 end -->
+    </div>
+</div>
+{/ld:sort}
+<!-- neibanner end -->
+
+<section class="page-list case-wrapper">
+    <div class="container">
+        <div class="row">
+            {ld:list }
+            <div class="col-12 col-sm-12 col-md-6 col-xl-4">
+                <div class="case-item">
+                    <a href="{$item.url}" title="{$item.title}">
+                        <div class="case-item-img">
+                            <img src="{$item.image}" alt="{$item.title}" />
+                        </div>
+                        <div class="case-content-wrapper">
+                            <h3 class="case-item-title text-ellipsis">{$item.title}</h3>
+                            <p class="case-item-info text-ellipsis-2">{$item.description}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {/ld:list}
+        </div>
+
+        <div class="page-pagination">
+          {$pages}
+        </div>
+    </div>
+</section>
+{/block}

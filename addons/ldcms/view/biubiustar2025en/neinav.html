@@ -1,0 +1,28 @@
+<!-- 内页导航 -->
+<section class="neinav d-none d-lg-flex">
+    <div class="container h-100">
+        <div class="row h-100 align-items-center justify-content-between">
+            <div class="col-8">
+                <ul class="neinav-wrapper d-flex flex-wrap">
+                    {ld:sort cid="$topid"} {if $item.child > 0} {ld:sort pid="$topid" alias="item2"}
+                    <li class="{if $category['id']==$item2['id']} active {/if}">
+                        <a href="{$item2.url}" title="{$item2.name}">{$item2.name}</a>
+                    </li>
+                    {/ld:sort} {else /}
+                    <li class="{if $category['id']==$item['id']} active {/if}">
+                        <a href="{$item.url}" title="{$item.name}">{$item.name}</a>
+                    </li>
+                    {/if} {/ld:sort}
+                </ul>
+            </div>
+
+            <div class="col-4 neiposition d-flex  justify-content-end align-items-center">
+                <i class="fa fa-home neiposition-icon"></i>
+                <a href="{:addon_url('ldcms/index/index')}">{:__('Home')}</a>
+                {ld:position cid="$category['id']"} &nbsp;<i class="fa fa-angle-right"></i>&nbsp;<a href="{$item.url}">{$item.name}</a>
+                {/ld:position}
+            </div>
+        </div>
+    </div>
+</section>
+<!-- 内页导航 end -->

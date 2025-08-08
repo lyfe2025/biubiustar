@@ -1,0 +1,71 @@
+<header class="bg-white sticky-top shadow-sm">
+    <div class="container h-100 px-0 d-flex align-items-center justify-content-between">
+        <div class="logo">
+            <a href="{:addon_url('ldcms/index/index')}">
+                <img src="{$ld.logo1|cdnurl}" alt="{$ld.sitetitle}" />
+            </a>
+        </div>
+        <!-- 导航和功能按钮容器 -->
+        <div class="nav-pc d-flex justify-conent-center align-items-center" id="menuContainer">
+            <nav class="menu">
+                <ul class="d-flex justify-content-center align-items-center">
+                    <li class="d-none d-sm-block">
+                        <a {if $topid===0}class="active" {/if} href="{:addon_url('ldcms/index/index')}">{:__('Home')}</a>
+                    </li>
+                    {ld:nav }
+                    <li>
+                        <a href="{$item.url}" class="{if $topid==$item['id']} active {/if}">{$item.name} </a>
+                        {if $item['child']}
+                        <div class="sub-menu">
+                            <div class="sub-menu-list">
+                                {ld:nav pid="$item['id']"}
+                                <div class="sub-menu-item">
+                                    <a href="{$item.url}">{$item.name}</a>
+                                </div>
+                                {/ld:nav}
+                            </div>
+                        </div>
+                        {/if}
+                    </li>
+                    {/ld:nav}
+                </ul>
+            </nav>
+        </div>
+        <!-- 搜索和语言切换图标 -->
+        <div class="d-flex align-items-center">
+            <div class="lang-wrapper me-3">
+                <div class="lang-btn">
+                    <svg class="lang-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                    </svg>
+                    <span class="lang-text">{$ld.langs[$ld.lg]}</span>
+                </div>
+                <div class="lang-dropdown">
+                    <ul>
+                        {foreach $ld.langsurl as $key=>$item}
+                        <li><a href="{$item.url}">{$item.title}</a></li>
+                        {/foreach}
+                    </ul>
+                </div>
+            </div>
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <a href="javascript:;" class="menu-mobile d-block d-sm-none">
+                <img src="__ADDON__/ldcms2025/images/menu.svg" class="open-icon" alt="">
+                <img src="__ADDON__/ldcms2025/images/close-small.svg" class="close-icon" alt="">
+            </a>
+        </div>
+    </div>
+    <div class="search-wrapper">
+        <form action="{:addon_url('ldcms/search/index')}" class="d-flex search-wrapper-content align-items-center">
+            <input type="text" name="search" class="search-input" placeholder="{:__('Please enter keywords')}" />
+            <button type="submit" class="search-submit">
+                <i class="fa fa-search"></i> {:__('Search')}
+            </button>
+            <div class="search-close d-flex justify-content-center align-items-center">
+                <img src="__ADDON__/ldcms2025/images/close-small.svg" alt="关闭" />
+            </div>
+        </form>
+    </div>
+</header>

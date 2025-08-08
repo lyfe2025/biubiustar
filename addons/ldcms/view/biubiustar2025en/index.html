@@ -1,0 +1,239 @@
+{extend name="base" /}
+
+{block name="main"}
+<!--轮播图 s-->
+<section class="main-slider swiper-container banner-pc">
+    <div class="swiper-wrapper">
+        {ld:slide name="banner"}
+        <div class="swiper-slide">
+            {if $item.is_video}
+                <video class="swiper-silde-img" poster="{$item.image}" src="{$item.video}" autoplay loop muted></video>
+            {else /}
+                <img class="swiper-silde-img" src="{$item.image}" alt="{$item.title}" >
+            {/if}
+
+            <div class="image-layer"></div>
+            <div class="image-layer-overlay"></div>
+            <div class="container swiper-slide-content">
+                <div class="row w-100">
+                    <div class="col-lg-8">
+                        <div class="main-slider__content">
+                            <h2>{$item.title}</h2>
+                            <p>{$item.description}</p>
+                            <a href="{$item.url}" target="{$item.target}" class="more">{:__('View More')} <i class="fa fa-angle-double-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/ld:slide}
+    </div>
+    <div class="swiper-pagination" id="main-slider-pagination"></div>
+    <div class="main-slider__nav">
+        <div class="swiper-button-prev" id="main-slider__swiper-button-prev"><i class="fa fa-angle-left"></i></div>
+        <div class="swiper-button-next" id="main-slider__swiper-button-next"><i class="fa fa-angle-right"></i></div>
+    </div>
+</section>
+<!--轮播图 e-->
+<!-- 推荐产品  s-->
+{ld:action action="home_block" model_table_name="product" alias="cate"}
+<section class="container product-wrapper">
+    <div class="row">
+        <div class="public-title col-xl-6 col-lg-6 col-12">
+            <h3>{$cate.name}</h3>
+            <p>{$cate.ename}</p>
+        </div>
+        <div class="link-section col-xl-6 col-lg-6 col-12 d-flex align-items-center justify-content-end">
+            {ld:sort pid="$cate['id']"}
+            <a href="{$item.url}">{$item.name}</a>
+            {/ld:sort}
+        </div>
+    </div>
+    <div class="product-list row">
+        {ld:list cid="$cate['id']" limit='8'  }
+        <div class="product-item col-lg-3 col-md-6 col-sm-6">
+            <a href="{$item.url}" class="product-item-wrapper wow fadeInUp" data-wow-delay="0.{$i}s">
+                <div class="pic">
+                    <img class="ratio ratio-1x1" src="{$item.image}" alt="{$item.title}" />
+                </div>
+                <div class="content-wrapper text-center px-3 py-3">
+                    <h3 class="product-item-title text-ellipsis">{$item.title}</h3>
+                    <p class="product-item-info text-ellipsis-2">{$item.description}</p>
+                    <div class="product-item-bottom d-flex justify-content-between">
+                        <div class="price">
+                            <span class="price-unit">￥</span>
+                            <strong>{$item.price}</strong>
+                        </div>
+                        <span class="public-more">
+                            MORE
+                            <i class="fa fa-angle-double-right"></i>
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {/ld:list}
+    </div>
+    <div class="text-center product-more">
+        <a href="{$cate.url}" class="public-more">MORE <i class="fa fa-angle-double-right"></i> </a>
+    </div>
+</section>
+{/ld:action}
+<!-- 推荐产品 e -->
+
+<!-- 关于我们 s -->
+{ld:action action="home_block" model_table_name="page" alias="cate"}
+<section class="about-wrapper d-lg-flex">
+    <div class="left-img overflow-hidden col-lg-6 col-md-12 col-sm-12 wow slideInLeft">
+        {ld:slide name="about"}
+        <img src="{$item.image}" alt="{$item.title}" />
+        {/ld:slide}
+    </div>
+    <div class="about-right col-lg-6 col-md-12 col-sm-12">
+        {ld:content cid="$cate['id']" }
+        <div class="about-right-content wow slideInRight">
+            <h2>{$cate.name}</h2>
+            <p>{$cate.ename}</p>
+            <div class="info">{$content.content|ld_str_cut=1000}</div>
+            <div class="count-wrapper d-flex">
+                {foreach $ld.about_count as $key=>$item}
+                <div class="count-item">
+                    <div class="count-text">
+                        <span class="number">{$item.value1}</span>
+                        <span class="unit">{$item.value2}</span>
+                    </div>
+                    <p>{$item.value3}</p>
+                </div>
+                {/foreach}
+            </div>
+
+            <a href="{$cate.url}" class="public-more">{:__('View More')} <i class="fa fa-angle-double-right"></i> </a>
+        </div>
+        {/ld:content}
+    </div>
+</section>
+{/ld:action}
+<!-- 关于我们 e -->
+
+<!-- 案例展示 s-->
+{ld:action action="home_block" model_table_name="case" alias="cate"}
+<section class="case-wrapper">
+    <div class="container position-relative">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="public-title">
+                <h3>{$cate.name}</h3>
+                <p>{$cate.ename}</p>
+            </div>
+            <a href="{$cate.url}" class="public-more">MORE <i class="fa fa-angle-double-right"></i> </a>
+        </div>
+
+        <div class="swiper row case-swiper">
+            <ul class="swiper-wrapper">
+                {ld:list cid="$cate['id']" limit='6'}
+                <li class="swiper-slide wow fadeInRight" data-wow-delay="0.{$i}s">
+                    <a href="{$item.url}" title="{$item.title}">
+                        <div class="swiper-slide-img">
+                            <img src="{$item.image}" alt="{$item.title}" />
+                        </div>
+                        <div class="case-content-wrapper">
+                            <h3>{$item.title}</h3>
+                            <p>{$item.description}</p>
+                        </div>
+                    </a>
+                </li>
+                {/ld:list}
+            </ul>
+        </div>
+        <!-- Add Arrows -->
+        <div class="case-next">
+            <i class="fa fa-angle-right"></i>
+        </div>
+        <div class="case-prev">
+            <i class="fa fa-angle-left"></i>
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+</section>
+{/ld:action}
+<!-- 案例展示 e -->
+
+<!-- 新闻中心 s -->
+{ld:action action="home_block" model_table_name="news" alias="cate" key="n"}
+<section class="news-wrapper">
+    <div class="container">
+        <div class="public-title">
+            <h3>{$cate.name}</h3>
+            <p>{$cate.ename}</p>
+        </div>
+        <div class="news-list row">
+            {ld:list cid="$cate['id']" limit='6'}
+            <div class="col-lg-6 col-md-12  wow fadeInUp" data-wow-delay="0.{$i}s">
+                <div class="row news-item">
+                    <div class="col-md-4 px-0 news-item-img">
+                        <a href="{$item.url}"><img src="{$item.image}" alt="{$item.title}" /></a>
+                    </div>
+                    <div class="col-md-8 px-0">
+                        <a href="{$item.url}" class="card-body">
+                            <h5 class="card-title text-ellipsis">{$item.title}</h5>
+                            <p class="card-info">
+                                <span><i class="fa fa-clock-o"></i> {$item.show_time}</span>
+                                <span><i class="fa fa-eye"></i> {$item.visits}</span>
+                            </p>
+                            <p class="card-text text-ellipsis-3">{$item.seo_description|ld_str_cut=200}</p>
+                            <p class="more">MORE <i class="fa fa-angle-double-right"> </i></p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {/ld:list}
+        </div>
+        <div class="text-center news-more">
+            <a href="{$cate.url}" class="public-more">MORE <i class="fa fa-angle-double-right"></i> </a>
+        </div>
+    </div>
+</section>
+{/ld:action}
+<!-- 新闻中心 e -->
+
+<!-- 合作客户 s -->
+{ld:action action="home_block" model_table_name="wordlist" alias="cate"}
+<section class="custom-wrapper">
+    <div class="container">
+        <div class="public-title">
+            <h3>{$cate.name}</h3>
+            <p>{$cate.ename}</p>
+        </div>
+        <div class="custom-list row">
+            {ld:list cid="$cate['id']" limit='12'}
+            <div class="col-6 col-md-4  col-lg-2 custom-item">
+                <div class="pic wow slideInUp animated" style="visibility: visible; animation-name: slideInUp">
+                    <img src="{$item.image}" alt="{$item.title}" />
+                </div>
+            </div>
+            {/ld:list}
+        </div>
+    </div>
+</section>
+{/ld:action}
+<!-- 合作客户 e -->
+
+<!-- 留言表单 s -->
+<section class="contact-wrapper">
+    <div class="container">
+        <div class="contact-content wow slideInUp animated">
+            <div class="public-title">
+                <h3>Provide a full range of system solutions</h3>
+                <p>Please feel free to contact us</p>
+            </div>
+            <form class="d-flex contact-form" action="{:addon_url('ldcms/diyform/message')}" method="post">
+                <input type="text" name="uname" placeholder="Your name" />
+                <input type="text" name="mobile" placeholder="Your phone number" />
+                <input class="remark" type="text" name="remark" placeholder="message" />
+                {:token()}
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+</section>
+<!-- 留言表单 e -->
+{/block}

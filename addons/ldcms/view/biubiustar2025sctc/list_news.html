@@ -1,0 +1,53 @@
+{extend name="base" /} {block name="main"}
+<!-- neibanner -->
+{ld:sort cid="$topid"}
+<div class="neibanner">
+    <img src="{$item.big_image}" alt="{$item.name}" />
+    <div class="neibannerdesc">
+        <div class="container neibannerdesc-title">
+            <p>{$item.ename}</p>
+            <h2>{$item.name}</h2>
+        </div>
+
+        <!-- 内页导航 -->
+        {include file="neinav" /}
+        <!-- 内页导航 end -->
+    </div>
+</div>
+{/ld:sort}
+<!-- neibanner end -->
+
+<div class="page-list">
+    <section class="news-wrapper">
+        <div class="container">
+            <div class="public-title">
+                <h3>{$cate.name}</h3>
+                <p>{$cate.ename}</p>
+            </div>
+            <div class="news-list row">
+                {ld:list cid="$cate['id']" limit='6'}
+                <div class="col-lg-6 col-md-12 wow fadeInUp" data-wow-delay="0.{$i}s">
+                    <div class="row news-item">
+                        <div class="col-md-4 px-0 news-item-img">
+                            <a href="{$item.url}"><img src="{$item.image}" alt="{$item.title}" /></a>
+                        </div>
+                        <div class="col-md-8 px-0">
+                            <a href="{$item.url}" class="card-body">
+                                <h5 class="card-title text-ellipsis">{$item.title}</h5>
+                                <p class="card-info">
+                                    <span><i class="fa fa-clock-o"></i> {$item.show_time}</span>
+                                    <span><i class="fa fa-eye"></i> {$item.visits}</span>
+                                </p>
+                                <p class="card-text text-ellipsis-3">{$item.seo_description|ld_str_cut=60}</p>
+                                <p class="more">MORE <i class="fa fa-angle-double-right"> </i></p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {/ld:list}
+            </div>
+            <div class="page-pagination">{$pages}</div>
+        </div>
+    </section>
+</div>
+{/block}

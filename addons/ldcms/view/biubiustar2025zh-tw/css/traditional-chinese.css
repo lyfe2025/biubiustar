@@ -1,0 +1,93 @@
+/* 繁體中文專用樣式 */
+
+/* 字體設定 */
+body {
+    font-family: 'Noto Sans TC', 'Microsoft JhengHei', '微軟正黑體', 'PMingLiU', '新細明體', sans-serif;
+    font-weight: 400;
+    line-height: 1.7; /* 繁體字行距稍大 */
+}
+
+/* 標題字體 */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Noto Sans TC', 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.05em; /* 繁體字間距優化 */
+}
+
+/* 繁體中文特色配色 - 典雅藍主題 */
+.btn-primary {
+    background-color: #1E3A8A; /* 典雅藍 */
+    border-color: #1E3A8A;
+}
+
+.btn-primary:hover {
+    background-color: #1E40AF;
+    border-color: #1E40AF;
+}
+
+/* 導航欄繁體中文優化 */
+.navbar-brand {
+    font-weight: 600;
+    color: #1E3A8A !important;
+    letter-spacing: 0.1em;
+}
+
+/* 文本間距優化 - 適應繁體中文閱讀習慣 */
+p {
+    margin-bottom: 1.3rem;
+    text-align: justify; /* 兩端對齊 */
+    letter-spacing: 0.02em;
+}
+
+/* 連結樣式 */
+a {
+    color: #1E3A8A;
+}
+
+a:hover {
+    color: #1E40AF;
+    text-decoration: none;
+}
+
+/* 表單元素中文優化 */
+.form-control {
+    font-family: 'Noto Sans TC', '微軟正黑體', sans-serif;
+    letter-spacing: 0.02em;
+}
+
+/* 繁體中文數字和標點符號優化 */
+.price::before {
+    content: "NT$"; /* 新台幣符號 */
+}
+
+/* 響應式文字大小 */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.6rem; }
+    h3 { font-size: 1.4rem; }
+}
+
+/* 繁體中文特有的排版優化 */
+.content-text {
+    text-indent: 2em; /* 首行縮排 */
+    letter-spacing: 0.05em;
+}
+
+/* 引用樣式 */
+blockquote {
+    border-left: 4px solid #1E3A8A;
+    padding-left: 1rem;
+    font-style: normal;
+    color: #555;
+    letter-spacing: 0.03em;
+}
+
+/* 繁體中文標點符號優化 */
+.punctuation-optimize {
+    text-justify: inter-ideograph; /* 中文標點符號對齊 */
+}

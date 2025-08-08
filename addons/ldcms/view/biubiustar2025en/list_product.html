@@ -1,0 +1,72 @@
+{extend name="base" /} {block name="main"}
+<!-- neibanner -->
+{ld:sort cid="$topid"}
+<div class="neibanner">
+    <img src="{$item.big_image}" alt="{$item.name}" />
+    <div class="neibannerdesc">
+        <div class="container neibannerdesc-title">
+            <p>{$item.ename}</p>
+            <h2>{$item.name}</h2>
+        </div>
+
+        <!-- 内页导航 -->
+        {include file="neinav" /}
+        <!-- 内页导航 end -->
+    </div>
+</div>
+{/ld:sort}
+<!-- neibanner end -->
+
+<section class="page-list product-wrapper">
+    <div class="container">
+        <div class="product-filter">
+            {ld:filter mid="$category['mid']" title_text="全部"}
+            <div class="filter-row d-flex">
+                <div class="filter-title">
+                  {:__($item.title)}
+                </div>
+                <div class="filter-values">
+                    <ul class="d-flex flex-wrap">
+                        {volist name="$item.content" id="li"}
+                        <li class="{$li.active?'active':''}">
+                            <a href="{$li.url}">{:__($li.title)}</a>
+                        </li>
+                        {/volist}
+                    </ul>
+                </div>
+            </div>
+            {/ld:filter}
+        </div>
+
+        <div class="product-list row">
+            {ld:list page='true'}
+            <div class="product-item col-lg-3 col-md-6 col-sm-6">
+                <a href="{$item.url}" class="product-item-wrapper wow fadeInUp" data-wow-delay="0.{$i}s">
+                    <div class="pic">
+                        <img class="img-fluid" src="{$item.image}" alt="{$item.title}" />
+                    </div>
+                    <div class="content-wrapper text-center px-3 py-3">
+                        <h3 class="product-item-title text-ellipsis">{$item.title}</h3>
+                        <p class="product-item-info text-ellipsis-2">{$item.description}</p>
+                        <div class="product-item-bottom d-flex justify-content-between">
+                            <div class="price">
+                                <span class="price-unit">￥</span>
+                                <strong>{$item.price}</strong>
+                            </div>
+                            <span class="public-more">
+                                MORE
+                                <i class="fa fa-angle-double-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {/ld:list}
+        </div>
+
+        <div class="page-pagination">
+          {$pages}
+        </div>
+    </div>
+</section>
+{/block}

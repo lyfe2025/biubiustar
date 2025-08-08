@@ -1,0 +1,114 @@
+{extend name="base" /} {block name="main"}
+<!-- neibanner -->
+{ld:sort cid="$topid"}
+<div class="neibanner">
+    <img src="{$item.big_image}" alt="{$item.name}" />
+    <div class="neibannerdesc">
+        <div class="container neibannerdesc-title">
+            <p>{$item.ename}</p>
+            <h2>{$item.name}</h2>
+        </div>
+
+        <!-- 内页导航 -->
+        {include file="neinav" /}
+        <!-- 内页导航 end -->
+    </div>
+</div>
+{/ld:sort}
+<!-- neibanner end -->
+
+<div class="container">
+    <div class="product-content-info row">
+        <div class="procontent1_l col-12 col-sm-12 col-lg-6">
+            <div class="swiper-container gallery-top">
+                <div class="swiper-wrapper">
+                    {foreach :explode(',',$content.pics) as $pic}
+                    <div class="swiper-slide">
+                        <img src="{$pic|cdnurl}" alt="{$content.title}" />
+                    </div>
+                    {/foreach}
+                </div>
+            </div>
+            <div class="swiper-container gallery-thumbs">
+                <div class="swiper-wrapper">
+                    {foreach :explode(',',$content.pics) as $pic}
+                    <div class="swiper-slide">
+                        <img src="{$pic|cdnurl}" alt="{$content.title}" />
+                    </div>
+                    {/foreach}
+                </div>
+            </div>
+
+            <script>
+                var galleryThumbs = new Swiper(".gallery-thumbs", {
+                    spaceBetween: 10,
+                    slidesPerView: 4,
+                    // loop: true,
+                    autoplay: true,
+                    freeMode: true,
+                    loopedSlides: 5, //looped slides should be the same
+                    watchSlidesVisibility: true,
+                    watchSlidesProgress: true,
+                });
+                var galleryTop = new Swiper(".gallery-top", {
+                    spaceBetween: 10,
+                    // loop:true,
+                    autoplay: true,
+                    loopedSlides: 5, //looped slides should be the same
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
+                    thumbs: {
+                        swiper: galleryThumbs,
+                    },
+                });
+            </script>
+        </div>
+        <div class="procontent1_r col-12 col-sm-12 col-lg-6">
+            <div class="procont_ltop">
+                <h2>{$content.title}</h2>
+                <p>{$content.subtitle}</p>
+            </div>
+            <div class="procont_lbot">
+                <p>{$content.seo_description}</p>
+            </div>
+            <div class="procontent_zx d-flex">
+                {if $content.price}
+                <a class="d-flex align-items-center justify-content-center product-info-price" href="javascript:;">
+                    <span>￥</span>
+                    <span class="price-text">{$content.price}</span>
+                </a>
+                {/if}
+                <a class="d-flex align-items-center justify-content-center" href="{$ld.qq}" target="_blank">
+                    <i class="fa fa-comments"> </i>
+                    <span>在线咨询</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="page-content">
+    <div class="container">
+        <div class="page-content-card card">
+            <div class="tabs">
+                <div class="tabs-item active">产品详情</div>
+                <div class="tabs-item">产品参数</div>
+            </div>
+            <div class="card-body">{$content.content}</div>
+            <div class="card-body" style="display: none;">{$content.cpcs}</div>
+        </div>
+    </div>
+</section>
+<script>
+    $(function() {
+        $(".tabs-item").click(function() {
+            $(".tabs-item").removeClass("active");
+            $(this).addClass("active");
+            $(".card-body").hide();
+            $(".card-body").eq($(this).index()).show();
+        });
+    });
+</script>
+{/block}
