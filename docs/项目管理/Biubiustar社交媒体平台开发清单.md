@@ -11,16 +11,17 @@
 ---
 
 ## ⏱ 进度总览
-- 已完成：数据库扩展（fa_user 字段、fa_social_*、fa_ldcms_document_social_posts、fa_ldcms_document_activities）、LDCMS 模型注册（social_posts、activities、topics）
-- 进行中：后台通用 `ldcms/document` 已用于社交帖子扩展数据管理
-- 待开始：专用后台模块、栏目配置、前台控制器与 API、UI/UX、社交互动功能、推荐算法
+- ✅ **阶段一已完成**：数据库扩展（fa_user社交字段、fa_social_*核心表、fa_ldcms_document_social_posts/activities）、LDCMS模型注册（social_posts、activities、topics）
+- 🎯 **准备阶段二**：FastAdmin CRUD生成（专用后台模块）、后台管理体验优化、中文化菜单系统
+- 📋 **后续待开始**：栏目配置、前台控制器与API、UI/UX设计、社交互动功能、推荐算法
 
 ## 📊 项目现状分析
 
 ### ✅ 已有基础设施
 
-#### 1. 用户系统（可直接复用）
+#### 1. 用户系统（已扩展完成）
 - **表结构**: `fa_user` 表包含完整用户信息（id、username、nickname、email、avatar等）
+- **社交扩展字段**: `followers_count`、`following_count`、`posts_count`、`likes_received`、`is_verified`、`cover_image`、`social_links`
 - **认证系统**: 前台注册登录已完善（支持用户名/邮箱登录，无需邮箱验证）
 - **会员中心**: `/application/index/controller/User.php` 提供基础个人中心功能
 - **权限管理**: `fa_user_group`、`fa_user_rule` 表支持用户分组和权限控制
@@ -129,323 +130,566 @@
 
 ---
 
-### 阶段二：后台模型管理开发（优先级：P0｜状态：进行中）
+### 阶段二：后台模型管理开发（优先级：P0｜状态：准备开始）
 
-#### 2.0 数据库校验结果（MCP）
-- `fa_ldcms_document_social_posts`、`fa_ldcms_document_activities`：已存在，结构完整（含 `document_id`、`post_type`/`activity_status` 等字段）
-- `fa_ldcms_models`：包含 `social_posts`、`activities`、`topics`
-- `fa_social_follows`、`fa_social_post_likes`、`fa_social_comments`、`fa_social_notifications`、`fa_social_activity_participants`：已存在
-- `fa_user`：已存在扩展字段（`followers_count`、`following_count`、`posts_count`、`likes_received`、`is_verified`、`cover_image`、`social_links`）
+#### 2.0 数据库最新状态确认（2024-12-20检查）
 
-#### 2.x 阶段二详细执行说明（含 FastAdmin CRUD 命令）
+##### ✅ 阶段一完成情况验证
+- **LDCMS扩展表**：
+  - `fa_ldcms_document_social_posts` ✅ 已创建，含document_id、post_type(ENUM)、privacy_level(ENUM)等18个字段
+  - `fa_ldcms_document_activities` ✅ 已创建，含document_id、activity_type(ENUM)、activity_status(ENUM)等26个字段
+- **LDCMS模型注册**：
+  - `social_posts` (ID:14, 名称:"社交帖子", 状态:启用) ✅
+  - `activities` (ID:15, 名称:"活动信息", 状态:启用) ✅ 
+  - `topics` (ID:16, 名称:"热门话题", 状态:启用) ✅
+- **社交媒体核心表**：
+  - `fa_social_follows` ✅ (关注关系)
+  - `fa_social_post_likes` ✅ (点赞记录)
+  - `fa_social_comments` ✅ (评论系统)
+  - `fa_social_notifications` ✅ (通知系统)
+  - `fa_social_activity_participants` ✅ (活动参与)
+  - `fa_social_topics` ✅ (话题管理)
+- **用户表扩展**：
+  - `fa_user` ✅ 已完成社交字段扩展：`followers_count`、`following_count`、`posts_count`、`likes_received`、`is_verified`、`cover_image`、`social_links`
 
-1) 生成「社交帖子」后台模块（与文档表建立从属关系）
+##### 🎯 FastAdmin CRUD兼容性检查
+- **主键设计** ✅ 所有表使用 `id` int unsigned auto_increment
+- **时间字段** ✅ 使用 `create_time`、`update_time` bigint（需要模型映射配置）
+- **状态字段** ✅ 使用 `status` tinyint unsigned 和 ENUM类型
+- **索引设置** ✅ 关键字段已建立索引（document_id UNIQUE、外键索引等）
+- **字段命名** ✅ 符合FastAdmin规范（无特殊字符、合理长度）
 
+#### 2.1 FastAdmin CRUD一键生成（优化后台管理体验）
+
+##### 🎯 生成策略：分层管理，优化体验
+- **核心层**：LDCMS扩展表（社交帖子、活动信息）- 与文档表关联，支持审核流程
+- **管理层**：社交关系表（关注、点赞、评论等）- 独立管理，便于运营监控
+- **配置层**：话题管理、通知设置 - 系统级别的配置管理
+
+##### 📋 第一步：生成LDCMS扩展模块（核心功能）
+
+**社交帖子扩展管理**
 ```bash
 php think crud \
   -t fa_ldcms_document_social_posts \
   -c ldcms/SocialPosts \
   -m ldcms/SocialPosts \
-  -r ldcms_document \
-  -o belongsto \
-  -k document_id \
-  -p id \
-  -s title,lang,status \
-  -u 1
+  --relation=ldcms_document:document_id:id \
+  --fields="id,create_time,update_time" \
+  --force=1 \
+  --menu=1
 ```
 
-2) 生成「活动信息」后台模块（与文档表建立从属关系）
-
+**活动信息扩展管理**
 ```bash
 php think crud \
   -t fa_ldcms_document_activities \
   -c ldcms/Activities \
   -m ldcms/Activities \
-  -r ldcms_document \
-  -o belongsto \
-  -k document_id \
-  -p id \
-  -s title,lang,status \
-  -u 1
+  --relation=ldcms_document:document_id:id \
+  --fields="id,create_time,update_time" \
+  --force=1 \
+  --menu=1
 ```
 
-3) 生成「社交管理」系列模块（可选，便于运营与风控）
+##### 📋 第二步：生成社交关系管理模块（运营监控）
+
+**关注关系管理**
+```bash
+php think crud \
+  -t fa_social_follows \
+  -c social/Follows \
+  -m social/Follows \
+  --relation=user:follower_id:id,user:following_id:id \
+  --fields="id,create_time,update_time" \
+  --force=1 \
+  --menu=1
+```
+
+**点赞记录管理**
+```bash
+php think crud \
+  -t fa_social_post_likes \
+  -c social/PostLikes \
+  -m social/PostLikes \
+  --relation=user:user_id:id \
+  --fields="id,create_time,update_time" \
+  --force=1 \
+  --menu=1
+```
+
+**评论系统管理**
+```bash
+php think crud \
+  -t fa_social_comments \
+  -c social/Comments \
+  -m social/Comments \
+  --relation=user:user_id:id \
+  --fields="id,create_time,update_time" \
+  --force=1 \
+  --menu=1
+```
+
+**通知系统管理**
+```bash
+php think crud \
+  -t fa_social_notifications \
+  -c social/Notifications \
+  -m social/Notifications \
+  --relation=user:user_id:id \
+  --fields="id,create_time,update_time" \
+  --force=1 \
+  --menu=1
+```
+
+**活动参与管理**
+```bash
+php think crud \
+  -t fa_social_activity_participants \
+  -c social/ActivityParticipants \
+  -m social/ActivityParticipants \
+  --relation=user:user_id:id \
+  --fields="id,create_time,update_time" \
+  --force=1 \
+  --menu=1
+```
+
+**话题管理**
+```bash
+php think crud \
+  -t fa_social_topics \
+  -c social/Topics \
+  -m social/Topics \
+  --fields="id,create_time,update_time" \
+  --force=1 \
+  --menu=1
+```
+
+**命令参数说明：**
+- `--relation`: 建立关联关系，支持数据关联查询和显示
+- `--fields`: 排除不必要的字段（如id、时间字段）避免在表单中显示
+- `--force=1`: 强制覆盖已存在的文件
+- `--menu=1`: 自动生成后台菜单和权限规则
+
+##### 📋 第三步：后台管理体验优化（重要）
+
+**2.2 菜单中文化与层次化组织**
+
+执行CRUD生成后，需要优化菜单结构和中文化：
 
 ```bash
-# 关注关系
-php think crud -t fa_social_follows -c social/Follows -m social/Follows -u 1
-
-# 点赞记录
-php think crud -t fa_social_post_likes -c social/PostLikes -m social/PostLikes -u 1
-
-# 评论管理
-php think crud -t fa_social_comments -c social/Comments -m social/Comments -u 1
-
-# 通知管理
-php think crud -t fa_social_notifications -c social/Notifications -m social/Notifications -u 1
-
-# 活动参与
-php think crud -t fa_social_activity_participants -c social/ActivityParticipants -m social/ActivityParticipants -u 1
+# 重新生成菜单（支持中文标题）
+php think menu -c ldcms/SocialPosts -e 1 -f 1
+php think menu -c ldcms/Activities -e 1 -f 1
+php think menu -c social/Follows -e 1 -f 1
+php think menu -c social/PostLikes -e 1 -f 1
+php think menu -c social/Comments -e 1 -f 1
+php think menu -c social/Notifications -e 1 -f 1
+php think menu -c social/ActivityParticipants -e 1 -f 1
+php think menu -c social/Topics -e 1 -f 1
 ```
 
-说明：以上命令已满足一键生成控制器/模型/校验器/视图/JS/语言包并自动创建后台菜单（`-u 1`）。如需重建请增加 `-f 1` 强制覆盖；如需删除已生成文件，可追加 `-d 1 -f 1`。
+**控制器注释规范（确保中文菜单）：**
+```php
+/**
+ * 社交帖子扩展管理
+ * @icon fa fa-comments
+ * @remark 管理用户发布的社交帖子扩展信息，支持审核与推荐
+ */
+class SocialPosts extends Backend
+{
+    /** 查看列表 */
+    public function index() { ... }
+    
+    /** 添加帖子 */
+    public function add() { ... }
+    
+    /** 编辑帖子 */
+    public function edit($ids = null) { ... }
+    
+    /** 删除帖子 */
+    public function del($ids = "") { ... }
+    
+    /** 批量操作 */
+    public function multi($ids = "") { ... }
+}
+```
 
-4) 前台会员新增字段的操作（无DB变更，仅前台表单与保存）
+**建议菜单结构：**
+```
+🏢 系统管理
+├── 管理员管理
+├── 权限管理
+└── 系统配置
 
-- 目的：让会员在个人中心配置新字段（`cover_image`、`social_links`）
-- 操作：
-  - 在 `application/index/view/user/profile.html` 增加上传封面图与社交链接（JSON/多行）输入项
+📰 内容管理 (LDCMS)
+├── 栏目管理
+├── 文档管理
+├── 📱 社交帖子管理    <- 新增
+├── 🎭 活动信息管理    <- 新增
+└── 广告管理
+
+👥 社交管理          <- 新增分组
+├── 👫 关注关系管理
+├── ❤️ 点赞记录管理
+├── 💬 评论系统管理
+├── 🔔 通知系统管理
+├── 🎯 活动参与管理
+└── 🏷️ 话题管理
+
+👤 用户管理
+├── 用户管理
+├── 用户组管理
+└── 权限规则
+```
+
+**2.3 UI/UX体验优化配置**
+
+**表格显示优化：**
+```javascript
+// 社交帖子列表优化配置
+{field: 'id', title: 'ID', width: 80, sortable: true},
+{field: 'document.title', title: '帖子标题', operate: 'LIKE', formatter: function(value, row) {
+    return '<a href="javascript:;" class="btn-detail" data-id="' + row.document_id + '">' + value + '</a>';
+}},
+{field: 'post_type', title: '类型', searchList: {"text":"文字","image":"图片","video":"视频","mixed":"混合"}, 
+ formatter: Table.api.formatter.normal},
+{field: 'privacy_level', title: '隐私级别', searchList: {"public":"公开","followers":"粉丝可见","private":"私密"}, 
+ formatter: Table.api.formatter.label},
+{field: 'document.user.nickname', title: '发布者', operate: 'LIKE'},
+{field: 'is_featured', title: '推荐', searchList: {"0":"否","1":"是"}, 
+ formatter: Table.api.formatter.toggle, table: table, events: Table.api.events.toggle},
+{field: 'document.status', title: '状态', searchList: {"0":"待审核","1":"正常","2":"隐藏"}, 
+ formatter: Table.api.formatter.status},
+{field: 'create_time', title: '创建时间', operate:'RANGE', addclass:'datetimerange', 
+ formatter: Table.api.formatter.datetime, width: 160}
+```
+
+**表单字段优化：**
+```html
+<!-- 社交帖子编辑表单优化 -->
+<div class="form-group">
+    <label class="control-label col-xs-12 col-sm-2">帖子类型:</label>
+    <div class="col-xs-12 col-sm-8">
+        <select class="form-control selectpicker" name="row[post_type]" data-rule="required">
+            <option value="text">📝 纯文字</option>
+            <option value="image">🖼️ 图片</option>
+            <option value="video">🎬 视频</option>
+            <option value="mixed">🎨 图文混合</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-xs-12 col-sm-2">媒体文件:</label>
+    <div class="col-xs-12 col-sm-8">
+        <div class="input-group">
+            <input class="form-control" name="row[media_files]" type="text" placeholder="支持多个文件，用逗号分隔">
+            <div class="input-group-addon no-border no-padding">
+                <button type="button" class="btn btn-danger plupload" data-multiple="true" 
+                        data-mimetype="image/*,video/*"><i class="fa fa-upload"></i> 选择文件</button>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+**2.4 模型时间字段映射配置**
+
+生成的模型需要手动配置时间字段映射：
+
+```php
+// application/admin/model/ldcms/SocialPosts.php
+<?php
+namespace app\admin\model\ldcms;
+
+use think\Model;
+
+class SocialPosts extends Model
+{
+    // 表名
+    protected $name = 'ldcms_document_social_posts';
+    
+    // 自动写入时间戳字段  
+    protected $autoWriteTimestamp = 'integer';
+    
+    // 定义时间戳字段名（重要：适配现有bigint字段）
+    protected $createTime = 'create_time';
+    protected $updateTime = 'update_time';
+    
+    // 关联LDCMS文档表
+    public function document()
+    {
+        return $this->belongsTo('app\\admin\\model\\ldcms\\Document', 'document_id', 'id')
+                    ->with(['user']);  // 预加载用户信息
+    }
+    
+    // 获取帖子类型列表
+    public function getPostTypeList()
+    {
+        return [
+            'text' => '纯文字',
+            'image' => '图片', 
+            'video' => '视频',
+            'mixed' => '图文混合'
+        ];
+    }
+    
+    // 获取隐私级别列表  
+    public function getPrivacyLevelList()
+    {
+        return [
+            'public' => '公开',
+            'followers' => '粉丝可见',
+            'private' => '私密'
+        ];
+    }
+}
+```
+
+**2.5 前台会员新增字段接入（扩展个人中心）**
+- **目的**：让会员在个人中心配置新字段（`cover_image`、`social_links`）
+- **操作要点**：
+  - 在 `application/index/view/user/profile.html` 增加上传封面图与社交链接输入项
   - 在 `application/index/controller/User.php` 的资料更新逻辑中，允许接收并保存 `cover_image`、`social_links`
   - 校验与安全：限制图片类型/大小；`social_links` 建议做 JSON 校验与字段白名单
   - 影响：仅前端交互与显示，数据库在阶段一已扩展完成，无需再次改动
 
-5) 菜单的一键生成（推荐在 CRUD 后补跑一次）
+**2.6 内容审核机制配置（关键业务逻辑）**
 
+- **审核策略**：前台会员发布的社交帖子默认置为"待审核"，后台审核后才对外展示
+- **技术实现**：
+  - 发布入口：`/application/index/controller/Social.php`（新增发布接口），写入 `fa_ldcms_document` 与 `fa_ldcms_document_social_posts`
+  - 默认状态：插入 `fa_ldcms_document.status = 0`（隐藏/待审核），`lang` 按当前站点语言，`mid` 为"社交帖子"模型 ID (14)
+  - 后台审核：通过 `ldcms/SocialPosts` 或通用 `ldcms/document` 对应模型进行审核置为 `status = 1`
+  - 前台展示：所有列表/详情页查询统一加 `status = 1` 条件，避免未审核内容外泄
+
+**2.7 多语言后台界面支持**
+
+**语言包配置**（支持4种语言）：
+```php
+// application/admin/lang/zh-cn/ldcms/social_posts.php
+return [
+    'Id' => 'ID',
+    'Document_id' => '文档ID',  
+    'Post_type' => '帖子类型',
+    'Media_files' => '媒体文件',
+    'Hashtags' => '话题标签',
+    'Location' => '位置信息',
+    'Privacy_level' => '隐私级别',
+    'Is_featured' => '推荐状态',
+    'Allow_comment' => '允许评论',
+    'Allow_share' => '允许分享',
+    'Share_count' => '分享次数',
+    'Comment_count' => '评论数量',
+    'Mood' => '心情状态',
+    'Create_time' => '创建时间',
+    'Update_time' => '更新时间'
+];
+
+// application/admin/lang/vi-vn/ldcms/social_posts.php  
+return [
+    'Id' => 'ID',
+    'Post_type' => 'Loại bài viết',
+    'Privacy_level' => 'Mức độ riêng tư',
+    'Is_featured' => 'Trạng thái đề xuất',
+    // ... 越南语翻译
+];
+```
+
+**响应式设计优化**：
+```css
+/* 后台移动端适配 */
+@media (max-width: 768px) {
+    .table-responsive .btn-group {
+        display: block;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .form-horizontal .control-label {
+        text-align: left;
+        padding-bottom: 5px;
+    }
+    
+    .box-header .box-tools {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-top: 10px;
+    }
+}
+```
+
+**菜单权限一键生成（CRUD后执行）：**
 ```bash
 # 单控制器生成权限菜单
 php think menu -c ldcms/SocialPosts -f 1
 php think menu -c ldcms/Activities -f 1
 
-# 可选：批量生成社交管理类菜单
-php think menu -c social/Follows -c social/PostLikes -c social/Comments -c social/Notifications -c social/ActivityParticipants -f 1
+# 社交管理类菜单
+php think menu -c social/Follows -f 1
+php think menu -c social/PostLikes -f 1  
+php think menu -c social/Comments -f 1
+php think menu -c social/Notifications -f 1
+php think menu -c social/ActivityParticipants -f 1
+php think menu -c social/Topics -f 1
 ```
 
-6) 审核要求与落地（前台发帖 → 后台审核）
+**菜单权重优化**（建议在后台手动调整）：
+- 社交帖子管理：权重 100
+- 活动信息管理：权重 90
+- 关注关系管理：权重 80
+- 评论系统管理：权重 70
+- 通知系统管理：权重 60
+- 话题管理：权重 50
 
-- 策略：前台会员发布的文档（模型：`social_posts`）统一写入 `fa_ldcms_document.status = 0`（隐藏/待审核），仅当管理员审核后改为 `1`（正常）
-- 后台操作入口：`内容管理 → ldcms/document`（选择模型“社交帖子”），使用“更多 → 设为正常/设为隐藏”完成审核流
-- 前台入口（阶段四实现）：发布接口在保存文档主表时强制 `status=0`；扩展表 `fa_ldcms_document_social_posts` 同步写入。该约定使审核流程即插即用，无需额外DB变更
-
-#### 2.1 扩展LDCMS后台管理
-当前：通过通用 `ldcms/document` 模块管理 `social_posts` 扩展数据；专用控制器 `ldcms/SocialPosts.php`、`ldcms/Activities.php` 尚未创建。
-
-##### 2.1.1 社交内容管理模块
-- **路径**: `/application/admin/controller/ldcms/SocialPosts.php`
-- **功能**:
-  - 帖子内容审核（通过/拒绝/要求修改）
-  - 批量审核功能
-  - 帖子置顶/推荐功能
-  - 敏感词过滤设置
-  - 用户举报处理
-
-##### 2.1.2 活动管理模块
-- **路径**: `/application/admin/controller/ldcms/Activities.php`
-- **功能**:
-  - 活动信息发布管理
-  - 活动状态管理（进行中/即将开始/已结束）
-  - 参与用户统计
-  - 活动数据分析
-
-##### 2.1.3 用户社交管理模块
-- **路径**: `/application/admin/controller/social/Users.php`
-- **功能**:
-  - 用户社交数据统计
-  - 违规用户处理
-  - 用户认证管理
-  - 关注关系监控
-
-#### 2.2 多语言模板页面开发
-
-##### 2.2.1 后台管理界面多语言（状态：未开始）
-- **中文简体**: `/application/admin/lang/zh-cn/social/`
-- **中文繁体**: `/application/admin/lang/zh-tw/social/`
-- **英语**: `/application/admin/lang/en/social/`
-- **越南语**: `/application/admin/lang/vi-vn/social/`
-
-##### 2.2.2 后台视图模板
-- **社交内容管理**: `/application/admin/view/ldcms/social_posts/`
-- **活动管理**: `/application/admin/view/ldcms/activities/`
-- **用户管理**: `/application/admin/view/social/users/`
-
-#### 2.3 前台会员中心字段接入（与阶段一字段对齐）
-- 展示字段（用户主页/个人中心）：`followers_count`、`following_count`、`posts_count`、`likes_received`、`is_verified`
-- 可编辑字段（个人资料页）：`cover_image`、`social_links`
-- 建议位置：
-  - 控制器：`/application/index/controller/User.php`（扩展资料保存与展示）
-  - 视图：`/application/index/view/user/profile.html`、`/application/index/view/user/index.html`
-- 数据校验：保存时校验 `social_links` 为 JSON（或在保存前进行 JSON.stringify）
-
-#### 2.4 菜单一键生成与合理编排
-- 生成菜单（CRUD 命令已带 `-u 1` 自动生成菜单，若需单独重建/编排可执行）：
-  ```bash
-  # 精确导入以下控制器的菜单
-  php think menu -c ldcms/SocialPosts -e 1
-  php think menu -c ldcms/Activities -e 1
-  php think menu -c social/Follows -e 1
-  php think menu -c social/PostLikes -e 1
-  php think menu -c social/Comments -e 1
-  php think menu -c social/Notifications -e 1
-  php think menu -c social/ActivityParticipants -e 1
-  ```
-- 合理编排建议：
-  - 顶级分组：`社交管理`（可使用 `social/*` 控制器自动形成同级菜单分组）
-  - 权重排序：在后台“权限规则”中手动拖拽；或执行 SQL 更新 `fa_auth_rule.weigh`（仅对上述新建菜单）
-  - 图标/备注：在控制器类注释中添加 `@icon fa fa-users`、`@remark`，再执行 `php think menu -c 控制器 -e 1 -f 1`
-
-【重要】菜单中文化规范（避免英文标题）
-- 菜单标题来源：控制器与方法的 PHPDoc 注释文本；若缺失则回退为英文类名/方法名
-- 要求：为控制器与常用方法补充中文注释，然后执行强制菜单重建
-- 示例（控制器头部注释与方法注释）：
-  ```php
-  /**
-   * 社交帖子扩展信息管理
-   * @icon fa fa-comments
-   * @remark 管理用户发布的社交帖子扩展信息
-   */
-  class SocialPosts extends Backend { ... }
-
-  /** 查看 */ public function index() { ... }
-  /** 添加 */ public function add() { ... }
-  /** 编辑 */ public function edit($ids=null) { ... }
-  /** 删除 */ public function del($ids="") { ... }
-  /** 批量更新 */ public function multi($ids="") { ... }
-  /** 回收站 */ public function recyclebin() { ... }
-  /** 还原 */ public function restore($ids="") { ... }
-  /** 真实删除 */ public function destroy($ids="") { ... }
-  ```
-- 重新导入中文菜单：`php think menu -c ldcms/SocialPosts -e 1 -f 1`（其它控制器同理）
-
-#### 2.5 前台发布内容审核机制（必做）
-- 原则：前台会员发布的社交帖子默认置为“待审核”，后台审核后才对外展示
-- 落地要点：
-  - 发布入口：`/application/index/controller/Social.php`（新增发布接口/动作），写入 `fa_ldcms_document` 与 `fa_ldcms_document_social_posts`
-  - 默认状态：插入 `fa_ldcms_document.status = 0`（隐藏/待审核），`lang` 按当前站点语言，`mid` 为“社交帖子”模型 ID
-  - 后台审核：通过 `ldcms/SocialPosts` 或通用 `ldcms/document` 对应模型进行审核置为 `status = 1`
-  - 前台展示：所有列表/详情页查询统一加 `status = 1` 条件，避免未审核内容外泄
-  - 模型 ID 查询：`SELECT id FROM fa_ldcms_models WHERE table_name='social_posts'`
-
-#### 2.6 数据库类型合规性检查（MCP × FastAdmin 指南）
-- 主键：各表 `id` 为 `int unsigned auto_increment`（合规）
-- 状态类：如 `status`、`is_featured` 为 `tinyint unsigned`（合规）
-- 时间类：当前为 `create_time`/`update_time`/`delete_time`（bigint）
-  - FastAdmin 默认为 `createtime`/`updatetime`/`deletetime`（int）
-  - 建议：生成后的模型中手动设置时间字段映射以启用自动写入与软删除：
-    ```php
-    protected $autoWriteTimestamp = 'integer';
-    protected $createTime = 'create_time';
-    protected $updateTime = 'update_time';
-    protected $deleteTime = 'delete_time'; // 如需软删除
-    ```
-- 字符型：`varchar(<=255)`、长文本用 `text`（已按规范）
-- 枚举：`enum('public','followers','private')`、`enum('text','image','video','mixed')`（合规）
-- 索引：`document_id` 唯一/普通索引、常用过滤字段具备索引（合规）
-
-参考：FastAdmin 官方数据库字段规范（数据类型与时间字段约定）
-- 文档：`https://doc.fastadmin.net/doc/database.html#toc-4`
+**权限分组建议**：
+- **内容审核员**：仅可访问社交帖子、活动信息的查看和审核操作
+- **社交运营**：可访问所有社交管理模块，但不能删除重要数据
+- **系统管理员**：拥有所有权限
 
 ---
 
-### 阶段三：栏目管理配置（优先级：P1｜状态：未开始）
+## 🎯 阶段二执行检查清单
 
-#### 3.1 配置社交媒体栏目结构
+### ✅ CRUD生成验证
+- [ ] 执行7个CRUD生成命令，确认无错误
+- [ ] 检查生成的控制器类注释是否包含中文标题和图标
+- [ ] 验证模型文件时间字段映射配置正确
+- [ ] 确认视图模板中的表单字段显示合理
 
-##### 3.1.1 栏目层级设计
+### ✅ 后台界面验证  
+- [ ] 登录后台查看新增菜单结构
+- [ ] 测试社交帖子管理列表页面显示
+- [ ] 测试活动信息管理的添加/编辑功能
+- [ ] 验证关联查询是否正常工作（显示用户昵称等）
+
+### ✅ 功能完整性验证
+- [ ] 社交帖子：添加/编辑/删除/批量操作
+- [ ] 活动信息：时间选择、状态切换、参与者统计
+- [ ] 关注关系：查看关注列表、数据统计
+- [ ] 评论管理：内容审核、批量处理
+- [ ] 通知系统：类型筛选、批量标记已读
+
+### ✅ 审核流程验证
+- [ ] 前台发布的内容默认状态为待审核(status=0)
+- [ ] 后台可以将待审核内容设为正常(status=1)
+- [ ] 前台查询自动过滤未审核内容
+
+### ✅ 多语言支持验证
+- [ ] 后台界面语言包是否生效
+- [ ] 各个语言环境下菜单显示正确
+- [ ] 表单提示信息多语言化
+
+### ✅ 响应式设计验证
+- [ ] 移动端后台管理界面适配
+- [ ] 表格在小屏幕下的显示效果
+- [ ] 表单在平板设备上的交互体验
+
+---
+
+## 🎯 阶段二完成标志
+
+当所有CRUD模块生成并配置完成后，阶段二即宣告完成。预期效果：
+- ✅ 后台拥有完整的社交媒体内容管理界面
+- ✅ 支持4种语言的后台管理体验
+- ✅ 内容审核流程就绪，可供运营团队使用
+- ✅ 为阶段三（栏目配置）和阶段四（前台开发）奠定基础
+
+---
+
+### 阶段三：栏目管理配置（优先级：P1｜状态：等待阶段二完成）
+
+> **状态更新**: 阶段二完成后即可开始
+
+#### 3.1 配置社交媒体栏目结构（多语言）
+
+基于现有数据库验证，栏目配置已具备完整基础：
+- ✅ `fa_ldcms_category` 表支持多语言栏目 
+- ✅ 模型 ID 确认：social_posts(14)、activities(15)、topics(16)
+- ✅ 多语言支持：vi-vn(默认)、en、zh-cn、zh-tw
+
+#### 3.2 栏目层级设计与SQL脚本
+
+**栏目结构：**
 ```
-社交媒体平台
-├── 首页 (homepage)
-│   ├── 热门内容区
-│   ├── 推荐用户区
-│   └── 活动推荐区
-├── 热门 (hot)
-│   ├── 热门帖子
-│   ├── 热门话题
-│   └── 热门用户
-├── 活动 (activities)
-│   ├── 进行中活动
-│   ├── 即将开始
-│   └── 已结束活动
-├── 联系合作 (contact) - 复用现有LDCMS自定义表单
-└── 关于公司 (about) - 复用现有企业介绍页面
+社交媒体平台 (Biubiustar Social Platform)
+├── 首页动态 (home_feed) - 关联 social_posts 模型
+├── 热门内容 (trending) - 关联 social_posts 模型  
+├── 活动中心 (activities) - 关联 activities 模型
+├── 话题广场 (topics) - 关联 topics 模型
+├── 联系合作 (contact) - 复用现有 diyform
+└── 关于公司 (about) - 复用现有页面模型
 ```
 
-##### 3.1.2 栏目配置SQL
+**一键栏目创建脚本**：
 ```sql
--- 为4种语言分别创建栏目结构
-INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `template_list`, `template_detail`, `lang`, `type`, `status`, `is_nav`) VALUES
--- 越南语栏目
-('Trang chủ', 'Homepage', 0, 2, 'trang-chu', 'index.html', '', 'vi-vn', 0, 1, 1),
-('Phổ biến', 'Hot Content', 0, 2, 'pho-bien', 'hot.html', 'detail.html', 'vi-vn', 0, 1, 1),
-('Hoạt động', 'Activities', 0, 3, 'hoat-dong', 'activities.html', 'activity_detail.html', 'vi-vn', 0, 1, 1),
-('Liên hệ hợp tác', 'Contact', 0, 1, 'lien-he-hop-tac', 'contact.html', '', 'vi-vn', 1, 1, 1),
-('Về công ty', 'About Us', 0, 1, 've-cong-ty', 'about.html', '', 'vi-vn', 1, 1, 1),
-
+-- 4语言栏目批量创建（确保模型ID正确：14=social_posts, 15=activities, 16=topics）
+INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `template_list`, `template_detail`, `lang`, `type`, `status`, `is_nav`, `weigh`) VALUES
+-- 越南语栏目 (默认语言)
+('Trang động', 'Home Feed', 0, 14, 'trang-dong', 'social_feed.html', 'social_detail.html', 'vi-vn', 0, 1, 1, 100),
+('Xu hướng', 'Trending', 0, 14, 'xu-huong', 'trending.html', 'social_detail.html', 'vi-vn', 0, 1, 1, 90),
+('Trung tâm sự kiện', 'Activities', 0, 15, 'su-kien', 'activities.html', 'activity_detail.html', 'vi-vn', 0, 1, 1, 80),
+('Quảng trường chủ đề', 'Topics', 0, 16, 'chu-de', 'topics.html', 'topic_detail.html', 'vi-vn', 0, 1, 1, 70),
 -- 英语栏目
-('Home', 'Homepage', 0, 2, 'home', 'index.html', '', 'en', 0, 1, 1),
-('Hot', 'Hot Content', 0, 2, 'hot', 'hot.html', 'detail.html', 'en', 0, 1, 1),
-('Activities', 'Activities', 0, 3, 'activities', 'activities.html', 'activity_detail.html', 'en', 0, 1, 1),
-('Contact', 'Contact', 0, 1, 'contact', 'contact.html', '', 'en', 1, 1, 1),
-('About Us', 'About Us', 0, 1, 'about', 'about.html', '', 'en', 1, 1, 1),
-
+('Home Feed', 'Home Feed', 0, 14, 'home-feed', 'social_feed.html', 'social_detail.html', 'en', 0, 1, 1, 100),
+('Trending', 'Trending', 0, 14, 'trending', 'trending.html', 'social_detail.html', 'en', 0, 1, 1, 90),
+('Activities Center', 'Activities', 0, 15, 'activities', 'activities.html', 'activity_detail.html', 'en', 0, 1, 1, 80),
+('Topics Square', 'Topics', 0, 16, 'topics', 'topics.html', 'topic_detail.html', 'en', 0, 1, 1, 70),
 -- 中文简体栏目
-('首页', 'Homepage', 0, 2, 'shouye', 'index.html', '', 'zh-cn', 0, 1, 1),
-('热门', 'Hot Content', 0, 2, 'remen', 'hot.html', 'detail.html', 'zh-cn', 0, 1, 1),
-('活动', 'Activities', 0, 3, 'huodong', 'activities.html', 'activity_detail.html', 'zh-cn', 0, 1, 1),
-('联系合作', 'Contact', 0, 1, 'lianxi', 'contact.html', '', 'zh-cn', 1, 1, 1),
-('关于公司', 'About Us', 0, 1, 'guanyu', 'about.html', '', 'zh-cn', 1, 1, 1),
-
--- 中文繁体栏目
-('首頁', 'Homepage', 0, 2, 'shouye', 'index.html', '', 'zh-tw', 0, 1, 1),
-('熱門', 'Hot Content', 0, 2, 'remen', 'hot.html', 'detail.html', 'zh-tw', 0, 1, 1),
-('活動', 'Activities', 0, 3, 'huodong', 'activities.html', 'activity_detail.html', 'zh-tw', 0, 1, 1),
-('聯繫合作', 'Contact', 0, 1, 'lianxi', 'contact.html', '', 'zh-tw', 1, 1, 1),
-('關於公司', 'About Us', 0, 1, 'guanyu', 'about.html', '', 'zh-tw', 1, 1, 1);
+('首页动态', 'Home Feed', 0, 14, 'dongtai', 'social_feed.html', 'social_detail.html', 'zh-cn', 0, 1, 1, 100),
+('热门内容', 'Trending', 0, 14, 'remen', 'trending.html', 'social_detail.html', 'zh-cn', 0, 1, 1, 90),
+('活动中心', 'Activities', 0, 15, 'huodong', 'activities.html', 'activity_detail.html', 'zh-cn', 0, 1, 1, 80),
+('话题广场', 'Topics', 0, 16, 'huati', 'topics.html', 'topic_detail.html', 'zh-cn', 0, 1, 1, 70),
+-- 中文繁体栏目  
+('首頁動態', 'Home Feed', 0, 14, 'dongtai', 'social_feed.html', 'social_detail.html', 'zh-tw', 0, 1, 1, 100),
+('熱門內容', 'Trending', 0, 14, 'remen', 'trending.html', 'social_detail.html', 'zh-tw', 0, 1, 1, 90),
+('活動中心', 'Activities', 0, 15, 'huodong', 'activities.html', 'activity_detail.html', 'zh-tw', 0, 1, 1, 80),
+('話題廣場', 'Topics', 0, 16, 'huati', 'topics.html', 'topic_detail.html', 'zh-tw', 0, 1, 1, 70);
 ```
 
----
+### 阶段四：前台功能开发（优先级：P1｜状态：等待阶段三完成）
 
-### 阶段四：前台功能开发（优先级：P1｜状态：未开始）
+> **依赖**: 阶段二（后台管理）+ 阶段三（栏目配置）
 
-#### 4.1 前台控制器开发
+#### 4.1 前台控制器开发路线图
 
-##### 4.1.1 社交媒体主控制器
-- **路径**: `/application/index/controller/Social.php`
-- **功能**:
-  - 首页内容展示
-  - 热门内容筛选
-  - 用户动态流
-  - AJAX接口支持
+**核心控制器**：
+- `/application/index/controller/Social.php` - 社交主控制器
+- `/application/index/controller/Activity.php` - 活动控制器  
+- `/application/index/controller/Topic.php` - 话题控制器
+- 扩展 `/application/index/controller/User.php` - 个人中心社交功能
 
-##### 4.1.2 用户个人中心扩展
-- **路径**: 扩展现有 `/application/index/controller/User.php`
-- **新增功能**:
-  - 社交数据展示（粉丝/关注/帖子数）
-  - 发布内容管理
-  - 社交互动记录
-  - 隐私设置
+**API接口支持**：
+- `/application/api/controller/Social.php` - RESTful API
+- 移动端支持与实时通知推送
 
-##### 4.1.3 API接口开发
-- **路径**: `/application/api/controller/Social.php`
-- **功能**:
-  - RESTful API接口
-  - 移动端支持
-  - 实时通知推送
-  - 数据统计接口
+#### 4.2 前台模板开发（毛玻璃UI风格）
 
-#### 4.2 前台视图模板开发
-
-##### 4.2.1 模板目录结构
+**模板目录结构**：
 ```
-/addons/ldcms/view/biubiustar2025vn/    (越南语模板)
-├── index.html                          (首页)
-├── hot.html                           (热门页面)
-├── activities.html                    (活动列表)
-├── activity_detail.html               (活动详情)
-├── post_detail.html                   (帖子详情)
-├── user_profile.html                  (用户资料页)
+/addons/ldcms/view/biubiustar2025vn/    (越南语主模板)
+├── social_feed.html                     (首页动态流)
+├── trending.html                        (热门内容)  
+├── activities.html                      (活动列表)
+├── activity_detail.html                 (活动详情)
+├── social_detail.html                   (帖子详情)
+├── topics.html                          (话题广场)
+├── topic_detail.html                    (话题详情)
+├── user_profile.html                    (用户主页)
 └── layout/
-    ├── header.html                    (页头导航)
-    ├── footer.html                    (页脚)
-    └── sidebar.html                   (侧边栏)
+    ├── social_header.html               (社交导航)
+    ├── social_sidebar.html              (社交侧边栏)
+    └── social_footer.html               (社交页脚)
 ```
 
-##### 4.2.2 响应式设计规范
-- **桌面端** (1200px+): 完整功能展示
-- **平板端** (768px-1199px): 适配式布局
-- **移动端** (<768px): 移动优先设计
+**多语言模板复制**：
+- `biubiustar2025en/` (英语)
+- `biubiustar2025zh-cn/` (中文简体)  
+- `biubiustar2025zh-tw/` (中文繁体)
 
----
-
-### 阶段五：UI/UX设计实现（优先级：P1｜状态：未开始）
+### 阶段五：UI/UX设计实现（优先级：P1｜状态：等待阶段四完成）
 
 #### 5.1 简洁大气毛玻璃风格
 
@@ -471,7 +715,7 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-### 阶段六：社交功能实现（优先级：P2｜状态：未开始）
+### 阶段六：社交功能实现（优先级：P2｜状态：等待阶段五完成）
 
 #### 6.1 核心社交功能
 
@@ -509,7 +753,7 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-### 阶段七：高级功能开发（优先级：P3｜状态：未开始）
+### 阶段七：高级功能开发（优先级：P3｜状态：等待阶段六完成）
 
 #### 7.1 活动管理系统
 
@@ -540,7 +784,7 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-### 阶段八：性能优化与安全（优先级：P2｜状态：未开始）
+### 阶段八：性能优化与安全（优先级：P2｜状态：等待阶段七完成）
 
 #### 8.1 性能优化
 
@@ -572,19 +816,21 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-## 📅 开发时间规划
+## 📅 开发时间规划（更新：2024-12-20）
 
-### 第一周：数据库设计与基础架构
-- [x] 扩展用户表结构
-- [x] 创建社交媒体核心表
-- [x] 配置LDCMS模型系统
-- [x] 数据库测试和优化（基础索引与触发器）
+### ✅ 第一周：数据库设计与基础架构（已完成）
+- [x] 扩展用户表结构（社交字段）
+- [x] 创建社交媒体核心表（7个表）
+- [x] 配置LDCMS模型系统（3个模型）
+- [x] 数据库测试和兼容性验证
 
-### 第二周：后台管理系统开发
-- [ ] 社交内容管理模块
-- [ ] 活动管理模块
-- [ ] 用户社交管理模块
-- [ ] 后台多语言界面
+### 🎯 第二周：后台管理系统开发（阶段二-进行中）
+- [ ] 执行FastAdmin CRUD一键生成（7个模块）
+- [ ] 后台界面中文化与菜单优化
+- [ ] 模型关联配置与时间字段映射
+- [ ] 审核流程配置与权限设置
+- [ ] 多语言后台界面支持（4种语言）
+- [ ] UI/UX体验优化与响应式适配
 
 ### 第三周：栏目配置与前台控制器
 - [ ] 配置4语言栏目结构
@@ -677,4 +923,37 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-> **总结**: 本开发清单基于现有FastAdmin + LDCMS架构，充分复用已有的用户系统、多语言支持和内容管理功能，通过扩展数据库表结构和LDCMS模型系统，实现社交媒体平台的核心功能。开发过程中注重代码复用、性能优化和安全防护，确保项目稳定可靠运行。
+## 📋 最新开发状态总结（2024-12-20）
+
+### ✅ 项目基础已完善
+- **数据库架构**：✅ 完整的社交媒体数据表（用户扩展+7个核心表+LDCMS扩展表）
+- **模型注册**：✅ LDCMS模型系统集成（social_posts、activities、topics）
+- **多语言支持**：✅ 4种语言环境配置（vi-vn、en、zh-cn、zh-tw）
+- **技术栈兼容**：✅ FastAdmin + ThinkPHP 5.1 + LDCMS v1.4.3 完美集成
+
+### 🎯 当前关键任务（阶段二）
+- **优先级**：P0（最高优先级）
+- **核心目标**：建立完整的后台管理体系，为社交功能提供管理界面
+- **关键特性**：
+  - 一键CRUD生成（7个管理模块）
+  - 中文化菜单与权限配置
+  - 审核流程与内容管理
+  - 响应式后台界面
+  - 多语言管理支持
+
+### 🚀 技术优势
+- **架构复用**：基于成熟的FastAdmin+LDCMS架构，开发效率高
+- **数据完整性**：严格遵循FastAdmin数据库规范，确保兼容性
+- **管理便利性**：利用CRUD生成器快速构建管理界面
+- **国际化支持**：原生多语言架构，支持全球化部署
+- **审核机制**：内置内容审核流程，确保平台内容质量
+
+### 🎖️ 下一步关键里程碑
+1. **阶段二完成** → 后台管理系统可用（预计1周）
+2. **阶段三启动** → 栏目配置与URL路由（预计3天）
+3. **阶段四推进** → 前台功能与API开发（预计2周）
+4. **阶段五实现** → 毛玻璃UI风格与用户体验（预计1周）
+
+---
+
+> **项目总结**: 本开发清单基于现有FastAdmin + LDCMS企业级架构，通过科学的阶段化开发和数据库扩展策略，实现了社交媒体平台的完整技术基础。当前项目已完成数据库设计阶段，正准备进入后台管理开发阶段，具备了快速推进的所有技术条件。整个架构注重代码复用、开发效率和系统稳定性，为后续的社交功能开发奠定了坚实基础。
