@@ -1,0 +1,275 @@
+# biubiustar 项目专用规则
+
+> **适用范围**: biubiustar 项目的所有开发和维护操作
+> **创建时间**: 2025-01-27
+> **优先级**: P0 - 强制执行
+> **自动触发**: 智能规则调度系统自动识别和应用
+
+---
+
+## 🎯 智能触发条件
+
+### **强制触发条件** (自动加载此规则文件)
+```javascript
+// 智能检测函数 - 自动触发加载此专用规则
+function BIUBIUSTAR_PROJECT_DETECTION(userInput, context) {
+  const triggers = [
+    // 项目路径检测
+    context.workspace_path?.includes('/biubiustar'),
+    context.current_file?.includes('/biubiustar/'),
+    
+    // 数据库操作检测
+    /数据库|database|mysql|sql|备份|backup/i.test(userInput),
+    userInput.includes('mcp') && /mysql|数据库/i.test(userInput),
+    
+    // 日志相关检测
+    /日志|log|错误|error|问题|异常|故障/i.test(userInput),
+    userInput.includes('runtime/log'),
+    
+    // LDCMS相关检测
+    /ldcms|fastadmin/i.test(userInput),
+    context.current_file?.includes('addons/ldcms/'),
+    
+    // 项目特定操作
+    /biubiustar/i.test(userInput),
+    userInput.includes('ThinkPHP')
+  ];
+  
+  return triggers.some(condition => condition === true);
+}
+```
+
+### **项目标识关键词**
+- `biubiustar`, `LDCMS`, `FastAdmin`, `ThinkPHP`
+- `MySQL`, `数据库`, `备份`, `日志`
+- 路径包含: `/biubiustar/`, `addons/ldcms/`, `runtime/log`
+
+---
+
+## 🚀 项目核心信息
+
+### 📍 项目路径
+- **项目根目录**: `/Volumes/wwx/dev/WebProjects/biubiustar`
+- **技术栈**: FastAdmin + LDCMS + ThinkPHP 5.1
+- **数据库**: MySQL
+
+### 🔗 数据库连接配置 (MCP集成)
+```json
+{
+  "MYSQL_HOST": "127.0.0.1",
+  "MYSQL_PORT": "3306", 
+  "MYSQL_USER": "biubiustar",
+  "MYSQL_PASSWORD": "Qwer1234...",
+  "MYSQL_DATABASE": "biubiustar",
+  "MYSQL_SSL": "false"
+}
+```
+> 💡 使用 MCP MySQL Server 进行数据库操作，无需手动配置连接
+
+### 📂 关键目录结构
+```
+biubiustar/
+├── runtime/log/           # 项目日志目录 - 问题排查首选
+├── backup/               # 数据库备份目录
+├── addons/ldcms/         # LDCMS插件核心
+├── application/admin/    # 后台管理
+└── public/assets/        # 前端资源
+```
+
+---
+
+## 📋 强制执行规则
+
+### 1. 🔍 问题排查日志规范
+
+#### **日志位置**
+- **主日志目录**: `/Volumes/wwx/dev/WebProjects/biubiustar/runtime/log`
+- **访问方式**: 遇到问题时必须首先查阅相关日志
+
+#### **日志查阅流程**
+```bash
+# 1. 查看最新错误日志
+tail -f /Volumes/wwx/dev/WebProjects/biubiustar/runtime/log/error.log
+
+# 2. 查看应用日志
+tail -f /Volumes/wwx/dev/WebProjects/biubiustar/runtime/log/app.log
+
+# 3. 按日期查看日志
+ls -la /Volumes/wwx/dev/WebProjects/biubiustar/runtime/log/
+```
+
+#### **问题排查优先级**
+| 优先级 | 日志类型 | 查看命令 | 说明 |
+|-------|---------|---------|------|
+| **P1** | 错误日志 | `tail -50 runtime/log/error.log` | 系统错误、异常信息 |
+| **P2** | 应用日志 | `tail -50 runtime/log/app.log` | 应用运行信息 |
+| **P3** | SQL日志 | `tail -50 runtime/log/sql.log` | 数据库查询日志 |
+| **P4** | 访问日志 | `tail -50 runtime/log/access.log` | 用户访问记录 |
+
+#### **强制执行条件**
+- ✅ **任何错误或异常** → 必须先查阅日志
+- ✅ **性能问题** → 必须检查相关日志
+- ✅ **功能异常** → 必须查看应用日志
+- ✅ **数据库问题** → 必须检查SQL日志
+
+---
+
+### 2. 🗄️ 数据库操作安全规范
+
+#### **备份要求 - 强制执行**
+```javascript
+// 数据库操作前强制备份检查
+function DATABASE_OPERATION_CHECK(operation) {
+  if (operation.affects_database) {
+    // 1. 强制备份到项目目录
+    FORCE_BACKUP_TO_PROJECT();
+    
+    // 2. 验证备份完整性
+    VERIFY_BACKUP_INTEGRITY();
+    
+    // 3. 记录操作日志
+    LOG_DATABASE_OPERATION(operation);
+    
+    // 4. 执行操作
+    return EXECUTE_WITH_ROLLBACK_PLAN(operation);
+  }
+}
+```
+
+#### **备份存储位置**
+- **主备份目录**: `/Volumes/wwx/dev/WebProjects/biubiustar/backup/`
+- **备份命名规范**: `backup_YYYY-MM-DD_HH-MM-SS_操作描述.sql`
+- **示例**: `backup_2025-01-27_14-30-00_添加新表.sql`
+
+#### **备份操作流程**
+```bash
+# 1. 创建备份目录（如不存在）
+mkdir -p backup/$(date +%Y-%m-%d)
+
+# 2. 执行备份
+mysqldump -u用户名 -p密码 数据库名 > backup/$(date +%Y-%m-%d)/backup_$(date +%Y-%m-%d_%H-%M-%S)_操作描述.sql
+
+# 3. 验证备份文件
+ls -la backup/$(date +%Y-%m-%d)/
+```
+
+#### **数据库操作分类**
+| 风险等级 | 操作类型 | 备份要求 | 示例操作 |
+|---------|---------|---------|---------|
+| **高风险** | 结构变更 | 完整备份 + 确认 | ALTER TABLE, DROP TABLE |
+| **中风险** | 数据修改 | 相关表备份 | UPDATE, DELETE |
+| **低风险** | 数据查询 | 无需备份 | SELECT |
+| **特殊** | 批量操作 | 完整备份 + 测试 | 批量INSERT/UPDATE |
+
+#### **MCP数据库操作集成**
+```javascript
+// 使用MCP进行数据库操作的标准流程
+async function MCP_DATABASE_OPERATION(operation) {
+  try {
+    // 1. 操作前备份 (强制执行)
+    await createBackup(operation.description);
+    
+    // 2. 执行MCP数据库操作
+    const result = await mcp_MySQL_Server_execute_query({
+      query: operation.sql,
+      database: operation.database || 'biubiustar'  // 默认使用项目数据库
+    });
+    
+    // 3. 记录操作日志
+    logDatabaseOperation(operation, result);
+    
+    return result;
+  } catch (error) {
+    // 4. 错误处理和回滚建议
+    logError(error);
+    suggestRollback();
+    throw error;
+  }
+}
+
+// 自动触发的MCP工具函数
+const MCP_TOOLS = {
+  // 查看数据库列表
+  listDatabases: () => mcp_MySQL_Server_list_databases({random_string: "check"}),
+  
+  // 查看表结构
+  describeTable: (table) => mcp_MySQL_Server_describe_table({table, database: "biubiustar"}),
+  
+  // 查看所有表
+  listTables: () => mcp_MySQL_Server_list_tables({database: "biubiustar"}),
+  
+  // 执行查询
+  executeQuery: (query) => mcp_MySQL_Server_execute_query({query, database: "biubiustar"})
+};
+```
+
+---
+
+## 🛠️ 实用工具函数
+
+### 日志快速查看
+```bash
+# 查看最近50行错误日志
+alias log-error='tail -50 /Volumes/wwx/dev/WebProjects/biubiustar/runtime/log/error.log'
+
+# 查看最近50行应用日志
+alias log-app='tail -50 /Volumes/wwx/dev/WebProjects/biubiustar/runtime/log/app.log'
+
+# 实时监控错误日志
+alias log-watch='tail -f /Volumes/wwx/dev/WebProjects/biubiustar/runtime/log/error.log'
+```
+
+### 备份快速创建
+```bash
+# 快速创建数据库备份
+function quick-backup() {
+  local desc=${1:-"manual_backup"}
+  local backup_file="backup/$(date +%Y-%m-%d)/backup_$(date +%Y-%m-%d_%H-%M-%S)_${desc}.sql"
+  mkdir -p "backup/$(date +%Y-%m-%d)"
+  mysqldump -u用户名 -p 数据库名 > "$backup_file"
+  echo "备份已创建: $backup_file"
+}
+```
+
+---
+
+## 📊 操作清单
+
+### ✅ 每次数据库操作必须执行
+- [ ] 查看相关日志确认当前状态
+- [ ] 创建操作前备份
+- [ ] 验证备份文件完整性
+- [ ] 执行数据库操作
+- [ ] 记录操作日志
+- [ ] 验证操作结果
+
+### ✅ 每次问题排查必须执行
+- [ ] 查看 `/runtime/log/error.log`
+- [ ] 查看 `/runtime/log/app.log`
+- [ ] 根据问题类型查看对应日志
+- [ ] 记录问题和解决方案
+
+---
+
+## 🚨 重要提醒
+
+### **绝对禁止**
+- ❌ 未备份直接操作生产数据库
+- ❌ 忽略日志信息进行问题排查
+- ❌ 删除备份文件（除非磁盘空间不足）
+
+### **强制要求**
+- ✅ 所有数据库操作前必须备份
+- ✅ 遇到问题必须先查日志
+- ✅ 备份文件必须存储在项目目录内
+- ✅ 使用MCP进行数据库操作
+
+### **最佳实践**
+- 🎯 定期清理过期日志文件
+- 🎯 定期整理备份文件
+- 🎯 记录重要操作的详细说明
+- 🎯 保持备份文件的可读性命名
+
+---
+
+**注意**: 此规则文件为 biubiustar 项目专用，优先级为 P0，必须严格遵守。任何违反此规则的操作都可能导致数据丢失或系统故障。

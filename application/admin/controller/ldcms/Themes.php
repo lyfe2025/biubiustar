@@ -47,13 +47,44 @@ class Themes extends Base
                 $v['lang_text'] = '';
                 $v['lang'] = '';
                 
-                /*判断模板是否被使用 并获取使用模板的语言*/
-                foreach ($langtheme as $lk => $lang) {
-                    if ($lk == $v['name']) {
-                        $v['lang_text'] = $lang['text'];
-                        $v['lang'] = $lang['key'];
-                        $v['state'] = 1;
-                        break; // 找到匹配后跳出循环
+                // 检查是否属于模版组
+                $templateGroup = $this->getTemplateGroup($v['name']);
+                $groupMapping = $this->getTemplateGroupMapping();
+                
+                if ($templateGroup && isset($groupMapping[$templateGroup])) {
+                    // 检查组内所有模版的启用状态
+                    $groupTemplates = $groupMapping[$templateGroup];
+                    $enabledLangs = [];
+                    $allEnabled = true;
+                    
+                    foreach ($groupTemplates as $langKey => $templateName) {
+                        if (isset($langtheme[$templateName])) {
+                            $enabledLangs[] = $langs[$langKey] ?? $langKey;
+                        } else {
+                            $allEnabled = false;
+                        }
+                    }
+                    
+                    if (!empty($enabledLangs)) {
+                        $v['state'] = $allEnabled ? 1 : 1; // 只要有启用就显示为启用状态
+                        $v['lang_text'] = implode('、', $enabledLangs);
+                        $v['lang'] = implode(',', array_keys($groupTemplates));
+                        
+                        // 如果是组的第一个模版，添加组标识
+                        if ($v['name'] === reset($groupTemplates)) {
+                            $v['is_group_main'] = true;
+                            $v['group_name'] = $templateGroup;
+                        }
+                    }
+                } else {
+                    // 单独模版的检查逻辑（原有逻辑）
+                    foreach ($langtheme as $lk => $lang) {
+                        if ($lk == $v['name']) {
+                            $v['lang_text'] = $lang['text'];
+                            $v['lang'] = $lang['key'];
+                            $v['state'] = 1;
+                            break; // 找到匹配后跳出循环
+                        }
                     }
                 }
                 $list[] = $v;

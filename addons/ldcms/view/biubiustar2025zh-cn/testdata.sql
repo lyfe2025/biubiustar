@@ -1,7 +1,7 @@
 -- SQL Dump by Erik Edgren
 -- version 1.0
 --
--- SQL Dump created: August 9th, 2025 @ 5:14 am
+-- SQL Dump created: August 9th, 2025 @ 7:10 am
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -23,21 +23,21 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_ad`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_ad` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(100) CHARACTER SET utf8 DEFAULT '' COMMENT '类型',
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '标题',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `type` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '类型',
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '标题',
   `content` varchar(1500) DEFAULT '' COMMENT '内容',
-  `description` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '描述',
-  `image` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '图片',
-  `url` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '跳转链接',
-  `sort` int(11) NOT NULL DEFAULT '9' COMMENT '排序',
+  `description` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '描述',
+  `image` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '图片',
+  `url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '跳转链接',
+  `sort` int NOT NULL DEFAULT '9' COMMENT '排序',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态 ',
-  `target` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '跳转',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
-  `lang` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '语言',
+  `target` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '跳转',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
+  `lang` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '语言',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='广告表';
+) ENGINE=MyISAM AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='广告表';
 
 
 --
@@ -81,28 +81,28 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_category`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_category` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '名称',
-  `ename` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '英文名称',
-  `pid` int(11) NOT NULL COMMENT '父ID',
-  `mid` int(11) NOT NULL COMMENT '模型',
-  `urlname` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT 'url名称',
-  `template_list` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '列表页模版',
-  `template_detail` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '详情页模版',
-  `outlink` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '跳转链接',
-  `image` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '栏目缩略图',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+  `ename` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '英文名称',
+  `pid` int NOT NULL COMMENT '父ID',
+  `mid` int NOT NULL COMMENT '模型',
+  `urlname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT 'url名称',
+  `template_list` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '列表页模版',
+  `template_detail` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '详情页模版',
+  `outlink` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '跳转链接',
+  `image` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '栏目缩略图',
   `big_image` varchar(255) DEFAULT '' COMMENT '栏目大图',
-  `seo_title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'SEO标题',
-  `seo_keywords` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'SEO关键词',
-  `seo_description` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'SEO描述',
-  `sort` int(10) DEFAULT '99' COMMENT '排序',
+  `seo_title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'SEO标题',
+  `seo_keywords` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'SEO关键词',
+  `seo_description` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'SEO描述',
+  `sort` int DEFAULT '99' COMMENT '排序',
   `lang` varchar(255) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
   `is_target` tinyint(1) DEFAULT '0' COMMENT '是否target',
   `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '类型 0 模型 1链接',
-  `gid` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '浏览权限  0 公开  1 1级会员 2 2级会员 ...',
+  `gid` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '浏览权限  0 公开  1 1级会员 2 2级会员 ...',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态',
-  `create_time` bigint(20) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `is_nav` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否导航显示',
   `is_home` tinyint(1) NOT NULL DEFAULT '0' COMMENT '首页显示模块',
   `subname` varchar(255) DEFAULT NULL COMMENT '子名称',
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_category` (
   `des2` varchar(255) DEFAULT '' COMMENT '描述2',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `urlname` (`urlname`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=239 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='栏目表';
+) ENGINE=InnoDB AUTO_INCREMENT=239 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='栏目表';
 
 
 --
@@ -179,7 +179,7 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_category_fields`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_category_fields` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `field` char(30) DEFAULT NULL COMMENT '名称',
   `type` varchar(30) DEFAULT NULL COMMENT '类型',
   `title` varchar(30) DEFAULT NULL COMMENT '标题',
@@ -187,18 +187,18 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_category_fields` (
   `default` varchar(100) DEFAULT NULL COMMENT '默认值',
   `rule` varchar(100) DEFAULT NULL COMMENT '验证规则',
   `tip` varchar(100) DEFAULT NULL COMMENT '提示消息',
-  `decimals` tinyint(4) DEFAULT NULL COMMENT '小数点',
-  `length` mediumint(9) DEFAULT NULL COMMENT '长度',
-  `minimum` smallint(6) DEFAULT NULL COMMENT '最小数量',
-  `maximum` smallint(6) DEFAULT '0' COMMENT '最大数量',
+  `decimals` tinyint DEFAULT NULL COMMENT '小数点',
+  `length` mediumint DEFAULT NULL COMMENT '长度',
+  `minimum` smallint DEFAULT NULL COMMENT '最小数量',
+  `maximum` smallint DEFAULT '0' COMMENT '最大数量',
   `extend_html` varchar(255) DEFAULT NULL COMMENT '扩展信息',
   `setting` varchar(1500) DEFAULT NULL COMMENT '配置信息',
-  `sort` int(11) DEFAULT '9' COMMENT '排序',
-  `create_time` bigint(20) DEFAULT NULL COMMENT '添加时间',
-  `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
-  `status` tinyint(4) DEFAULT '1' COMMENT '状态',
+  `sort` int DEFAULT '9' COMMENT '排序',
+  `create_time` bigint DEFAULT NULL COMMENT '添加时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint DEFAULT '1' COMMENT '状态',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='栏目自定义字段表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='栏目自定义字段表';
 
 
 --
@@ -220,14 +220,14 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_content_url`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_content_url` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '名称',
-  `url` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '链接',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+  `url` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '链接',
   `lang` varchar(100) NOT NULL DEFAULT '',
-  `create_time` bigint(16) DEFAULT NULL,
-  `update_time` bigint(16) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章内容内链';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文章内容内链';
 
 
 --
@@ -249,18 +249,18 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_diyform`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_diyform` (
-  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `id` smallint unsigned NOT NULL AUTO_INCREMENT,
   `name` char(30) DEFAULT '' COMMENT '表单名称',
   `title` varchar(100) DEFAULT '' COMMENT '标题',
   `table` varchar(50) DEFAULT '' COMMENT '表名',
   `needlogin` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否需要登录发布',
-  `iscaptcha` tinyint(1) unsigned DEFAULT '0' COMMENT '是否启用验证码',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `iscaptcha` tinyint unsigned DEFAULT '0' COMMENT '是否启用验证码',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `setting` varchar(1500) DEFAULT '' COMMENT '表单配置',
-  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态',
+  `status` tinyint NOT NULL DEFAULT '0' COMMENT '状态',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='自定义表单表';
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='自定义表单表';
 
 
 --
@@ -281,8 +281,8 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_diyform_fields`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_diyform_fields` (
-  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-  `diyform_id` int(10) NOT NULL DEFAULT '0' COMMENT '表单ID',
+  `id` smallint unsigned NOT NULL AUTO_INCREMENT,
+  `diyform_id` int NOT NULL DEFAULT '0' COMMENT '表单ID',
   `field` char(30) DEFAULT '' COMMENT '名称',
   `type` varchar(30) DEFAULT '' COMMENT '类型',
   `title` varchar(30) DEFAULT '' COMMENT '标题',
@@ -291,20 +291,20 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_diyform_fields` (
   `rule` varchar(100) DEFAULT '' COMMENT '验证规则',
   `tip` varchar(100) DEFAULT '' COMMENT '提示消息',
   `decimals` tinyint(1) DEFAULT NULL COMMENT '小数点',
-  `length` mediumint(8) DEFAULT NULL COMMENT '长度',
-  `minimum` smallint(6) DEFAULT NULL COMMENT '最小数量',
-  `maximum` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '最大数量',
+  `length` mediumint DEFAULT NULL COMMENT '长度',
+  `minimum` smallint DEFAULT NULL COMMENT '最小数量',
+  `maximum` smallint unsigned NOT NULL DEFAULT '0' COMMENT '最大数量',
   `extend_html` varchar(255) DEFAULT '' COMMENT '扩展信息',
   `setting` varchar(1500) DEFAULT '' COMMENT '配置信息',
-  `sort` int(10) NOT NULL DEFAULT '9' COMMENT '排序',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '添加时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `sort` int NOT NULL DEFAULT '9' COMMENT '排序',
+  `create_time` bigint DEFAULT NULL COMMENT '添加时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `issort` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否可排序',
   `isfilter` tinyint(1) NOT NULL DEFAULT '0' COMMENT '筛选',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `id` (`diyform_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
 
 
 --
@@ -329,22 +329,22 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `mid` int(11) NOT NULL COMMENT '模型',
-  `cid` int(11) DEFAULT NULL COMMENT '栏目',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `mid` int NOT NULL COMMENT '模型',
+  `cid` int DEFAULT NULL COMMENT '栏目',
   `sub_cid` varchar(255) DEFAULT '' COMMENT '副栏目',
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '标题',
-  `image` text CHARACTER SET utf8 COMMENT '缩略图',
-  `pics` text CHARACTER SET utf8 COMMENT '多图',
-  `show_time` bigint(16) DEFAULT NULL COMMENT '显示时间',
-  `seo_keywords` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'seo关键词',
-  `seo_description` varchar(500) CHARACTER SET utf8 DEFAULT NULL COMMENT 'seo描述',
-  `visits` int(255) DEFAULT '0' COMMENT '浏览次数',
-  `likes` int(255) DEFAULT '0' COMMENT '点赞次数',
-  `admin_id` int(11) DEFAULT NULL COMMENT '管理员ID',
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '标题',
+  `image` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '缩略图',
+  `pics` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '多图',
+  `show_time` bigint DEFAULT NULL COMMENT '显示时间',
+  `seo_keywords` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'seo关键词',
+  `seo_description` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT 'seo描述',
+  `visits` int DEFAULT '0' COMMENT '浏览次数',
+  `likes` int DEFAULT '0' COMMENT '点赞次数',
+  `admin_id` int DEFAULT NULL COMMENT '管理员ID',
   `author` varchar(100) DEFAULT NULL COMMENT '作者',
-  `sort` int(11) NOT NULL DEFAULT '99' COMMENT '排序',
-  `lang` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
+  `sort` int NOT NULL DEFAULT '99' COMMENT '排序',
+  `lang` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
   `flag` varchar(255) DEFAULT '' COMMENT '标识',
   `tag` varchar(255) DEFAULT '' COMMENT '标签',
   `outlink` varchar(255) DEFAULT NULL COMMENT '跳转链接',
@@ -352,12 +352,12 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document` (
   `gid` varchar(255) DEFAULT '' COMMENT '浏览权限',
   `custom_tpl` varchar(255) DEFAULT '' COMMENT '详情页模版',
   `custom_urlname` varchar(255) DEFAULT '' COMMENT '自定义url',
-  `create_time` bigint(16) DEFAULT NULL,
-  `update_time` bigint(16) DEFAULT NULL,
-  `delete_time` bigint(16) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
+  `delete_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `id` (`id`,`mid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=626 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章基础表';
+) ENGINE=InnoDB AUTO_INCREMENT=626 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文章基础表';
 
 
 --
@@ -696,9 +696,9 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_aaa`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_aaa` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   PRIMARY KEY (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='下载_复制';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='下载_复制';
 
 
 --
@@ -713,11 +713,11 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_case`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_case` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `xmbj` varchar(255) DEFAULT '' COMMENT '副标题',
   `caseprovince` varchar(255) DEFAULT '' COMMENT '省份',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='案例';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='案例';
 
 
 --
@@ -770,10 +770,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_content`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_content` (
-  `document_id` int(11) NOT NULL,
-  `content` longtext CHARACTER SET utf8 COMMENT '正文内容',
+  `document_id` int NOT NULL,
+  `content` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '正文内容',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章内容表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文章内容表';
 
 
 --
@@ -1112,11 +1112,11 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_download`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_download` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `downlinks` varchar(2555) DEFAULT '' COMMENT '下载文件',
   `progl` varchar(255) DEFAULT '' COMMENT '管理产品',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='下载';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='下载';
 
 
 --
@@ -1154,10 +1154,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_news`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_news` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `test` varchar(255) DEFAULT '' COMMENT '副标题',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='新闻';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='新闻';
 
 
 --
@@ -1248,10 +1248,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_page`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_page` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `test` varchar(255) DEFAULT '' COMMENT '副标题',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='单页';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='单页';
 
 
 --
@@ -1286,7 +1286,7 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_product`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_product` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `types` varchar(255) DEFAULT '' COMMENT '类型',
   `color` varchar(255) DEFAULT '' COMMENT '颜色',
   `subtitle` varchar(255) DEFAULT '' COMMENT '副标题',
@@ -1295,7 +1295,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_product` (
   `procz` varchar(255) DEFAULT '' COMMENT '材质',
   `procc` varchar(255) DEFAULT '' COMMENT '尺寸',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='产品';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='产品';
 
 
 --
@@ -1512,10 +1512,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_team`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_team` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `zhiwei` varchar(255) DEFAULT '' COMMENT '副标题',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='团队';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='团队';
 
 
 --
@@ -1577,9 +1577,9 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_test`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_test` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   PRIMARY KEY (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='test';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='test';
 
 
 --
@@ -1594,9 +1594,9 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_test1`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_test1` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   PRIMARY KEY (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='test1';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='test1';
 
 
 --
@@ -1611,10 +1611,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_wordlist`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_wordlist` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `subtitle` varchar(255) DEFAULT '' COMMENT '副标题',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文档';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文档';
 
 
 --
@@ -1743,8 +1743,8 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_fields`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_fields` (
-  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-  `mid` int(10) NOT NULL DEFAULT '0' COMMENT '模型',
+  `id` smallint unsigned NOT NULL AUTO_INCREMENT,
+  `mid` int NOT NULL DEFAULT '0' COMMENT '模型',
   `field` char(30) DEFAULT '' COMMENT '名称',
   `type` varchar(30) DEFAULT '' COMMENT '类型',
   `title` varchar(30) DEFAULT '' COMMENT '标题',
@@ -1753,14 +1753,14 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_fields` (
   `rule` varchar(100) DEFAULT '' COMMENT '验证规则',
   `tip` varchar(100) DEFAULT '' COMMENT '提示消息',
   `decimals` tinyint(1) DEFAULT NULL COMMENT '小数点',
-  `length` mediumint(8) DEFAULT NULL COMMENT '长度',
-  `minimum` smallint(6) DEFAULT NULL COMMENT '最小数量',
-  `maximum` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '最大数量',
+  `length` mediumint DEFAULT NULL COMMENT '长度',
+  `minimum` smallint DEFAULT NULL COMMENT '最小数量',
+  `maximum` smallint unsigned NOT NULL DEFAULT '0' COMMENT '最大数量',
   `extend_html` varchar(255) DEFAULT '' COMMENT '扩展信息',
   `setting` varchar(1500) DEFAULT '' COMMENT '配置信息',
-  `sort` int(10) NOT NULL DEFAULT '9' COMMENT '排序',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '添加时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `sort` int NOT NULL DEFAULT '9' COMMENT '排序',
+  `create_time` bigint DEFAULT NULL COMMENT '添加时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `issort` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否可排序',
   `isfilter` tinyint(1) NOT NULL DEFAULT '0' COMMENT '筛选',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态',
@@ -1769,7 +1769,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_fields` (
   `islist` tinyint(1) DEFAULT '1' COMMENT '数据列表显示',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `id` (`mid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
 
 
 --
@@ -1804,18 +1804,18 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_langs`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_langs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '名称',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '名称',
   `sub_title` varchar(255) DEFAULT '' COMMENT '简称',
-  `code` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '编码',
+  `code` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '编码',
   `domain` varchar(100) DEFAULT '' COMMENT '域名',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态',
   `is_default` tinyint(1) DEFAULT '0' COMMENT '默认语言',
-  `sort` int(10) NOT NULL DEFAULT '0' COMMENT '排序',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `sort` int NOT NULL DEFAULT '0' COMMENT '排序',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='多语言表';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='多语言表';
 
 
 --
@@ -1823,10 +1823,10 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_langs` (
 --
 
 INSERT INTO `__PREFIX__ldcms_langs` (`id`, `title`, `sub_title`, `code`, `domain`, `status`, `is_default`, `sort`, `create_time`, `update_time`) VALUES
-(1, '简体中文', 'CN', 'zh-cn', '', 1, 1, 0, 1675334627, 1708322648),
+(1, '简体中文', 'CN', 'zh-cn', '', 1, 1, 0, 1675334627, 1754688050),
 (2, 'English', 'EN', 'en', '', 1, 0, 0, 1675334645, 1716693629),
-(3, '繁體中文', '', 'zh-tw', '', 1, 0, 2, 1754687336, 1754687336),
-(4, 'Tiếng Việt', '', 'vi-vn', '', 1, 0, 3, 1754687336, 1754687336);
+(3, '繁體中文', 'TW', 'zh-tw', '', 1, 0, 2, 1754687336, 1754687727),
+(4, 'Tiếng Việt', 'VN', 'vi-vn', '', 1, 0, 3, 1754687336, 1754687827);
 --
 -- Remove the table if it exists
 --
@@ -1839,17 +1839,17 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_ldcms_contact_cooperation`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_ldcms_contact_cooperation` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `diyform_id` int(10) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `diyform_id` int NOT NULL,
   `lang` varchar(255) DEFAULT NULL,
   `user_ip` varchar(255) DEFAULT NULL,
   `user_os` varchar(255) DEFAULT NULL,
   `user_bs` varchar(255) DEFAULT NULL,
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   `category` varchar(100) DEFAULT '' COMMENT '合作类目',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='联系合作表单';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='联系合作表单';
 
 
 --
@@ -1864,19 +1864,19 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_links`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_links` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(100) CHARACTER SET utf8 DEFAULT '' COMMENT '类型',
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '标题',
-  `image` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'logo',
-  `url` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '跳转链接',
-  `sort` int(11) NOT NULL DEFAULT '9' COMMENT '排序',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `type` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '类型',
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '标题',
+  `image` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'logo',
+  `url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '跳转链接',
+  `sort` int NOT NULL DEFAULT '9' COMMENT '排序',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态 ',
-  `target` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '跳转',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `target` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '跳转',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `lang` varchar(255) DEFAULT '' COMMENT '语言',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='友情链接';
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='友情链接';
 
 
 --
@@ -1900,21 +1900,21 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_message`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_message` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `diyform_id` int(10) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `diyform_id` int NOT NULL,
   `lang` varchar(255) DEFAULT NULL,
   `user_ip` varchar(255) DEFAULT NULL,
   `user_os` varchar(255) DEFAULT NULL,
   `user_bs` varchar(255) DEFAULT NULL,
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   `uname` varchar(100) DEFAULT '' COMMENT '姓名',
   `mobile` varchar(100) DEFAULT '' COMMENT '手机号',
   `remark` varchar(100) DEFAULT '' COMMENT '内容',
   `emails` varchar(1000) DEFAULT '' COMMENT '邮箱',
   `companys` varchar(100) DEFAULT '' COMMENT '公司',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='在线留言';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='在线留言';
 
 
 --
@@ -1936,20 +1936,20 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_models`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_models` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '模型名',
-  `table_name` varchar(128) CHARACTER SET utf8 DEFAULT NULL COMMENT '对应表',
-  `template_list` varchar(64) CHARACTER SET utf8 DEFAULT NULL COMMENT '列表模板',
-  `template_detail` varchar(64) CHARACTER SET utf8 DEFAULT NULL COMMENT '内容模板',
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '模型名',
+  `table_name` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '对应表',
+  `template_list` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '列表模板',
+  `template_detail` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '内容模板',
   `ismenu` tinyint(1) NOT NULL DEFAULT '0' COMMENT '后台菜单',
   `default_fields` text COMMENT '默认字段',
-  `sort` int(11) DEFAULT NULL COMMENT '排序',
+  `sort` int DEFAULT NULL COMMENT '排序',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态 0 = 关闭  || 1= 正常',
-  `create_time` bigint(16) DEFAULT NULL,
-  `update_time` bigint(16) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `name` (`name`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='cms 模型表';
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='cms 模型表';
 
 
 --
@@ -1976,14 +1976,14 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_siteinfo`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_siteinfo` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `lang` varchar(50) NOT NULL COMMENT '语言',
   `config` text COMMENT '配置',
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `lang` (`lang`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='站点信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='站点信息表';
 
 
 --
@@ -1993,7 +1993,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_siteinfo` (
 INSERT INTO `__PREFIX__ldcms_siteinfo` (`id`, `lang`, `config`, `create_time`, `update_time`) VALUES
 (1, 'zh-cn', '[{\"name\":\"template\",\"title\":\"前台模板\",\"type\":\"select\",\"content\":\"[\\\"default\\\"]\",\"value\":\"biubiustar2025zh-cn\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"请确保addons\\/ldcms\\/view有相应的目录\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"sitetitle\",\"title\":\"网站标题\",\"type\":\"string\",\"content\":[],\"value\":\"苏州竹子网络科技有限公司\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"sitesubtitle\",\"title\":\"网站副标题\",\"type\":\"string\",\"content\":[],\"value\":\"苏州LDcms网站公司中文\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"seo_keywords\",\"title\":\"网站关键词\",\"type\":\"text\",\"content\":[],\"value\":\"苏州LDcms网站公司中文\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"seo_description\",\"title\":\"网站描述\",\"type\":\"text\",\"content\":[],\"value\":\"苏州LDcms网站公司中文\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"logo1\",\"title\":\"网站logo\",\"type\":\"image\",\"content\":[],\"maximum\":1,\"value\":\"\\/assets\\/addons\\/ldcms\\/ldcms2024\\/images\\/logo2.png\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"logo2\",\"title\":\"网站logo\",\"type\":\"image\",\"content\":[],\"maximum\":1,\"value\":\"\\/assets\\/addons\\/ldcms\\/ldcms2024\\/images\\/logo2.png\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"compony\",\"title\":\"公司名称\",\"type\":\"string\",\"content\":[],\"value\":\"苏州竹子网络科技有限公司\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"tel\",\"title\":\"联系电话\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"4006-711-886\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"phone\",\"title\":\"手机号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"4006-711-886\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"text\",\"name\":\"address\",\"title\":\"地址\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"苏州市相城区相城大道666号中翔大厦15012\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"email\",\"title\":\"邮箱\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"erweima@foxmail.com\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"contacts\",\"title\":\"联系人\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"李经理\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"qq\",\"title\":\"在线咨询链接\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"http:\\/\\/wpa.qq.com\\/msgrd?v=3&uin=&site=qq&menu=yes\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"image\",\"name\":\"wechat\",\"title\":\"微信二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"image\",\"name\":\"wechat2\",\"title\":\"微信二维码2\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"icp\",\"title\":\"ICP备案号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"苏ICP备14060880号\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"copyright\",\"title\":\"底部版权\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"© 2011-2024 苏州竹子网络科技有限公司 版权所有\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"text\",\"name\":\"script\",\"title\":\"第三方代码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"rule\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"videolink\",\"title\":\"视频链接\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"wxtzlink\",\"title\":\"微信跳转链接\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"yuming\",\"title\":\"网站域名\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"www.example.com\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"image\",\"name\":\"dyewm\",\"title\":\"抖音二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"image\",\"name\":\"qqewm\",\"title\":\"QQ二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"qqquns\",\"title\":\"QQ群号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"736722780\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"image\",\"name\":\"xhsewm\",\"title\":\"小红书二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"bdak\",\"title\":\"百度地图ak密钥\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"mpdw\",\"title\":\"百度地图定位经纬度\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"120.374775, 31.510612\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"}]', 1680791788, 1754685985),
 (2, 'en', '{\"0\":{\"name\":\"template\",\"title\":\"前台模板\",\"type\":\"select\",\"content\":\"[\\\"default\\\"]\",\"value\":\"biubiustar2025en\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"请确保addons\\/ldcms\\/view有相应的目录\",\"ok\":\"\",\"extend\":\"\"},\"1\":{\"name\":\"sitetitle\",\"title\":\"网站标题\",\"type\":\"string\",\"content\":[],\"value\":\"New Point Education啊1111\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},\"2\":{\"name\":\"sitesubtitle\",\"title\":\"网站副标题\",\"type\":\"string\",\"content\":[],\"value\":\"New Point Education啊1111\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},\"3\":{\"name\":\"seo_keywords\",\"title\":\"网站关键词\",\"type\":\"text\",\"content\":[],\"value\":\"New Point Education\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},\"4\":{\"name\":\"seo_description\",\"title\":\"网站描述\",\"type\":\"text\",\"content\":[],\"value\":\"New Point Education\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},\"5\":{\"name\":\"logo1\",\"title\":\"网站logo\",\"type\":\"images\",\"content\":[],\"maximum\":1,\"value\":\"\\/assets\\/addons\\/ldcms\\/ldcms2024\\/images\\/logo2.png\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},\"6\":{\"name\":\"logo2\",\"title\":\"网站logo\",\"type\":\"image\",\"content\":[],\"maximum\":1,\"value\":\"\\/assets\\/addons\\/ldcms\\/ldcms2024\\/images\\/logo2.png\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},\"7\":{\"name\":\"compony\",\"title\":\"公司名称\",\"type\":\"string\",\"content\":[],\"value\":\"New Point Education\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},\"8\":{\"type\":\"string\",\"name\":\"tel\",\"title\":\"联系电话\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"400-000-0000\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"9\":{\"type\":\"string\",\"name\":\"phone\",\"title\":\"手机号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"400-000-0000\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"10\":{\"type\":\"text\",\"name\":\"address\",\"title\":\"地址\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"Room 1301, Suzhou News Building, No. 118, Bada Street, Suzhou Industrial Park, Jiangsu Province\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"11\":{\"type\":\"string\",\"name\":\"email\",\"title\":\"邮箱\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"hr-zhaopin@163.com\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"12\":{\"type\":\"string\",\"name\":\"contacts\",\"title\":\"联系人\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"Manager Li\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"13\":{\"type\":\"string\",\"name\":\"qq\",\"title\":\"在线咨询链接\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"http:\\/\\/wpa.qq.com\\/msgrd?v=3&uin=&site=qq&menu=yes\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"14\":{\"type\":\"image\",\"name\":\"wechat\",\"title\":\"微信二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"15\":{\"type\":\"image\",\"name\":\"wechat2\",\"title\":\"微信二维码2\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"16\":{\"type\":\"string\",\"name\":\"icp\",\"title\":\"ICP备案号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"苏ICP备88888888号\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"17\":{\"type\":\"string\",\"name\":\"copyright\",\"title\":\"底部版权\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"xxxTechnology Co., Ltd\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"18\":{\"type\":\"text\",\"name\":\"script\",\"title\":\"第三方代码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},\"19\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"videolink\",\"title\":\"视频链接\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},\"20\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"wxtzlink\",\"title\":\"微信跳转链接\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},\"21\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"yuming\",\"title\":\"网站域名\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"www.zhuziweb.com\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},\"24\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"qqquns\",\"title\":\"QQ群号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"736722780\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},\"25\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"image\",\"name\":\"xhsewm\",\"title\":\"小红书二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},\"26\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"image\",\"name\":\"dyewm\",\"title\":\"抖音二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},\"27\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"image\",\"name\":\"qqewm\",\"title\":\"QQ二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},\"28\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"bdaken\",\"title\":\"百度地图ak密钥\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"},\"29\":{\"rule\":\"\",\"group\":\"基础\",\"type\":\"string\",\"name\":\"mpdw\",\"title\":\"百度地图定位经纬度\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"120.374775, 31.510612\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"extend\":\"\"}}', 1680791969, 1754685985),
-(3, 'zh-tw', NULL, 1754685985, 1754685985),
+(3, 'zh-tw', '[{\"name\":\"template\",\"title\":\"前台模板\",\"type\":\"select\",\"content\":\"[\"default\"]\",\"value\":\"biubiustar2025zh-tw\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"请确保addons/ldcms/view有相应的目录\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"sitetitle\",\"title\":\"网站标题\",\"type\":\"string\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"sitesubtitle\",\"title\":\"网站副标题\",\"type\":\"string\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"seo_keywords\",\"title\":\"网站关键词\",\"type\":\"text\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"seo_description\",\"title\":\"网站描述\",\"type\":\"text\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"logo1\",\"title\":\"网站logo\",\"type\":\"image\",\"content\":[],\"maximum\":1,\"value\":\"/assets/addons/ldcms/default/images/logo1.png\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"logo2\",\"title\":\"网站logo\",\"type\":\"image\",\"content\":[],\"maximum\":1,\"value\":\"/assets/addons/ldcms/default/images/logo2.png\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"compony\",\"title\":\"公司名称\",\"type\":\"string\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"tel\",\"title\":\"联系电话\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"400-000-0000\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"phone\",\"title\":\"手机号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"+84 924 469 582\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"text\",\"name\":\"address\",\"title\":\"地址\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"38 Nguyễn Văn Kỉnh, Phường Thạnh Mỹ Lợi, Thủ Đức, Hồ Chí Minh 008428, Vietnam\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"email\",\"title\":\"邮箱\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"123123@163.com\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"contacts\",\"title\":\"联系人\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"李經理\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"qq\",\"title\":\"在线咨询链接\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"http://wpa.qq.com/msgrd?v=3&uin=&site=qq&menu=yes\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"image\",\"name\":\"wechat\",\"title\":\"微信二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"/assets/addons/ldcms/default/images/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"image\",\"name\":\"wechat2\",\"title\":\"微信二维码2\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"/assets/addons/ldcms/default/images/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"icp\",\"title\":\"ICP 備案號\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"copyright\",\"title\":\"底部版權\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"text\",\"name\":\"script\",\"title\":\"第三方代碼\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"rule\":\"\",\"extend\":\"\"}]', 1754685985, 1754688195),
 (8, 'vi-vn', '[{\"name\":\"template\",\"title\":\"前台模板\",\"type\":\"select\",\"content\":\"[\\\"default\\\"]\",\"value\":\"biubiustar2025vn\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"请确保addons\\/ldcms\\/view有相应的目录\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"sitetitle\",\"title\":\"网站标题\",\"type\":\"string\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"sitesubtitle\",\"title\":\"网站副标题\",\"type\":\"string\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"seo_keywords\",\"title\":\"网站关键词\",\"type\":\"text\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"seo_description\",\"title\":\"网站描述\",\"type\":\"text\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"logo1\",\"title\":\"网站logo\",\"type\":\"image\",\"content\":[],\"maximum\":1,\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/logo1.png\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"logo2\",\"title\":\"网站logo\",\"type\":\"image\",\"content\":[],\"maximum\":1,\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/logo2.png\",\"rule\":\"\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"name\":\"compony\",\"title\":\"公司名称\",\"type\":\"string\",\"content\":[],\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"rule\":\"required\",\"msg\":\"\",\"tip\":\"\",\"ok\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"tel\",\"title\":\"联系电话\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"400-000-0000\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"phone\",\"title\":\"手机号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"+84 924 469 582\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"text\",\"name\":\"address\",\"title\":\"地址\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"38 Nguyễn Văn Kỉnh, Phường Thạnh Mỹ Lợi, Thủ Đức, Hồ Chí Minh 008428, Vietnam\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"email\",\"title\":\"邮箱\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"123123@163.com\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"contacts\",\"title\":\"联系人\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"Quản lý Lý\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"qq\",\"title\":\"在线咨询链接\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"http:\\/\\/wpa.qq.com\\/msgrd?v=3&uin=&site=qq&menu=yes\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"image\",\"name\":\"wechat\",\"title\":\"微信二维码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"image\",\"name\":\"wechat2\",\"title\":\"微信二维码2\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\\/assets\\/addons\\/ldcms\\/default\\/images\\/qrcode.png\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"icp\",\"title\":\"ICP备案号\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"string\",\"name\":\"copyright\",\"title\":\"底部版权\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"BiuBiu Star Culture Media CO.,LTD\",\"content\":\"\",\"tip\":\"\",\"rule\":\"\",\"visible\":\"\",\"extend\":\"\"},{\"type\":\"text\",\"name\":\"script\",\"title\":\"第三方代码\",\"setting\":{\"table\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"},\"value\":\"\",\"content\":\"\",\"tip\":\"\",\"visible\":\"\",\"rule\":\"\",\"extend\":\"\"}]', 1754687513, 1754687513);
 --
 -- Remove the table if it exists
@@ -2007,14 +2007,14 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_tagaction`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_tagaction` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `action` varchar(255) DEFAULT '' COMMENT '方法名称',
   `type` enum('sql','func') DEFAULT 'sql' COMMENT '方法类型：sql=sql语句,func=函数名',
   `setting` text COMMENT '方法主体',
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='自定义标签sql';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='自定义标签sql';
 
 
 --
@@ -2036,15 +2036,15 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_tags`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_tags` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '名称',
-  `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '标题',
-  `use_num` int(11) DEFAULT '0' COMMENT '使用次数',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+  `title` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '标题',
+  `use_num` int DEFAULT '0' COMMENT '使用次数',
   `lang` varchar(100) NOT NULL DEFAULT '',
-  `create_time` bigint(16) DEFAULT NULL,
-  `update_time` bigint(16) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章tags\n';
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文章tags\n';
 
 
 --

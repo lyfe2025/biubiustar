@@ -109,8 +109,13 @@ if (!function_exists('ld_get_site_config')) {
         if (empty($configArr)) {
             return [];
         }
+        
+        // 处理不同格式的配置数据
         foreach ($configArr as $key => $value) {
-            $config[$value['name']] = $value['value'];
+            // 确保 $value 是数组且包含必要的字段
+            if (is_array($value) && isset($value['name']) && isset($value['value'])) {
+                $config[$value['name']] = $value['value'];
+            }
         }
         return $config;
     }

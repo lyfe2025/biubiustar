@@ -1,7 +1,7 @@
 -- SQL Dump by Erik Edgren
 -- version 1.0
 --
--- SQL Dump created: August 9th, 2025 @ 12:34 am
+-- SQL Dump created: August 9th, 2025 @ 7:12 am
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -23,21 +23,21 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_ad`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_ad` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(100) CHARACTER SET utf8 DEFAULT '' COMMENT '类型',
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '标题',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `type` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '类型',
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '标题',
   `content` varchar(1500) DEFAULT '' COMMENT '内容',
-  `description` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '描述',
-  `image` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '图片',
-  `url` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '跳转链接',
-  `sort` int(11) NOT NULL DEFAULT '9' COMMENT '排序',
+  `description` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '描述',
+  `image` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '图片',
+  `url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '跳转链接',
+  `sort` int NOT NULL DEFAULT '9' COMMENT '排序',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态 ',
-  `target` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '跳转',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
-  `lang` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '语言',
+  `target` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '跳转',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
+  `lang` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '语言',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='广告表';
+) ENGINE=MyISAM AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='广告表';
 
 
 --
@@ -81,28 +81,28 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_category`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_category` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '名称',
-  `ename` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '英文名称',
-  `pid` int(11) NOT NULL COMMENT '父ID',
-  `mid` int(11) NOT NULL COMMENT '模型',
-  `urlname` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT 'url名称',
-  `template_list` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '列表页模版',
-  `template_detail` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '详情页模版',
-  `outlink` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '跳转链接',
-  `image` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '栏目缩略图',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+  `ename` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '英文名称',
+  `pid` int NOT NULL COMMENT '父ID',
+  `mid` int NOT NULL COMMENT '模型',
+  `urlname` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT 'url名称',
+  `template_list` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '列表页模版',
+  `template_detail` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '详情页模版',
+  `outlink` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '跳转链接',
+  `image` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '栏目缩略图',
   `big_image` varchar(255) DEFAULT '' COMMENT '栏目大图',
-  `seo_title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'SEO标题',
-  `seo_keywords` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'SEO关键词',
-  `seo_description` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'SEO描述',
-  `sort` int(10) DEFAULT '99' COMMENT '排序',
+  `seo_title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'SEO标题',
+  `seo_keywords` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'SEO关键词',
+  `seo_description` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'SEO描述',
+  `sort` int DEFAULT '99' COMMENT '排序',
   `lang` varchar(255) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
   `is_target` tinyint(1) DEFAULT '0' COMMENT '是否target',
   `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '类型 0 模型 1链接',
-  `gid` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '浏览权限  0 公开  1 1级会员 2 2级会员 ...',
+  `gid` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '浏览权限  0 公开  1 1级会员 2 2级会员 ...',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态',
-  `create_time` bigint(20) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `is_nav` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否导航显示',
   `is_home` tinyint(1) NOT NULL DEFAULT '0' COMMENT '首页显示模块',
   `subname` varchar(255) DEFAULT NULL COMMENT '子名称',
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_category` (
   `des2` varchar(255) DEFAULT '' COMMENT '描述2',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `urlname` (`urlname`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=239 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='栏目表';
+) ENGINE=InnoDB AUTO_INCREMENT=239 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='栏目表';
 
 
 --
@@ -179,7 +179,7 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_category_fields`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_category_fields` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `field` char(30) DEFAULT NULL COMMENT '名称',
   `type` varchar(30) DEFAULT NULL COMMENT '类型',
   `title` varchar(30) DEFAULT NULL COMMENT '标题',
@@ -187,18 +187,18 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_category_fields` (
   `default` varchar(100) DEFAULT NULL COMMENT '默认值',
   `rule` varchar(100) DEFAULT NULL COMMENT '验证规则',
   `tip` varchar(100) DEFAULT NULL COMMENT '提示消息',
-  `decimals` tinyint(4) DEFAULT NULL COMMENT '小数点',
-  `length` mediumint(9) DEFAULT NULL COMMENT '长度',
-  `minimum` smallint(6) DEFAULT NULL COMMENT '最小数量',
-  `maximum` smallint(6) DEFAULT '0' COMMENT '最大数量',
+  `decimals` tinyint DEFAULT NULL COMMENT '小数点',
+  `length` mediumint DEFAULT NULL COMMENT '长度',
+  `minimum` smallint DEFAULT NULL COMMENT '最小数量',
+  `maximum` smallint DEFAULT '0' COMMENT '最大数量',
   `extend_html` varchar(255) DEFAULT NULL COMMENT '扩展信息',
   `setting` varchar(1500) DEFAULT NULL COMMENT '配置信息',
-  `sort` int(11) DEFAULT '9' COMMENT '排序',
-  `create_time` bigint(20) DEFAULT NULL COMMENT '添加时间',
-  `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
-  `status` tinyint(4) DEFAULT '1' COMMENT '状态',
+  `sort` int DEFAULT '9' COMMENT '排序',
+  `create_time` bigint DEFAULT NULL COMMENT '添加时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint DEFAULT '1' COMMENT '状态',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='栏目自定义字段表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='栏目自定义字段表';
 
 
 --
@@ -220,14 +220,14 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_content_url`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_content_url` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '名称',
-  `url` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '链接',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+  `url` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '链接',
   `lang` varchar(100) NOT NULL DEFAULT '',
-  `create_time` bigint(16) DEFAULT NULL,
-  `update_time` bigint(16) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章内容内链';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文章内容内链';
 
 
 --
@@ -249,18 +249,18 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_diyform`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_diyform` (
-  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `id` smallint unsigned NOT NULL AUTO_INCREMENT,
   `name` char(30) DEFAULT '' COMMENT '表单名称',
   `title` varchar(100) DEFAULT '' COMMENT '标题',
   `table` varchar(50) DEFAULT '' COMMENT '表名',
   `needlogin` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否需要登录发布',
-  `iscaptcha` tinyint(1) unsigned DEFAULT '0' COMMENT '是否启用验证码',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `iscaptcha` tinyint unsigned DEFAULT '0' COMMENT '是否启用验证码',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `setting` varchar(1500) DEFAULT '' COMMENT '表单配置',
-  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态',
+  `status` tinyint NOT NULL DEFAULT '0' COMMENT '状态',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='自定义表单表';
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='自定义表单表';
 
 
 --
@@ -281,8 +281,8 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_diyform_fields`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_diyform_fields` (
-  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-  `diyform_id` int(10) NOT NULL DEFAULT '0' COMMENT '表单ID',
+  `id` smallint unsigned NOT NULL AUTO_INCREMENT,
+  `diyform_id` int NOT NULL DEFAULT '0' COMMENT '表单ID',
   `field` char(30) DEFAULT '' COMMENT '名称',
   `type` varchar(30) DEFAULT '' COMMENT '类型',
   `title` varchar(30) DEFAULT '' COMMENT '标题',
@@ -291,20 +291,20 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_diyform_fields` (
   `rule` varchar(100) DEFAULT '' COMMENT '验证规则',
   `tip` varchar(100) DEFAULT '' COMMENT '提示消息',
   `decimals` tinyint(1) DEFAULT NULL COMMENT '小数点',
-  `length` mediumint(8) DEFAULT NULL COMMENT '长度',
-  `minimum` smallint(6) DEFAULT NULL COMMENT '最小数量',
-  `maximum` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '最大数量',
+  `length` mediumint DEFAULT NULL COMMENT '长度',
+  `minimum` smallint DEFAULT NULL COMMENT '最小数量',
+  `maximum` smallint unsigned NOT NULL DEFAULT '0' COMMENT '最大数量',
   `extend_html` varchar(255) DEFAULT '' COMMENT '扩展信息',
   `setting` varchar(1500) DEFAULT '' COMMENT '配置信息',
-  `sort` int(10) NOT NULL DEFAULT '9' COMMENT '排序',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '添加时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `sort` int NOT NULL DEFAULT '9' COMMENT '排序',
+  `create_time` bigint DEFAULT NULL COMMENT '添加时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `issort` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否可排序',
   `isfilter` tinyint(1) NOT NULL DEFAULT '0' COMMENT '筛选',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `id` (`diyform_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
 
 
 --
@@ -329,22 +329,22 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `mid` int(11) NOT NULL COMMENT '模型',
-  `cid` int(11) DEFAULT NULL COMMENT '栏目',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `mid` int NOT NULL COMMENT '模型',
+  `cid` int DEFAULT NULL COMMENT '栏目',
   `sub_cid` varchar(255) DEFAULT '' COMMENT '副栏目',
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '标题',
-  `image` text CHARACTER SET utf8 COMMENT '缩略图',
-  `pics` text CHARACTER SET utf8 COMMENT '多图',
-  `show_time` bigint(16) DEFAULT NULL COMMENT '显示时间',
-  `seo_keywords` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'seo关键词',
-  `seo_description` varchar(500) CHARACTER SET utf8 DEFAULT NULL COMMENT 'seo描述',
-  `visits` int(255) DEFAULT '0' COMMENT '浏览次数',
-  `likes` int(255) DEFAULT '0' COMMENT '点赞次数',
-  `admin_id` int(11) DEFAULT NULL COMMENT '管理员ID',
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '标题',
+  `image` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '缩略图',
+  `pics` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '多图',
+  `show_time` bigint DEFAULT NULL COMMENT '显示时间',
+  `seo_keywords` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'seo关键词',
+  `seo_description` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT 'seo描述',
+  `visits` int DEFAULT '0' COMMENT '浏览次数',
+  `likes` int DEFAULT '0' COMMENT '点赞次数',
+  `admin_id` int DEFAULT NULL COMMENT '管理员ID',
   `author` varchar(100) DEFAULT NULL COMMENT '作者',
-  `sort` int(11) NOT NULL DEFAULT '99' COMMENT '排序',
-  `lang` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
+  `sort` int NOT NULL DEFAULT '99' COMMENT '排序',
+  `lang` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
   `flag` varchar(255) DEFAULT '' COMMENT '标识',
   `tag` varchar(255) DEFAULT '' COMMENT '标签',
   `outlink` varchar(255) DEFAULT NULL COMMENT '跳转链接',
@@ -352,12 +352,12 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document` (
   `gid` varchar(255) DEFAULT '' COMMENT '浏览权限',
   `custom_tpl` varchar(255) DEFAULT '' COMMENT '详情页模版',
   `custom_urlname` varchar(255) DEFAULT '' COMMENT '自定义url',
-  `create_time` bigint(16) DEFAULT NULL,
-  `update_time` bigint(16) DEFAULT NULL,
-  `delete_time` bigint(16) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
+  `delete_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `id` (`id`,`mid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=626 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章基础表';
+) ENGINE=InnoDB AUTO_INCREMENT=626 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文章基础表';
 
 
 --
@@ -461,7 +461,7 @@ INSERT INTO `__PREFIX__ldcms_document` (`id`, `mid`, `cid`, `sub_cid`, `title`, 
 (382, 12, 146, '', '合作客户_copy_copy', '/assets/addons/ldcms/ldcms2024//images/logo1.png', '', 1708485804, '', '', 0, 0, 1, 'Admin', 99, 'zh-cn', '', '', '', 1, '', '', '', 1708486073, 1716864792, NULL),
 (383, 12, 146, '', '合作客户_copy_copy', '/assets/addons/ldcms/ldcms2024//images/logo1.png', '', 1708485804, '', '', 0, 0, 1, 'Admin', 99, 'zh-cn', '', '', '', 1, '', '', '', 1708486073, 1716864795, NULL),
 (384, 1, 162, '', '首页留言表单', NULL, NULL, 1708486600, '', NULL, 0, 0, NULL, NULL, 99, 'zh-cn', '', '', NULL, 1, '', '', '', 1708486600, 1708486600, NULL),
-(385, 1, 163, '', '专注网站建设，用心服务客户', '/assets/addons/ldcms/ldcms2024/images/banner.jpg', '', 1708487451, '', '历经10年的成长，我公司拥有一批资深的网页设计师与网站开发程序员，具有强大的技术力量。他们都是一批来自信息技术前沿阵地的优秀年轻人，团结务实的工作态度，富有激情的设计理念和创作情神，一贯的以客户需求为导向，广泛赢得了业界的赞誉和客户的信任。依托我公司强大的设计团队，可承接各大中小型公司网站，政府网站、集团网站、电子商务网站，网站功能及美工设计可根据客户的不同需要进行量身订制。并对所服务的客户网站维...', 1110, 0, 0, 'Admin', 99, 'zh-cn', '', '', '', 1, '', '', '', 1708487451, 1716815862, NULL),
+(385, 1, 163, '', '专注网站建设，用心服务客户', '/assets/addons/ldcms/ldcms2024/images/banner.jpg', '', 1708487451, '', '历经10年的成长，我公司拥有一批资深的网页设计师与网站开发程序员，具有强大的技术力量。他们都是一批来自信息技术前沿阵地的优秀年轻人，团结务实的工作态度，富有激情的设计理念和创作情神，一贯的以客户需求为导向，广泛赢得了业界的赞誉和客户的信任。依托我公司强大的设计团队，可承接各大中小型公司网站，政府网站、集团网站、电子商务网站，网站功能及美工设计可根据客户的不同需要进行量身订制。并对所服务的客户网站维...', 1114, 0, 0, 'Admin', 99, 'zh-cn', '', '', '', 1, '', '', '', 1708487451, 1716815862, NULL),
 (386, 12, 164, '', '价值观', '/assets/addons/ldcms/images/idxfaimg1.jpg', '', 1708487451, '', '成就客户；发展奋斗者；为社会做贡献；', 0, 0, 0, 'Admin', 99, 'zh-cn', '', '', '', 1, '', '', '', 1708487451, 1716817174, 1716817174),
 (387, 12, 165, '', '2016', '/assets/addons/ldcms/ldcms2024/images/idxabout.jpg', '', 1708487451, '', '1.苏州新总部启用2.进入充换电站领域', 0, 0, 0, 'Admin', 99, 'zh-cn', '', '', '', 1, '', '', '', 1708487451, 1716855563, NULL),
 (390, 12, 164, '', '企业精神', '/assets/addons/ldcms/images/banner.jpg', '', 1708487451, '', '正直、友善；激情、坚韧；创新、合作；', 0, 0, 0, 'Admin', 99, 'zh-cn', '', '', '', 1, '', '', '', 1708498954, 1716817174, 1716817174),
@@ -696,9 +696,9 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_aaa`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_aaa` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   PRIMARY KEY (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='下载_复制';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='下载_复制';
 
 
 --
@@ -713,11 +713,11 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_case`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_case` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `xmbj` varchar(255) DEFAULT '' COMMENT '副标题',
   `caseprovince` varchar(255) DEFAULT '' COMMENT '省份',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='案例';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='案例';
 
 
 --
@@ -770,10 +770,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_content`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_content` (
-  `document_id` int(11) NOT NULL,
-  `content` longtext CHARACTER SET utf8 COMMENT '正文内容',
+  `document_id` int NOT NULL,
+  `content` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci COMMENT '正文内容',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章内容表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文章内容表';
 
 
 --
@@ -1112,11 +1112,11 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_download`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_download` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `downlinks` varchar(2555) DEFAULT '' COMMENT '下载文件',
   `progl` varchar(255) DEFAULT '' COMMENT '管理产品',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='下载';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='下载';
 
 
 --
@@ -1154,10 +1154,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_news`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_news` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `test` varchar(255) DEFAULT '' COMMENT '副标题',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='新闻';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='新闻';
 
 
 --
@@ -1248,10 +1248,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_page`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_page` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `test` varchar(255) DEFAULT '' COMMENT '副标题',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='单页';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='单页';
 
 
 --
@@ -1286,7 +1286,7 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_product`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_product` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `types` varchar(255) DEFAULT '' COMMENT '类型',
   `color` varchar(255) DEFAULT '' COMMENT '颜色',
   `subtitle` varchar(255) DEFAULT '' COMMENT '副标题',
@@ -1295,7 +1295,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_product` (
   `procz` varchar(255) DEFAULT '' COMMENT '材质',
   `procc` varchar(255) DEFAULT '' COMMENT '尺寸',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='产品';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='产品';
 
 
 --
@@ -1512,10 +1512,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_team`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_team` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `zhiwei` varchar(255) DEFAULT '' COMMENT '副标题',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='团队';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='团队';
 
 
 --
@@ -1577,9 +1577,9 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_test`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_test` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   PRIMARY KEY (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='test';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='test';
 
 
 --
@@ -1594,9 +1594,9 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_test1`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_test1` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   PRIMARY KEY (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='test1';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='test1';
 
 
 --
@@ -1611,10 +1611,10 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_document_wordlist`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_document_wordlist` (
-  `document_id` int(10) NOT NULL,
+  `document_id` int NOT NULL,
   `subtitle` varchar(255) DEFAULT '' COMMENT '副标题',
   PRIMARY KEY (`document_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文档';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文档';
 
 
 --
@@ -1743,8 +1743,8 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_fields`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_fields` (
-  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-  `mid` int(10) NOT NULL DEFAULT '0' COMMENT '模型',
+  `id` smallint unsigned NOT NULL AUTO_INCREMENT,
+  `mid` int NOT NULL DEFAULT '0' COMMENT '模型',
   `field` char(30) DEFAULT '' COMMENT '名称',
   `type` varchar(30) DEFAULT '' COMMENT '类型',
   `title` varchar(30) DEFAULT '' COMMENT '标题',
@@ -1753,14 +1753,14 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_fields` (
   `rule` varchar(100) DEFAULT '' COMMENT '验证规则',
   `tip` varchar(100) DEFAULT '' COMMENT '提示消息',
   `decimals` tinyint(1) DEFAULT NULL COMMENT '小数点',
-  `length` mediumint(8) DEFAULT NULL COMMENT '长度',
-  `minimum` smallint(6) DEFAULT NULL COMMENT '最小数量',
-  `maximum` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '最大数量',
+  `length` mediumint DEFAULT NULL COMMENT '长度',
+  `minimum` smallint DEFAULT NULL COMMENT '最小数量',
+  `maximum` smallint unsigned NOT NULL DEFAULT '0' COMMENT '最大数量',
   `extend_html` varchar(255) DEFAULT '' COMMENT '扩展信息',
   `setting` varchar(1500) DEFAULT '' COMMENT '配置信息',
-  `sort` int(10) NOT NULL DEFAULT '9' COMMENT '排序',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '添加时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `sort` int NOT NULL DEFAULT '9' COMMENT '排序',
+  `create_time` bigint DEFAULT NULL COMMENT '添加时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `issort` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否可排序',
   `isfilter` tinyint(1) NOT NULL DEFAULT '0' COMMENT '筛选',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态',
@@ -1769,7 +1769,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_fields` (
   `islist` tinyint(1) DEFAULT '1' COMMENT '数据列表显示',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `id` (`mid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
 
 
 --
@@ -1804,18 +1804,18 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_langs`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_langs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '名称',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '名称',
   `sub_title` varchar(255) DEFAULT '' COMMENT '简称',
-  `code` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '编码',
+  `code` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '编码',
   `domain` varchar(100) DEFAULT '' COMMENT '域名',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态',
   `is_default` tinyint(1) DEFAULT '0' COMMENT '默认语言',
-  `sort` int(10) NOT NULL DEFAULT '0' COMMENT '排序',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `sort` int NOT NULL DEFAULT '0' COMMENT '排序',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='多语言表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='多语言表';
 
 
 --
@@ -1837,17 +1837,17 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_ldcms_contact_cooperation`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_ldcms_contact_cooperation` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `diyform_id` int(10) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `diyform_id` int NOT NULL,
   `lang` varchar(255) DEFAULT NULL,
   `user_ip` varchar(255) DEFAULT NULL,
   `user_os` varchar(255) DEFAULT NULL,
   `user_bs` varchar(255) DEFAULT NULL,
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   `category` varchar(100) DEFAULT '' COMMENT '合作类目',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='联系合作表单';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='联系合作表单';
 
 
 --
@@ -1862,19 +1862,19 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_links`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_links` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(100) CHARACTER SET utf8 DEFAULT '' COMMENT '类型',
-  `title` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '标题',
-  `image` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT 'logo',
-  `url` varchar(255) CHARACTER SET utf8 DEFAULT '' COMMENT '跳转链接',
-  `sort` int(11) NOT NULL DEFAULT '9' COMMENT '排序',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `type` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '类型',
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '标题',
+  `image` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT 'logo',
+  `url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '' COMMENT '跳转链接',
+  `sort` int NOT NULL DEFAULT '9' COMMENT '排序',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态 ',
-  `target` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '跳转',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
+  `target` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '跳转',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
   `lang` varchar(255) DEFAULT '' COMMENT '语言',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='友情链接';
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='友情链接';
 
 
 --
@@ -1898,21 +1898,21 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_message`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_message` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `diyform_id` int(10) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `diyform_id` int NOT NULL,
   `lang` varchar(255) DEFAULT NULL,
   `user_ip` varchar(255) DEFAULT NULL,
   `user_os` varchar(255) DEFAULT NULL,
   `user_bs` varchar(255) DEFAULT NULL,
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   `uname` varchar(100) DEFAULT '' COMMENT '姓名',
   `mobile` varchar(100) DEFAULT '' COMMENT '手机号',
   `remark` varchar(100) DEFAULT '' COMMENT '内容',
   `emails` varchar(1000) DEFAULT '' COMMENT '邮箱',
   `companys` varchar(100) DEFAULT '' COMMENT '公司',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='在线留言';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='在线留言';
 
 
 --
@@ -1934,20 +1934,20 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_models`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_models` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT '模型名',
-  `table_name` varchar(128) CHARACTER SET utf8 DEFAULT NULL COMMENT '对应表',
-  `template_list` varchar(64) CHARACTER SET utf8 DEFAULT NULL COMMENT '列表模板',
-  `template_detail` varchar(64) CHARACTER SET utf8 DEFAULT NULL COMMENT '内容模板',
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '模型名',
+  `table_name` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '对应表',
+  `template_list` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '列表模板',
+  `template_detail` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '内容模板',
   `ismenu` tinyint(1) NOT NULL DEFAULT '0' COMMENT '后台菜单',
   `default_fields` text COMMENT '默认字段',
-  `sort` int(11) DEFAULT NULL COMMENT '排序',
+  `sort` int DEFAULT NULL COMMENT '排序',
   `status` tinyint(1) DEFAULT '1' COMMENT '状态 0 = 关闭  || 1= 正常',
-  `create_time` bigint(16) DEFAULT NULL,
-  `update_time` bigint(16) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `name` (`name`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='cms 模型表';
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='cms 模型表';
 
 
 --
@@ -1974,14 +1974,14 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_siteinfo`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_siteinfo` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `lang` varchar(50) NOT NULL COMMENT '语言',
   `config` text COMMENT '配置',
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `lang` (`lang`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='站点信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='站点信息表';
 
 
 --
@@ -2003,14 +2003,14 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_tagaction`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_tagaction` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `action` varchar(255) DEFAULT '' COMMENT '方法名称',
   `type` enum('sql','func') DEFAULT 'sql' COMMENT '方法类型：sql=sql语句,func=函数名',
   `setting` text COMMENT '方法主体',
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='自定义标签sql';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='自定义标签sql';
 
 
 --
@@ -2032,15 +2032,15 @@ DROP TABLE IF EXISTS `__PREFIX__ldcms_tags`;
 --
 
 CREATE TABLE IF NOT EXISTS `__PREFIX__ldcms_tags` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '名称',
-  `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '标题',
-  `use_num` int(11) DEFAULT '0' COMMENT '使用次数',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '名称',
+  `title` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '' COMMENT '标题',
+  `use_num` int DEFAULT '0' COMMENT '使用次数',
   `lang` varchar(100) NOT NULL DEFAULT '',
-  `create_time` bigint(16) DEFAULT NULL,
-  `update_time` bigint(16) DEFAULT NULL,
+  `create_time` bigint DEFAULT NULL,
+  `update_time` bigint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='文章tags\n';
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='文章tags\n';
 
 
 --

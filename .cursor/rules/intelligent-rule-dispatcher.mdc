@@ -7,7 +7,17 @@
 
 ## 🧠 智能检测示例
 
-### 示例1：LDCMS开发请求
+### 示例1：biubiustar项目数据库操作
+**用户输入**: "我需要为biubiustar项目添加一个新的数据表，用MCP操作MySQL"
+
+**智能检测结果**:
+```
+🎯 项目检测: biubiustar → 自动加载 biubiustar-project-specific-standards.mdc (P0优先级)
+🗄️ 数据库检测: MySQL, MCP → 强制备份和日志检查
+🔧 技术栈检测: LDCMS → 自动加载 ldcms-enterprise-cms-standards.mdc
+```
+
+### 示例2：LDCMS开发请求
 **用户输入**: "帮我为LDCMS添加一个新的文档管理功能"
 
 **智能检测结果**:
@@ -18,12 +28,18 @@
 ```
 
 **应用的规则文件**:
+- ✅ `biubiustar-project-specific-standards.mdc` (优先级: P0 - 最高)
+- ✅ `ldcms-enterprise-cms-standards.mdc` (优先级: 10)
+- ✅ `fastadmin-development-standards.mdc` (优先级: 8)
+- ❌ `collaboration-standards.mdc` (跳过: 技术操作为主)
+
+**应用的规则文件**:
 - ✅ `ldcms-enterprise-cms-standards.mdc` (优先级: 10)
 - ✅ `fastadmin-development-standards.mdc` (优先级: 8)
 - ✅ `fastadmin-multilanguage-standards.mdc` (优先级: 9)
 - ❌ `collaboration-standards.mdc` (跳过: 纯技术问题)
 
-### 示例2：简单技术咨询
+### 示例3：简单技术咨询
 **用户输入**: "ThinkPHP的模型关联查询怎么写？"
 
 **智能检测结果**:
