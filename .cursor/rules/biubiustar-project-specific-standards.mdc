@@ -1,3 +1,8 @@
+---
+alwaysApply: false
+description: "biubiustar项目专用开发规范 - 包含项目特定的数据库配置、环境设置、域名规范、技术栈标准等，为biubiustar企业网站项目提供完整的开发和维护指导。"
+---
+
 # biubiustar 项目专用规则
 
 > **适用范围**: biubiustar 项目的所有开发和维护操作

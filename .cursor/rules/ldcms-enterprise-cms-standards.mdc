@@ -1,3 +1,8 @@
+---
+alwaysApply: false
+description: "FastAdmin LDCMS企业网站管理系统开发标准 - 基于FastAdmin+ThinkPHP+Uniapp的企业级CMS开发规范，包含架构设计、模块开发、多语言支持、模板系统等核心功能开发指导。"
+---
+
 # FastAdmin LDCMS 企业网站管理系统开发标准规范
 
 > **基于FastAdmin + ThinkPHP + Uniapp的企业网站管理系统**

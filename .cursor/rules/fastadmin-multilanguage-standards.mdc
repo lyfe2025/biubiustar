@@ -1,3 +1,8 @@
+---
+alwaysApply: false
+description: "FastAdmin LDCMS多语言开发标准 - 支持中英日韩等多语言国际化功能，包含语言切换、翻译管理、SEO优化、URL路由等多语言系统的完整开发规范。"
+---
+
 # FastAdmin LDCMS多语言开发标准规范
 
 > **支持中英日韩等多语言国际化功能的企业网站管理系统**
