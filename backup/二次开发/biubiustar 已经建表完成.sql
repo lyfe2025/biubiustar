@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 09/08/2025 11:09:15
+ Date: 09/08/2025 12:19:44
 */
 
 SET NAMES utf8mb4;
@@ -91,7 +91,7 @@ CREATE TABLE `fa_admin_log` (
   `createtime` bigint DEFAULT NULL COMMENT '操作时间',
   PRIMARY KEY (`id`),
   KEY `name` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='管理员日志表';
 
 -- ----------------------------
 -- Records of fa_admin_log
@@ -209,6 +209,8 @@ INSERT INTO `fa_admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `conte
 INSERT INTO `fa_admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `content`, `ip`, `useragent`, `createtime`) VALUES (110, 1, 'admin', '/SWTvGsCQjH.php/ldcms/diyform/multi', '企业官网管理 / 自定义表单管理 / 批量更新', '{\"action\":\"\",\"ids\":\"17\",\"params\":\"iscaptcha=0\"}', '127.0.0.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36', 1754701196);
 INSERT INTO `fa_admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `content`, `ip`, `useragent`, `createtime`) VALUES (111, 1, 'admin', '/SWTvGsCQjH.php/ldcms/copy_langs/category?dialog=1', '企业官网管理 / 跨语言复制数据 / 复制栏目', '{\"dialog\":\"1\",\"page\":\"1\",\"ids\":[\"195\",\"209\",\"210\",\"211\",\"202\",\"200\",\"206\",\"207\",\"204\",\"232\",\"233\",\"201\",\"203\",\"212\",\"234\",\"235\",\"236\",\"197\",\"199\",\"196\",\"198\",\"208\",\"237\",\"238\"],\"select_lang\":\"en\",\"copy_content\":\"1\"}', '127.0.0.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36', 1754704222);
 INSERT INTO `fa_admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `content`, `ip`, `useragent`, `createtime`) VALUES (112, 1, 'admin', '/SWTvGsCQjH.php/ldcms/copy_langs/category?dialog=1', '企业官网管理 / 跨语言复制数据 / 复制栏目', '{\"dialog\":\"1\",\"ids\":[\"195\",\"209\",\"210\",\"211\",\"202\",\"200\",\"206\",\"207\",\"204\",\"232\",\"233\",\"201\",\"203\",\"212\",\"234\",\"235\",\"236\",\"197\",\"199\",\"196\",\"198\",\"208\",\"237\",\"238\"],\"select_lang\":\"en\",\"copy_content\":\"1\"}', '127.0.0.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36', 1754704228);
+INSERT INTO `fa_admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `content`, `ip`, `useragent`, `createtime`) VALUES (113, 1, 'admin', '/SWTvGsCQjH.php/auth/rule/edit/ids/85?dialog=1', '权限管理 / 菜单规则 / 编辑', '{\"dialog\":\"1\",\"__token__\":\"***\",\"row\":{\"ismenu\":\"1\",\"pid\":\"0\",\"name\":\"ldcms\",\"title\":\"平台管理\",\"url\":\"\",\"icon\":\"fa fa-desktop\",\"condition\":\"\",\"menutype\":\"addtabs\",\"extend\":\"\",\"remark\":\"\",\"weigh\":\"1\",\"status\":\"normal\"},\"ids\":\"85\"}', '127.0.0.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36', 1754712615);
+INSERT INTO `fa_admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `content`, `ip`, `useragent`, `createtime`) VALUES (114, 1, 'admin', '/SWTvGsCQjH.php/auth/rule/multi', '权限管理 / 菜单规则', '{\"action\":\"\",\"ids\":\"3\",\"params\":\"ismenu=0\"}', '127.0.0.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36', 1754712644);
 COMMIT;
 
 -- ----------------------------
@@ -352,7 +354,7 @@ CREATE TABLE `fa_auth_rule` (
 BEGIN;
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (1, 'file', 0, 'dashboard', 'Dashboard', 'fa fa-dashboard', '', '', 'Dashboard tips', 1, NULL, '', 'kzt', 'kongzhitai', 1491635035, 1491635035, 143, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (2, 'file', 0, 'general', 'General', 'fa fa-cogs', '', '', '', 1, NULL, '', 'cggl', 'changguiguanli', 1491635035, 1491635035, 137, 'normal');
-INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (3, 'file', 0, 'category', 'Category', 'fa fa-leaf', '', '', 'Category tips', 1, NULL, '', 'flgl', 'fenleiguanli', 1491635035, 1754668398, 119, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (3, 'file', 0, 'category', 'Category', 'fa fa-leaf', '', '', 'Category tips', 0, NULL, '', 'flgl', 'fenleiguanli', 1491635035, 1754712644, 119, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (4, 'file', 0, 'addon', 'Addon', 'fa fa-rocket', '', '', 'Addon tips', 0, NULL, '', 'cjgl', 'chajianguanli', 1491635035, 1754516365, 0, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (5, 'file', 0, 'auth', 'Auth', 'fa fa-group', '', '', '', 1, NULL, '', 'qxgl', 'quanxianguanli', 1491635035, 1491635035, 99, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (6, 'file', 2, 'general/config', 'Config', 'fa fa-cog', '', '', 'Config tips', 1, NULL, '', 'xtpz', 'xitongpeizhi', 1491635035, 1491635035, 60, 'normal');
@@ -432,7 +434,7 @@ INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`,
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (82, 'file', 79, 'user/rule/add', 'Add', 'fa fa-circle-o', '', '', '', 0, NULL, '', '', '', 1491635035, 1491635035, 0, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (83, 'file', 79, 'user/rule/edit', 'Edit', 'fa fa-circle-o', '', '', '', 0, NULL, '', '', '', 1491635035, 1491635035, 0, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (84, 'file', 79, 'user/rule/multi', 'Multi', 'fa fa-circle-o', '', '', '', 0, NULL, '', '', '', 1491635035, 1491635035, 0, 'normal');
-INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (85, 'file', 0, 'ldcms', '企业官网管理', 'fa fa-desktop', '', '', '', 1, NULL, '', 'qygwgl', 'qiyeguanwangguanli', 1754507319, 1754507319, 1, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (85, 'file', 0, 'ldcms', '平台管理', 'fa fa-desktop', '', '', '', 1, 'addtabs', '', 'ptgl', 'pingtaiguanli', 1754507319, 1754712615, 1, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (86, 'file', 85, 'ldcms/config', '系统配置', 'fa fa-sliders', '', '', '管理网站的系统配置信息,非开发人员请谨慎使用', 1, NULL, '', 'xtpz', 'xitongpeizhi', 1754507319, 1754507319, 99, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (87, 'file', 86, 'ldcms/config/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754507319, 1754507319, 0, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (88, 'file', 86, 'ldcms/config/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754507319, 1754507319, 0, 'normal');
@@ -1425,29 +1427,29 @@ DROP TABLE IF EXISTS `fa_ldcms_document_activities`;
 CREATE TABLE `fa_ldcms_document_activities` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '扩展记录ID，主键',
   `document_id` int unsigned NOT NULL COMMENT '关联的文档ID',
-  `activity_type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'event' COMMENT '活动类型',
-  `activity_status` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'draft' COMMENT '活动状态',
+  `activity_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'event' COMMENT '活动类型',
+  `activity_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'draft' COMMENT '活动状态',
   `start_time` bigint DEFAULT NULL COMMENT '活动开始时间戳',
   `end_time` bigint DEFAULT NULL COMMENT '活动结束时间戳',
   `register_start` bigint DEFAULT NULL COMMENT '报名开始时间戳',
   `register_end` bigint DEFAULT NULL COMMENT '报名结束时间戳',
-  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动举办地点',
-  `location_detail` text COLLATE utf8mb4_unicode_ci COMMENT '活动地点详细描述',
-  `location_lat` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动地点纬度坐标',
-  `location_lng` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动地点经度坐标',
+  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动举办地点',
+  `location_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '活动地点详细描述',
+  `location_lat` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动地点纬度坐标',
+  `location_lng` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动地点经度坐标',
   `max_participants` int unsigned DEFAULT '0' COMMENT '最大参与人数',
   `current_participants` int unsigned DEFAULT '0' COMMENT '当前参与人数统计',
   `min_participants` int unsigned DEFAULT '0' COMMENT '最少参与人数要求',
   `fee` decimal(10,2) unsigned DEFAULT '0.00' COMMENT '活动参与费用',
-  `fee_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'free' COMMENT '费用类型',
+  `fee_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'free' COMMENT '费用类型',
   `registration_required` tinyint unsigned DEFAULT '0' COMMENT '是否需要报名',
   `need_approval` tinyint unsigned DEFAULT '0' COMMENT '是否需要审批',
-  `contact_info` text COLLATE utf8mb4_unicode_ci COMMENT '联系方式信息，JSON格式存储',
-  `requirements` text COLLATE utf8mb4_unicode_ci COMMENT '参与要求和注意事项',
-  `schedule` text COLLATE utf8mb4_unicode_ci COMMENT '活动日程安排，JSON格式存储',
-  `organizer` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动主办方名称',
-  `sponsor` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动赞助商名称',
-  `extra_fields` text COLLATE utf8mb4_unicode_ci COMMENT '扩展字段，JSON格式存储',
+  `contact_info` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '联系方式信息，JSON格式存储',
+  `requirements` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '参与要求和注意事项',
+  `schedule` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '活动日程安排，JSON格式存储',
+  `organizer` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动主办方名称',
+  `sponsor` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动赞助商名称',
+  `extra_fields` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '扩展字段，JSON格式存储',
   `create_time` bigint DEFAULT NULL COMMENT '创建时间戳',
   `update_time` bigint DEFAULT NULL COMMENT '更新时间戳',
   PRIMARY KEY (`id`),
@@ -2338,20 +2340,20 @@ DROP TABLE IF EXISTS `fa_ldcms_document_social_posts`;
 CREATE TABLE `fa_ldcms_document_social_posts` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '扩展记录ID，主键',
   `document_id` int unsigned NOT NULL COMMENT '关联的文档ID',
-  `post_type` enum('text','image','video','mixed') COLLATE utf8mb4_unicode_ci DEFAULT 'text' COMMENT '帖子类型',
-  `media_files` text COLLATE utf8mb4_unicode_ci COMMENT '媒体文件信息，JSON格式存储',
-  `hashtags` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '话题标签，逗号分隔',
-  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '发布位置信息',
-  `location_lat` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '位置纬度坐标',
-  `location_lng` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '位置经度坐标',
-  `privacy_level` enum('public','followers','private') COLLATE utf8mb4_unicode_ci DEFAULT 'public' COMMENT '隐私级别',
+  `post_type` enum('text','image','video','mixed') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'text' COMMENT '帖子类型',
+  `media_files` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '媒体文件信息，JSON格式存储',
+  `hashtags` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '话题标签，逗号分隔',
+  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '发布位置信息',
+  `location_lat` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '位置纬度坐标',
+  `location_lng` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '位置经度坐标',
+  `privacy_level` enum('public','followers','private') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'public' COMMENT '隐私级别',
   `is_featured` tinyint unsigned DEFAULT '0' COMMENT '是否精选帖子',
   `allow_comment` tinyint unsigned DEFAULT '1' COMMENT '是否允许评论',
   `allow_share` tinyint unsigned DEFAULT '1' COMMENT '是否允许分享',
   `share_count` int unsigned DEFAULT '0' COMMENT '分享次数统计',
   `comment_count` int unsigned DEFAULT '0' COMMENT '评论数量统计',
-  `mood` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '发布时的心情状态',
-  `mention_users` text COLLATE utf8mb4_unicode_ci COMMENT '提及的用户ID列表，JSON格式存储',
+  `mood` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '发布时的心情状态',
+  `mention_users` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '提及的用户ID列表，JSON格式存储',
   `create_time` bigint DEFAULT NULL COMMENT '创建时间戳',
   `update_time` bigint DEFAULT NULL COMMENT '更新时间戳',
   PRIMARY KEY (`id`),
@@ -2646,7 +2648,7 @@ CREATE TABLE `fa_ldcms_fields` (
   `islist` tinyint(1) DEFAULT '1' COMMENT '数据列表显示',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `id` (`mid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='自定义字段表';
 
 -- ----------------------------
 -- Records of fa_ldcms_fields
@@ -2667,6 +2669,23 @@ INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlis
 INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (27, 6, 'procz', 'string', '材质', NULL, '', '', '', 0, 255, 0, 0, '', '{\"table\":\"\",\"primarykey\":\"\",\"field\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}', 9, 1709528391, 1716605096, 0, 0, 1, '', '', 0);
 INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (28, 6, 'procc', 'string', '尺寸', NULL, '', '', '', 0, 255, 0, 0, '', '{\"table\":\"\",\"primarykey\":\"\",\"field\":\"\",\"conditions\":\"\",\"key\":\"\",\"value\":\"\"}', 9, 1709528425, 1716605097, 0, 0, 1, '', '', 0);
 INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (29, 7, 'caseprovince', 'checkbox', '省份', NULL, '', '', '', 0, 255, 0, 0, '', '{\"table\":\"\",\"primarykey\":\"\",\"field\":\"\",\"key\":\"\",\"value\":\"\",\"conditions\":\"\"}', 9, 1716817757, 1716818307, 0, 1, 1, '1:苏州\r\n2:上海\r\n3:无锡\r\n4:常州', '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (30, 14, 'post_type', 'select', '帖子类型', 'text:纯文字\r\nimage:图片\r\nvideo:视频\r\nmixed:混合媒体', 'text', 'require', '选择发布的内容类型', NULL, NULL, NULL, 0, '', '', 100, 1754710497, 1754710497, 0, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (31, 14, 'media_files', 'files', '媒体文件', '', '', '', '支持图片、视频等多媒体文件', NULL, NULL, NULL, 0, '', '', 90, 1754710497, 1754710497, 0, 0, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (32, 14, 'hashtags', 'text', '话题标签', '', '', '', '多个标签用逗号分隔，如：#旅行,#美食,#生活', NULL, NULL, NULL, 0, '', '', 80, 1754710497, 1754710497, 0, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (33, 14, 'location', 'text', '位置信息', '', '', '', '可选择地理位置信息', NULL, NULL, NULL, 0, '', '', 70, 1754710497, 1754710497, 0, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (34, 14, 'privacy_level', 'radio', '隐私级别', 'public:公开\r\nfollowers:仅粉丝\r\nprivate:私密', 'public', 'require', '设置帖子的可见范围', NULL, NULL, NULL, 0, '', '', 60, 1754710497, 1754710497, 0, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (35, 14, 'allow_comment', 'switch', '允许评论', '', '1', '', '是否允许其他用户评论', NULL, NULL, NULL, 0, '', '', 50, 1754710497, 1754710497, 0, 0, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (36, 14, 'allow_share', 'switch', '允许分享', '', '1', '', '是否允许其他用户分享', NULL, NULL, NULL, 0, '', '', 40, 1754710497, 1754710497, 0, 0, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (37, 14, 'mood', 'select', '心情状态', '开心\r\n兴奋\r\n平静\r\n感动\r\n思考\r\n无聊\r\n疲惫', '', '', '表达发布时的心情状态', NULL, NULL, NULL, 0, '', '', 30, 1754710497, 1754710497, 0, 0, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (38, 15, 'activity_type', 'select', '活动类型', 'event:活动\r\nmeetup:聚会\r\nworkshop:工作坊\r\ncompetition:竞赛', 'event', 'require', '选择活动的具体类型', NULL, NULL, NULL, 0, '', '', 100, 1754710497, 1754710497, 0, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (39, 15, 'activity_status', 'select', '活动状态', 'draft:草稿\r\npublished:已发布\r\nongoing:进行中\r\ncompleted:已完成\r\ncancelled:已取消', 'draft', 'require', '活动当前的状态', NULL, NULL, NULL, 0, '', '', 95, 1754710497, 1754710497, 1, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (40, 15, 'start_time', 'datetime', '开始时间', '', '', 'require', '活动开始的具体时间', NULL, NULL, NULL, 0, '', '', 90, 1754710497, 1754710497, 1, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (41, 15, 'end_time', 'datetime', '结束时间', '', '', 'require', '活动结束的具体时间', NULL, NULL, NULL, 0, '', '', 85, 1754710497, 1754710497, 1, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (42, 15, 'location', 'text', '活动地点', '', '', 'require', '活动举办的地理位置', NULL, NULL, NULL, 0, '', '', 80, 1754710497, 1754710497, 0, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (43, 15, 'max_participants', 'number', '最大人数', '', '0', '', '活动允许的最大参与人数，0表示无限制', NULL, NULL, NULL, 0, '', '', 75, 1754710497, 1754710497, 0, 0, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (44, 15, 'fee', 'number', '参与费用', '', '0.00', '', '参与活动所需费用，0.00表示免费', NULL, NULL, NULL, 0, '', '', 70, 1754710497, 1754710497, 1, 1, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (45, 15, 'registration_required', 'switch', '需要报名', '', '1', '', '是否需要提前报名参与', NULL, NULL, NULL, 0, '', '', 65, 1754710497, 1754710497, 0, 0, 1, NULL, '', 1);
+INSERT INTO `fa_ldcms_fields` (`id`, `mid`, `field`, `type`, `title`, `filterlist`, `default`, `rule`, `tip`, `decimals`, `length`, `minimum`, `maximum`, `extend_html`, `setting`, `sort`, `create_time`, `update_time`, `issort`, `isfilter`, `status`, `content_list`, `visible`, `islist`) VALUES (46, 15, 'contact_info', 'textarea', '联系方式', '', '', '', '组织者的联系方式信息，JSON格式存储', NULL, NULL, NULL, 0, '', '', 60, 1754710497, 1754710497, 0, 0, 1, NULL, '', 1);
 COMMIT;
 
 -- ----------------------------
@@ -2924,8 +2943,8 @@ CREATE TABLE `fa_social_activity_participants` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '参与记录ID，主键',
   `activity_id` int unsigned NOT NULL COMMENT '活动ID',
   `user_id` int unsigned NOT NULL COMMENT '参与用户ID',
-  `status` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'registered' COMMENT '参与状态',
-  `remark` text COLLATE utf8mb4_unicode_ci COMMENT '参与备注信息',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'registered' COMMENT '参与状态',
+  `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '参与备注信息',
   `register_time` bigint DEFAULT NULL COMMENT '报名时间戳',
   `attend_time` bigint DEFAULT NULL COMMENT '签到时间戳',
   `create_time` bigint DEFAULT NULL COMMENT '记录创建时间戳',
@@ -2950,11 +2969,11 @@ CREATE TABLE `fa_social_comments` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '评论ID，主键',
   `user_id` int unsigned NOT NULL COMMENT '评论用户ID',
   `post_id` int unsigned NOT NULL COMMENT '被评论内容ID',
-  `post_type` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'post' COMMENT '内容类型：post帖子，activity活动',
+  `post_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'post' COMMENT '内容类型：post帖子，activity活动',
   `parent_id` int unsigned DEFAULT '0' COMMENT '父评论ID，0表示顶级评论',
   `reply_to_user_id` int unsigned DEFAULT '0' COMMENT '回复目标用户ID',
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容文本',
-  `ip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '评论用户IP地址',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容文本',
+  `ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '评论用户IP地址',
   `likes_count` int unsigned DEFAULT '0' COMMENT '评论获得的点赞数量',
   `replies_count` int unsigned DEFAULT '0' COMMENT '评论获得的回复数量',
   `status` tinyint unsigned DEFAULT '1' COMMENT '评论状态：1正常显示，0已删除，2审核中',
@@ -3004,11 +3023,11 @@ CREATE TABLE `fa_social_notifications` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '通知ID，主键',
   `user_id` int unsigned NOT NULL COMMENT '接收通知的用户ID',
   `from_user_id` int unsigned DEFAULT '0' COMMENT '触发通知的用户ID',
-  `type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '通知类型',
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '通知标题',
-  `content` text COLLATE utf8mb4_unicode_ci COMMENT '通知详细内容',
-  `data` text COLLATE utf8mb4_unicode_ci COMMENT '通知附加数据，JSON格式存储',
-  `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '通知关联的URL链接',
+  `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '通知类型',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '通知标题',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '通知详细内容',
+  `data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '通知附加数据，JSON格式存储',
+  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '通知关联的URL链接',
   `is_read` tinyint unsigned DEFAULT '0' COMMENT '是否已读：0未读，1已读',
   `is_deleted` tinyint unsigned DEFAULT '0' COMMENT '是否删除：0正常，1已删除',
   `create_time` bigint DEFAULT NULL COMMENT '通知创建时间戳',
@@ -3034,9 +3053,9 @@ CREATE TABLE `fa_social_post_likes` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '点赞ID，主键',
   `user_id` int unsigned NOT NULL COMMENT '点赞用户ID',
   `post_id` int unsigned NOT NULL COMMENT '被点赞内容ID',
-  `post_type` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'post' COMMENT '内容类型：post帖子，comment评论，activity活动',
+  `post_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'post' COMMENT '内容类型：post帖子，comment评论，activity活动',
   `create_time` bigint DEFAULT NULL COMMENT '点赞时间戳',
-  `ip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '点赞用户IP地址',
+  `ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '点赞用户IP地址',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_like` (`user_id`,`post_id`,`post_type`),
   KEY `idx_post` (`post_id`,`post_type`),
@@ -3047,6 +3066,45 @@ CREATE TABLE `fa_social_post_likes` (
 -- Records of fa_social_post_likes
 -- ----------------------------
 BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for fa_social_topics
+-- ----------------------------
+DROP TABLE IF EXISTS `fa_social_topics`;
+CREATE TABLE `fa_social_topics` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '话题ID，主键',
+  `topic_name` varchar(100) NOT NULL COMMENT '话题名称，如：#旅行',
+  `topic_desc` text COMMENT '话题描述',
+  `topic_color` varchar(7) DEFAULT '#8B5CF6' COMMENT '话题颜色',
+  `topic_icon` varchar(255) DEFAULT '' COMMENT '话题图标',
+  `posts_count` int unsigned DEFAULT '0' COMMENT '使用该话题的帖子数量',
+  `participants_count` int unsigned DEFAULT '0' COMMENT '参与用户数量',
+  `trending_score` int unsigned DEFAULT '0' COMMENT '热度分数',
+  `is_official` tinyint unsigned DEFAULT '0' COMMENT '是否官方话题：0否，1是',
+  `is_trending` tinyint unsigned DEFAULT '0' COMMENT '是否当前热门：0否，1是',
+  `status` tinyint unsigned DEFAULT '1' COMMENT '状态：0禁用，1启用',
+  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `topic_name` (`topic_name`),
+  KEY `idx_trending` (`is_trending`,`trending_score`),
+  KEY `idx_official` (`is_official`),
+  KEY `idx_posts_count` (`posts_count`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='热门话题表';
+
+-- ----------------------------
+-- Records of fa_social_topics
+-- ----------------------------
+BEGIN;
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (1, '#旅行', '分享旅行经历和美景', '#FF6B6B', '', 0, 0, 100, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (2, '#美食', '分享美食和烹饪心得', '#4ECDC4', '', 0, 0, 95, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (3, '#生活', '记录日常生活点滴', '#45B7D1', '', 0, 0, 90, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (4, '#摄影', '摄影作品分享和交流', '#96CEB4', '', 0, 0, 85, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (5, '#健身', '健身心得和运动分享', '#FECA57', '', 0, 0, 80, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (6, '#学习', '学习经验和知识分享', '#FF9FF3', '', 0, 0, 75, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (7, '#工作', '职场经验和工作心得', '#54A0FF', '', 0, 0, 70, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (8, '#科技', '科技资讯和数码产品', '#5F27CD', '', 0, 0, 65, 1, 1, 1, 1754710191, 1754710191);
 COMMIT;
 
 -- ----------------------------
