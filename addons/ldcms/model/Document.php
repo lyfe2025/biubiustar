@@ -21,7 +21,8 @@ class Document extends Frontend
         'url',
         'seo_description',
         'description',
-        'curl'
+        'curl',
+        'price'
     ];
 
     public function getStatus()
@@ -92,6 +93,12 @@ class Document extends Frontend
             ':category' => $data['curlname'],
         ];
         return addon_url('ldcms/lists/index', $vars, true);
+    }
+
+    public function getPriceAttr($value, $data)
+    {
+        // 返回价格字段，如果不存在则返回0.00
+        return isset($data['price']) ? (float)$data['price'] : 0.00;
     }
 
     public function info($table_name, $id)

@@ -1,1370 +1,160 @@
----
-# ===========================================
-# 🤖 AI自动调度配置 (必需)
-# ===========================================
-ruleName: "ldcms-enterprise-cms-standards"
-description: "FastAdmin LDCMS企业网站管理系统的核心开发规范，包含多语言、多模板、自定义模型支持"
-version: "1.4.3"
-lastUpdated: "2024-12-19"
+# FastAdmin LDCMS 企业网站管理系统开发标准规范
 
-alwaysApply: false
-priority: 10
-
-# ===========================================
-# 🔍 智能检测配置 (核心)
-# ===========================================
-detection:
-  keywords:
-    primary: ["LDCMS", "ldcms", "企业网站管理系统"]
-    secondary: ["多语言", "多模板", "Document", "Category", "Langs"]
-    technical: ["addons/ldcms", "fa_ldcms_", "LanguageHandler", "TemplateManager"]
-  
-  paths:
-    exact: ["addons/ldcms/"]
-    pattern: ["**/ldcms/**", "**/LDCMS/**"]
-  
-  contexts:
-    development_phase: ["开发阶段", "功能扩展", "模块开发"]
-    project_type: ["CMS开发", "企业网站开发", "插件开发"]
-    user_intent: ["功能实现", "模块开发", "内容管理", "系统集成"]
-
-# ===========================================
-# ⚡ 触发条件配置 (精确)
-# ===========================================
-triggers:
-  explicit_mentions:
-    exact_match: ["LDCMS", "企业网站管理系统", "内容管理系统"]
-    fuzzy_match: ["企业网站", "内容管理", "CMS系统", "网站后台"]
-  
-  file_operations:
-    reading: ["addons/ldcms/目录下的任何文件"]
-    editing: ["LDCMS相关的控制器、模型、视图文件"]
-    creating: ["新的LDCMS功能模块", "LDCMS插件扩展"]
-  
-  code_patterns:
-    namespaces: ["addons\\ldcms"]
-    functions: ["getLdcmsConfig", "renderLdcmsTemplate", "getDocumentList"]
-    classes: ["Document", "Category", "Langs", "Ad"]
-    comments: ["LDCMS", "企业网站", "内容管理"]
-  
-  intent_analysis:
-    primary_intent: ["cms_development", "plugin_development", "content_management"]
-    secondary_intent: ["multilanguage_setup", "template_customization", "seo_optimization"]
-    complexity_level: ["medium", "complex"]
-
-# ===========================================
-# 🔗 关联规则配置
-# ===========================================
-relationships:
-  required_with: ["fastadmin-v5-standards.mdc"]
-  recommended_with: ["fastadmin-multilanguage-standards.mdc", "fastadmin-multitemplate-standards.mdc"]
-  depends_on: ["common-rules.mdc"]
-
-# ===========================================
-# 📊 使用场景描述 (帮助AI理解)
-# ===========================================
-use_cases:
-  primary:
-    - scenario: "用户要为LDCMS开发新功能模块"
-      trigger_example: "帮我为LDCMS添加一个新的文档管理模块"
-      expected_behavior: "AI应该加载LDCMS规范，提供符合LDCMS架构的开发指导"
-    - scenario: "用户需要扩展LDCMS现有功能"
-      trigger_example: "如何给LDCMS的文档模块添加评论功能？"
-      expected_behavior: "AI应该基于LDCMS现有架构提供扩展方案"
-  
-  secondary:
-    - scenario: "用户询问LDCMS配置问题"
-      trigger_example: "LDCMS的多语言功能怎么配置？"
-      expected_behavior: "AI应该基于LDCMS规范提供准确的配置指导"
-    - scenario: "用户遇到LDCMS相关错误"
-      trigger_example: "LDCMS模板渲染出错了"
-      expected_behavior: "AI应该根据LDCMS规范提供排错建议"
-
-# ===========================================
-# 🎯 AI指令配置 (明确指导)
-# ===========================================
-ai_instructions:
-  when_to_load: "当用户提及LDCMS、企业网站管理、内容管理系统，或操作addons/ldcms/目录时应立即加载此规则"
-  how_to_apply: "严格按照LDCMS的开发规范和架构提供建议，确保代码符合插件的设计模式和最佳实践"
-  priority_reason: "LDCMS是项目的核心CMS插件，其开发规范对整个企业网站系统至关重要"
-  coordination: "与FastAdmin基础规范、多语言规范和多模板规范协调工作，确保架构一致性"
-
-# ===========================================
-# 📈 性能优化配置
-# ===========================================
-performance:
-  preload_conditions: ["检测到项目包含addons/ldcms目录", "用户历史操作涉及LDCMS"]
-  cache_duration: "30"
-  unload_conditions: ["连续5次对话未涉及LDCMS相关内容"]
----
-
-# FastAdmin LDCMS 企业网站管理系统核心开发规范
-
-> **🏢 项目定位**: 基于FastAdmin框架的LDCMS企业网站管理系统插件
-> **📦 插件版本**: LDCMS v1.4.3
-> **🌍 核心特性**: 多语言支持、多模板系统、自定义模型、自定义表单、UniApp移动端
-> **🎯 开发重点**: 所有后续开发都基于此LDCMS插件进行
-
-## ⚠️ 重要提醒
-
-**本项目的所有开发工作都基于FastAdmin的LDCMS企业网站管理系统插件进行！**
-
-- 🔥 **必须使用LDCMS插件的架构和规范**
-- 🔥 **所有功能开发都要考虑多语言和多模板支持**
-- 🔥 **严格遵循LDCMS的数据模型和API设计**
-- 🔥 **确保与现有LDCMS功能的兼容性**
+> **基于FastAdmin + ThinkPHP + Uniapp的企业网站管理系统**
+> **版本要求**: LDCMS >= 1.2.0, ThinkPHP 5.1, FastAdmin基础框架
 
 ---
 
-## 🏗️ LDCMS系统架构
+## 🎯 核心架构理解
 
-### LDCMS插件核心架构（基于FastAdmin）
+### 📁 LDCMS目录结构标准
 ```
-FastAdmin + LDCMS插件架构
-├── 📁 addons/ldcms/                    # LDCMS插件根目录
-│   ├── 📄 Ldcms.php                    # 插件主类
-│   ├── 📄 config.php                   # 插件配置
-│   ├── 📄 menu.php                     # 后台菜单
-│   ├── 📁 controller/                  # 前台控制器
-│   │   ├── Base.php                    # 基础控制器
-│   │   ├── Index.php                   # 首页控制器
-│   │   ├── Lists.php                   # 列表页控制器
-│   │   ├── Detail.php                  # 详情页控制器
-│   │   ├── Search.php                  # 搜索控制器
-│   │   ├── Diyform.php                 # 自定义表单控制器
-│   │   └── api/                        # API控制器目录
-│   ├── 📁 model/                       # 数据模型
-│   │   ├── Document.php                # 文档模型
-│   │   ├── Category.php                # 分类模型
-│   │   ├── Ad.php                      # 广告模型
-│   │   ├── Langs.php                   # 语言模型
-│   │   ├── Tags.php                    # 标签模型
-│   │   ├── Models.php                  # 自定义模型
-│   │   ├── Fields.php                  # 自定义字段
-│   │   ├── Diyform.php                 # 自定义表单
-│   │   └── Links.php                   # 友情链接
-│   ├── 📁 view/                        # 模板目录
-│   │   ├── default/                    # 默认中文模板
-│   │   ├── en/                         # 英文模板
-│   │   ├── ldcms2024/                  # 2024主题
-│   │   ├── ldcms2024en/                # 2024英文主题
-│   │   ├── ldcms2025/                  # 2025主题
-│   │   └── ldcms2025en/                # 2025英文主题
-│   ├── 📁 lang/                        # 语言包
-│   │   ├── zh-cn.php                   # 中文语言包
-│   │   ├── en.php                      # 英文语言包
-│   │   └── zh-tw.php                   # 繁体中文语言包
-│   ├── 📁 utils/                       # 工具类
-│   │   ├── Common.php                  # 通用工具
-│   │   ├── LdRoute.php                 # 路由工具
-│   │   └── Menu.php                    # 菜单工具
-│   ├── 📁 uniapp/                      # UniApp移动端
-│   ├── 📄 install.sql                  # 安装SQL
-│   ├── 📄 testdata.sql                 # 测试数据
-│   └── 📄 info.ini                     # 插件信息
-└── 🔗 与FastAdmin核心系统集成
-    ├── 用户权限系统集成
-    ├── 后台管理界面集成
-    ├── 文件上传系统集成
-    └── 缓存系统集成
+addons/ldcms/
+├── view/              # 前台模板目录
+│   ├── default/       # 默认中文模板
+│   ├── en/           # 英文模板
+│   ├── biubiustar2025zh-cn/  # 自定义模板组
+│   └── [custom]/     # 其他自定义模板
+├── controller/       # 控制器
+├── model/           # 数据模型
+├── validate/        # 验证器
+├── library/         # 类库文件
+└── utils/          # 工具类
 ```
 
-### 🔧 项目环境配置信息
-```yaml
-# FastAdmin LDCMS项目配置
-项目名称: biubiustar
-项目域名: biubiustar.local
-数据库名: biubiustar
-数据库用户: biubiustar
-数据库密码: Qwer1234...
-数据库主机: 127.0.0.1:3306
-表前缀: fa_
+### 🗄️ LDCMS核心数据表
+| 表名 | 作用 | 重要性 |
+|------|------|--------|
+| `fa_ldcms_langs` | **多语言配置表** - 模板管理核心 | ⭐⭐⭐⭐⭐ |
+| `fa_ldcms_category` | 栏目分类表 | ⭐⭐⭐⭐⭐ |
+| `fa_ldcms_document` | 文档内容表 | ⭐⭐⭐⭐⭐ |
+| `fa_ldcms_ad` | 广告/轮播图表 | ⭐⭐⭐⭐ |
+| `fa_ldcms_siteinfo` | 站点信息表 | ⭐⭐⭐⭐ |
 
-# 🔐 重要访问地址
-后台管理地址: http://biubiustar.local/SWTvGsCQjH.php
-前台访问地址: http://biubiustar.local/
-LDCMS插件路径: http://biubiustar.local/addons/ldcms/
+---
 
-# 🗂️ 目录结构
-项目根目录: /Volumes/wwx/dev/WebProjects/biubiustar/
-LDCMS插件目录: /Volumes/wwx/dev/WebProjects/biubiustar/addons/ldcms/
-```
+## 🎨 模板系统核心规范
 
-### LDCMS插件数据库表结构（fa_前缀）
-```sql
--- LDCMS核心数据表（基于当前数据库：biubiustar）
-fa_ldcms_document        -- 文档内容表（核心）
-fa_ldcms_category        -- 分类表（核心）
-fa_ldcms_ad              -- 广告表
-fa_ldcms_langs           -- 语言配置表
-fa_ldcms_tags            -- 标签表
-fa_ldcms_models          -- 自定义模型表
-fa_ldcms_fields          -- 自定义字段表
-fa_ldcms_diyform         -- 自定义表单表
-fa_ldcms_diyform_data    -- 表单数据表
-fa_ldcms_diyform_fields  -- 表单字段表
-fa_ldcms_links           -- 友情链接表
-```
+### 模板管理机制
+- **不依赖额外主题表**: LDCMS模板管理完全基于`fa_ldcms_langs`表和文件系统扫描
+- **模板发现机制**: 通过`ThemeService::getThemeList()`扫描`addons/ldcms/view/`目录
+- **语言模板映射**: 每个语言记录的`template`字段指定对应模板目录
 
-### 数据库表结构
-```sql
--- LDCMS核心数据表
-fa_ldcms_ad              -- 广告表
-fa_ldcms_category        -- 分类表
-fa_ldcms_document        -- 文档表
-fa_ldcms_langs           -- 语言表
-fa_ldcms_tags            -- 标签表
-fa_ldcms_models          -- 自定义模型表
-fa_ldcms_fields          -- 自定义字段表
-fa_ldcms_diyform         -- 自定义表单表
-fa_ldcms_diyform_data    -- 表单数据表
-fa_ldcms_diyform_fields  -- 表单字段表
-fa_ldcms_links           -- 友情链接表
+### 静态资源引入规范
+```html
+<!-- 推荐方式：{ld:src}标签 (LDCMS专用) -->
+{ld:src src="css/style.css"}
+{ld:src src="js/app.js"}
+
+<!-- 兼容方式：__ADDON__替换 -->
+<link rel="stylesheet" href="__ADDON__/css/style.css">
+
+<!-- 静态资源位置 -->
+public/assets/addons/ldcms/template-name/
 ```
 
 ---
 
-## 🌍 多语言开发规范
+## 🏷️ LDCMS标签系统规范
+
+### 核心标签使用
+
+#### 1. 导航标签
+```html
+{ld:nav}
+<li class="{if $item['id']==$topid}active{/if}">
+    <a href="{$item.url}">{$item.name}</a>
+</li>
+{/ld:nav}
+```
+
+#### 2. 轮播图标签
+```html
+{ld:slide name="banner"}
+<div class="slide-item">
+    <a href="{$item.url}" target="{$item.target}">
+        <img src="{$item.image}" alt="{$item.title}" />
+    </a>
+</div>
+{/ld:slide}
+```
+
+#### 3. 内容列表标签
+```html
+{ld:list cid="$category.id" limit="10"}
+<article class="news-item">
+    <h3><a href="{$item.url}">{$item.title}</a></h3>
+    <div class="meta">
+        <span class="date">{$item.show_time|ld_fdate='Y-m-d'}</span>
+    </div>
+</article>
+{/ld:list}
+```
+
+---
+
+## 💾 数据模型开发规范
+
+### Category模型字段访问
+```php
+// Category模型必需字段
+protected $append = [
+    'url',
+    'ename'  // 必须包含，用于模板显示
+];
+
+// 字段访问器
+public function getEnameAttr($value, $data)
+{
+    return isset($data['ename']) && !empty($data['ename']) 
+        ? $data['ename'] 
+        : $data['name'];
+}
+```
+
+### Document模型字段访问
+```php
+// Document模型必需字段
+protected $append = [
+    'url',
+    'seo_description',
+    'description',
+    'curl',
+    'price'  // 产品模型常用字段
+];
+```
+
+---
+
+## 🌐 多语言支持规范
 
 ### 语言配置标准
-```php
-/**
- * 语言配置管理
- */
-class LanguageManager
-{
-    /**
-     * 获取支持的语言列表
-     */
-    public static function getSupportedLanguages()
-    {
-        return [
-            'zh-cn' => [
-                'name' => '简体中文',
-                'locale' => 'zh-CN',
-                'flag' => 'cn',
-                'default' => true
-            ],
-            'en' => [
-                'name' => 'English',
-                'locale' => 'en-US', 
-                'flag' => 'us',
-                'default' => false
-            ],
-            'zh-tw' => [
-                'name' => '繁體中文',
-                'locale' => 'zh-TW',
-                'flag' => 'tw',
-                'default' => false
-            ]
-        ];
-    }
-    
-    /**
-     * 获取当前语言
-     */
-    public static function getCurrentLang()
-    {
-        $lang = request()->param('lang', '');
-        if (empty($lang)) {
-            $lang = cookie('ldcms_lang') ?: 'zh-cn';
-        }
-        
-        // 验证语言是否支持
-        $supportedLangs = array_keys(self::getSupportedLanguages());
-        if (!in_array($lang, $supportedLangs)) {
-            $lang = 'zh-cn';
-        }
-        
-        return $lang;
-    }
-    
-    /**
-     * 设置当前语言
-     */
-    public static function setCurrentLang($lang)
-    {
-        $supportedLangs = array_keys(self::getSupportedLanguages());
-        if (in_array($lang, $supportedLangs)) {
-            cookie('ldcms_lang', $lang, 86400 * 30); // 30天
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * 获取多语言内容
-     */
-    public static function getMultiLangContent($table, $conditions = [])
-    {
-        $lang = self::getCurrentLang();
-        $conditions['lang'] = $lang;
-        
-        return \think\Db::name($table)->where($conditions)->select();
-    }
-}
-```
-
-### 多语言数据模型规范
-```php
-/**
- * 多语言模型基类
- */
-abstract class MultiLangModel extends \think\Model
-{
-    // 自动写入语言字段
-    protected $autoWriteTimestamp = 'int';
-    protected $createTime = 'create_time';
-    protected $updateTime = 'update_time';
-    
-    /**
-     * 插入数据时自动添加语言标识
-     */
-    protected function initialize()
-    {
-        parent::initialize();
-        
-        // 自动设置语言
-        $this->withAttr('lang', function($value, $data) {
-            return $value ?: LanguageManager::getCurrentLang();
-        });
-    }
-    
-    /**
-     * 获取指定语言的数据
-     */
-    public function scopeLang($query, $lang = '')
-    {
-        $lang = $lang ?: LanguageManager::getCurrentLang();
-        return $query->where('lang', $lang);
-    }
-    
-    /**
-     * 获取所有语言版本
-     */
-    public function getAllLangVersions($id)
-    {
-        return $this->where('id', $id)->select();
-    }
-    
-    /**
-     * 复制到其他语言
-     */
-    public function copyToLang($id, $targetLang, $fields = [])
-    {
-        $sourceData = $this->find($id);
-        if (!$sourceData) {
-            return false;
-        }
-        
-        $newData = $sourceData->toArray();
-        unset($newData['id']);
-        $newData['lang'] = $targetLang;
-        
-        // 更新指定字段
-        foreach ($fields as $field => $value) {
-            $newData[$field] = $value;
-        }
-        
-        return $this->create($newData);
-    }
-}
-
-/**
- * 分类模型
- */
-class Category extends MultiLangModel
-{
-    protected $name = 'ldcms_category';
-    
-    /**
-     * 获取分类树
-     */
-    public function getCategoryTree($pid = 0, $lang = '')
-    {
-        $lang = $lang ?: LanguageManager::getCurrentLang();
-        
-        $categories = $this->where('pid', $pid)
-                          ->where('lang', $lang)
-                          ->where('status', 1)
-                          ->order('sort asc, id asc')
-                          ->select();
-        
-        foreach ($categories as &$category) {
-            $category['children'] = $this->getCategoryTree($category['id'], $lang);
-        }
-        
-        return $categories;
-    }
-    
-    /**
-     * 获取面包屑导航
-     */
-    public function getBreadcrumb($id, $lang = '')
-    {
-        $lang = $lang ?: LanguageManager::getCurrentLang();
-        $breadcrumb = [];
-        
-        while ($id > 0) {
-            $category = $this->where('id', $id)
-                            ->where('lang', $lang)
-                            ->find();
-            if ($category) {
-                array_unshift($breadcrumb, $category);
-                $id = $category['pid'];
-            } else {
-                break;
-            }
-        }
-        
-        return $breadcrumb;
-    }
-}
+```sql
+-- fa_ldcms_langs表必需字段
+INSERT INTO fa_ldcms_langs VALUES
+(1, 'zh-cn', '简体中文', 'biubiustar2025zh-cn', 1, 1, 1),
+(2, 'en', 'English', 'biubiustar2025en', 0, 1, 2);
 ```
 
 ---
 
-## 🎨 多模板系统规范
+## ⚠️ 常见问题处理
 
-### 模板结构标准
-```
-addons/ldcms/view/
-├── default/           # 默认中文模板
-│   ├── index/        # 首页模板
-│   ├── lists/        # 列表页模板
-│   ├── detail/       # 详情页模板
-│   ├── search/       # 搜索页模板
-│   └── common/       # 公共模板
-├── en/               # 英文模板
-├── ldcms2024/        # 2024主题中文版
-├── ldcms2024en/      # 2024主题英文版
-├── ldcms2025/        # 2025主题中文版
-└── ldcms2025en/      # 2025主题英文版
-```
+### 模板无法访问问题排查
+1. **检查fa_ldcms_langs表配置**
+   - 验证language code不为空
+   - 确认template字段指向正确模板目录
+   - 检查is_default和status字段
 
-### 模板开发规范
-```php
-/**
- * 模板管理器
- */
-class TemplateManager
-{
-    /**
-     * 获取当前模板
-     */
-    public static function getCurrentTemplate()
-    {
-        $config = get_addon_config('ldcms');
-        $lang = LanguageManager::getCurrentLang();
-        
-        // 根据语言选择模板
-        $templateMap = [
-            'zh-cn' => $config['template'] ?: 'default',
-            'en' => $config['en_template'] ?: 'en',
-            'zh-tw' => $config['tw_template'] ?: 'default'
-        ];
-        
-        return $templateMap[$lang] ?? 'default';
-    }
-    
-    /**
-     * 获取模板路径
-     */
-    public static function getTemplatePath($template = '', $view = '')
-    {
-        $template = $template ?: self::getCurrentTemplate();
-        $basePath = ADDON_PATH . 'ldcms/view/' . $template . '/';
-        
-        return $view ? $basePath . $view : $basePath;
-    }
-    
-    /**
-     * 检查模板是否存在
-     */
-    public static function templateExists($template, $view)
-    {
-        $templatePath = self::getTemplatePath($template, $view . '.html');
-        return file_exists($templatePath);
-    }
-    
-    /**
-     * 获取模板配置
-     */
-    public static function getTemplateConfig($template)
-    {
-        $configFile = self::getTemplatePath($template, 'config.php');
-        
-        if (file_exists($configFile)) {
-            return include $configFile;
-        }
-        
-        return [
-            'name' => $template,
-            'title' => '默认模板',
-            'description' => '默认模板描述',
-            'author' => 'LDCMS',
-            'version' => '1.0.0'
-        ];
-    }
-}
-```
+2. **检查模型字段访问**
+   - Category模型必须包含ename字段访问器
+   - Document模型必须包含price等业务字段
+   - 确保所有append字段都有对应访问器
 
-### 模板标签系统
-```html
-<!-- LDCMS模板标签使用规范 -->
-
-<!-- 分类列表标签 -->
-{ldcms:category pid="0" limit="10" order="sort asc"}
-<ul class="nav-menu">
-    {volist name="category_list" id="vo"}
-    <li><a href="{$vo.url}">{$vo.name}</a></li>
-    {/volist}
-</ul>
-{/ldcms:category}
-
-<!-- 文档列表标签 -->
-{ldcms:document cid="1" limit="5" order="create_time desc"}
-<div class="news-list">
-    {volist name="document_list" id="vo"}
-    <div class="news-item">
-        <h3><a href="{$vo.url}">{$vo.title}</a></h3>
-        <p>{$vo.description}</p>
-        <time>{$vo.create_time|date='Y-m-d'}</time>
-    </div>
-    {/volist}
-</div>
-{/ldcms:document}
-
-<!-- 广告标签 -->
-{ldcms:ad type="banner" limit="5"}
-<div class="banner-slider">
-    {volist name="ad_list" id="vo"}
-    <div class="slide">
-        <img src="{$vo.image}" alt="{$vo.title}">
-        <div class="caption">
-            <h2>{$vo.title}</h2>
-            <p>{$vo.description}</p>
-        </div>
-    </div>
-    {/volist}
-</div>
-{/ldcms:ad}
-
-<!-- 自定义字段标签 -->
-{ldcms:fields model="article" id="$document.id"}
-<div class="custom-fields">
-    {volist name="fields_data" id="field"}
-    <div class="field-item">
-        <label>{$field.title}:</label>
-        <span>{$field.value}</span>
-    </div>
-    {/volist}
-</div>
-{/ldcms:fields}
-```
+3. **检查静态资源**
+   - 验证public/assets/addons/ldcms/目录结构
+   - 确认模板使用{ld:src}标签引用资源
 
 ---
 
-## 📝 内容管理开发规范
-
-### 文档模型规范
-```php
-/**
- * 文档模型
- */
-class Document extends MultiLangModel
-{
-    protected $name = 'ldcms_document';
-    
-    protected $append = [
-        'url',
-        'thumb_url',
-        'category_name'
-    ];
-    
-    /**
-     * 获取文档URL
-     */
-    public function getUrlAttr($value, $data)
-    {
-        $config = get_addon_config('ldcms');
-        $domain = $config['main_domain'] ?: request()->domain();
-        
-        // URL生成规则
-        if ($data['outlink']) {
-            return $data['outlink'];
-        }
-        
-        $category = \addons\ldcms\model\Category::find($data['cid']);
-        if ($category && $category['outlink']) {
-            return $category['outlink'];
-        }
-        
-        // 生成友好URL
-        $lang = $data['lang'] ?? 'zh-cn';
-        $langPrefix = $lang === 'zh-cn' ? '' : '/' . $lang;
-        
-        return $domain . $langPrefix . '/detail/' . $data['id'] . '.html';
-    }
-    
-    /**
-     * 获取缩略图URL
-     */
-    public function getThumbUrlAttr($value, $data)
-    {
-        $images = $data['images'] ?? '';
-        if ($images) {
-            $imageArray = explode(',', $images);
-            return cdnurl($imageArray[0], true);
-        }
-        
-        return '/assets/addons/ldcms/img/default-thumb.jpg';
-    }
-    
-    /**
-     * 获取分类名称
-     */
-    public function getCategoryNameAttr($value, $data)
-    {
-        $category = \addons\ldcms\model\Category::find($data['cid']);
-        return $category ? $category['name'] : '';
-    }
-    
-    /**
-     * 关联分类
-     */
-    public function category()
-    {
-        return $this->belongsTo(Category::class, 'cid', 'id');
-    }
-    
-    /**
-     * 关联标签
-     */
-    public function tags()
-    {
-        return $this->belongsToMany(Tags::class, 'ldcms_document_tags', 'tag_id', 'document_id');
-    }
-    
-    /**
-     * 获取相关文档
-     */
-    public function getRelatedDocuments($id, $limit = 5)
-    {
-        $document = $this->find($id);
-        if (!$document) {
-            return [];
-        }
-        
-        return $this->where('cid', $document['cid'])
-                   ->where('id', '<>', $id)
-                   ->where('lang', $document['lang'])
-                   ->where('status', 1)
-                   ->limit($limit)
-                   ->order('create_time desc')
-                   ->select();
-    }
-    
-    /**
-     * 增加浏览量
-     */
-    public function incrementViews($id)
-    {
-        return $this->where('id', $id)->setInc('views');
-    }
-}
-```
-
-### SEO优化规范
-```php
-/**
- * SEO管理器
- */
-class SEOManager
-{
-    /**
-     * 生成页面SEO信息
-     */
-    public static function generateSEO($type, $data = [])
-    {
-        $config = get_addon_config('ldcms');
-        $lang = LanguageManager::getCurrentLang();
-        
-        $seo = [
-            'title' => $config['site_name'] ?? 'LDCMS企业网站',
-            'keywords' => $config['site_keywords'] ?? '',
-            'description' => $config['site_description'] ?? ''
-        ];
-        
-        switch ($type) {
-            case 'index':
-                // 首页SEO
-                $seo['title'] = $config['site_name'] ?? 'LDCMS企业网站';
-                break;
-                
-            case 'category':
-                // 分类页SEO
-                if (isset($data['category'])) {
-                    $category = $data['category'];
-                    $seo['title'] = $category['seo_title'] ?: $category['name'];
-                    $seo['keywords'] = $category['seo_keywords'];
-                    $seo['description'] = $category['seo_description'];
-                }
-                break;
-                
-            case 'document':
-                // 文档页SEO
-                if (isset($data['document'])) {
-                    $document = $data['document'];
-                    $seo['title'] = $document['seo_title'] ?: $document['title'];
-                    $seo['keywords'] = $document['seo_keywords'];
-                    $seo['description'] = $document['seo_description'] ?: 
-                                        mb_substr(strip_tags($document['content']), 0, 150);
-                }
-                break;
-        }
-        
-        // 多语言SEO处理
-        if ($lang !== 'zh-cn') {
-            $langConfig = $config['lang_' . str_replace('-', '_', $lang)] ?? [];
-            if (!empty($langConfig['site_name'])) {
-                $seo['title'] .= ' - ' . $langConfig['site_name'];
-            }
-        }
-        
-        return $seo;
-    }
-    
-    /**
-     * 生成结构化数据
-     */
-    public static function generateStructuredData($type, $data = [])
-    {
-        $structuredData = [];
-        
-        switch ($type) {
-            case 'organization':
-                $structuredData = [
-                    '@context' => 'https://schema.org',
-                    '@type' => 'Organization',
-                    'name' => $data['name'] ?? '',
-                    'url' => $data['url'] ?? '',
-                    'logo' => $data['logo'] ?? ''
-                ];
-                break;
-                
-            case 'article':
-                $structuredData = [
-                    '@context' => 'https://schema.org',
-                    '@type' => 'Article',
-                    'headline' => $data['title'] ?? '',
-                    'description' => $data['description'] ?? '',
-                    'author' => [
-                        '@type' => 'Organization',
-                        'name' => $data['author'] ?? ''
-                    ],
-                    'datePublished' => $data['create_time'] ?? '',
-                    'dateModified' => $data['update_time'] ?? ''
-                ];
-                break;
-        }
-        
-        return json_encode($structuredData, JSON_UNESCAPED_UNICODE);
-    }
-}
-```
-
----
-
-## 🔧 自定义功能开发规范
-
-### 自定义模型规范
-```php
-/**
- * 自定义模型管理器
- */
-class CustomModelManager
-{
-    /**
-     * 创建自定义模型
-     */
-    public static function createModel($data)
-    {
-        // 验证数据
-        $validate = [
-            'name' => 'require|unique:ldcms_models',
-            'title' => 'require',
-            'table_name' => 'require|unique:ldcms_models'
-        ];
-        
-        $validator = new \think\Validate($validate);
-        if (!$validator->check($data)) {
-            throw new \Exception($validator->getError());
-        }
-        
-        // 创建模型记录
-        $modelId = \think\Db::name('ldcms_models')->insertGetId([
-            'name' => $data['name'],
-            'title' => $data['title'],
-            'table_name' => $data['table_name'],
-            'description' => $data['description'] ?? '',
-            'status' => 1,
-            'create_time' => time(),
-            'update_time' => time()
-        ]);
-        
-        // 创建对应数据表
-        self::createModelTable($data['table_name']);
-        
-        return $modelId;
-    }
-    
-    /**
-     * 创建模型数据表
-     */
-    private static function createModelTable($tableName)
-    {
-        $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-            `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
-            `content` longtext COMMENT '内容',
-            `images` text COMMENT '图片',
-            `sort` int(10) DEFAULT '99' COMMENT '排序',
-            `status` tinyint(1) DEFAULT '1' COMMENT '状态',
-            `lang` varchar(10) NOT NULL DEFAULT 'zh-cn' COMMENT '语言',
-            `create_time` bigint(20) DEFAULT NULL COMMENT '创建时间',
-            `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
-            PRIMARY KEY (`id`),
-            KEY `status` (`status`),
-            KEY `lang` (`lang`),
-            KEY `sort` (`sort`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自定义模型表';";
-        
-        \think\Db::execute($sql);
-    }
-    
-    /**
-     * 为模型添加字段
-     */
-    public static function addField($modelId, $fieldData)
-    {
-        // 验证字段数据
-        $validate = [
-            'name' => 'require',
-            'title' => 'require',
-            'type' => 'require|in:text,textarea,number,select,radio,checkbox,image,file,date,datetime'
-        ];
-        
-        $validator = new \think\Validate($validate);
-        if (!$validator->check($fieldData)) {
-            throw new \Exception($validator->getError());
-        }
-        
-        // 获取模型信息
-        $model = \think\Db::name('ldcms_models')->find($modelId);
-        if (!$model) {
-            throw new \Exception('模型不存在');
-        }
-        
-        // 添加字段记录
-        $fieldId = \think\Db::name('ldcms_fields')->insertGetId([
-            'model_id' => $modelId,
-            'name' => $fieldData['name'],
-            'title' => $fieldData['title'],
-            'type' => $fieldData['type'],
-            'options' => $fieldData['options'] ?? '',
-            'default_value' => $fieldData['default_value'] ?? '',
-            'required' => $fieldData['required'] ?? 0,
-            'sort' => $fieldData['sort'] ?? 99,
-            'status' => 1,
-            'create_time' => time(),
-            'update_time' => time()
-        ]);
-        
-        // 在数据表中添加字段
-        self::addTableField($model['table_name'], $fieldData);
-        
-        return $fieldId;
-    }
-    
-    /**
-     * 在数据表中添加字段
-     */
-    private static function addTableField($tableName, $fieldData)
-    {
-        $fieldType = self::getFieldSQLType($fieldData['type']);
-        $sql = "ALTER TABLE `{$tableName}` ADD COLUMN `{$fieldData['name']}` {$fieldType} COMMENT '{$fieldData['title']}'";
-        
-        \think\Db::execute($sql);
-    }
-    
-    /**
-     * 获取字段SQL类型
-     */
-    private static function getFieldSQLType($type)
-    {
-        $typeMap = [
-            'text' => 'varchar(255) DEFAULT \'\'',
-            'textarea' => 'text',
-            'number' => 'int(11) DEFAULT 0',
-            'select' => 'varchar(100) DEFAULT \'\'',
-            'radio' => 'varchar(100) DEFAULT \'\'',
-            'checkbox' => 'text',
-            'image' => 'varchar(255) DEFAULT \'\'',
-            'file' => 'varchar(255) DEFAULT \'\'',
-            'date' => 'date DEFAULT NULL',
-            'datetime' => 'datetime DEFAULT NULL'
-        ];
-        
-        return $typeMap[$type] ?? 'varchar(255) DEFAULT \'\'';
-    }
-}
-```
-
-### 自定义表单规范
-```php
-/**
- * 自定义表单管理器
- */
-class CustomFormManager
-{
-    /**
-     * 创建自定义表单
-     */
-    public static function createForm($data)
-    {
-        // 创建表单记录
-        $formId = \think\Db::name('ldcms_diyform')->insertGetId([
-            'name' => $data['name'],
-            'title' => $data['title'],
-            'description' => $data['description'] ?? '',
-            'template' => $data['template'] ?? 'default',
-            'success_message' => $data['success_message'] ?? '提交成功',
-            'email_notify' => $data['email_notify'] ?? 0,
-            'notify_email' => $data['notify_email'] ?? '',
-            'status' => 1,
-            'create_time' => time(),
-            'update_time' => time()
-        ]);
-        
-        return $formId;
-    }
-    
-    /**
-     * 添加表单字段
-     */
-    public static function addFormField($formId, $fieldData)
-    {
-        return \think\Db::name('ldcms_diyform_fields')->insertGetId([
-            'form_id' => $formId,
-            'name' => $fieldData['name'],
-            'title' => $fieldData['title'],
-            'type' => $fieldData['type'],
-            'options' => $fieldData['options'] ?? '',
-            'placeholder' => $fieldData['placeholder'] ?? '',
-            'required' => $fieldData['required'] ?? 0,
-            'validation' => $fieldData['validation'] ?? '',
-            'sort' => $fieldData['sort'] ?? 99,
-            'status' => 1,
-            'create_time' => time(),
-            'update_time' => time()
-        ]);
-    }
-    
-    /**
-     * 提交表单数据
-     */
-    public static function submitForm($formId, $data)
-    {
-        // 获取表单配置
-        $form = \think\Db::name('ldcms_diyform')->find($formId);
-        if (!$form || $form['status'] != 1) {
-            throw new \Exception('表单不存在或已禁用');
-        }
-        
-        // 获取表单字段
-        $fields = \think\Db::name('ldcms_diyform_fields')
-                          ->where('form_id', $formId)
-                          ->where('status', 1)
-                          ->order('sort asc')
-                          ->select();
-        
-        // 验证数据
-        foreach ($fields as $field) {
-            if ($field['required'] && empty($data[$field['name']])) {
-                throw new \Exception($field['title'] . '不能为空');
-            }
-            
-            // 自定义验证规则
-            if ($field['validation'] && !empty($data[$field['name']])) {
-                if (!self::validateField($data[$field['name']], $field['validation'])) {
-                    throw new \Exception($field['title'] . '格式不正确');
-                }
-            }
-        }
-        
-        // 保存提交数据
-        $submitId = \think\Db::name('ldcms_diyform_data')->insertGetId([
-            'form_id' => $formId,
-            'data' => json_encode($data, JSON_UNESCAPED_UNICODE),
-            'ip' => request()->ip(),
-            'user_agent' => request()->header('User-Agent'),
-            'create_time' => time()
-        ]);
-        
-        // 邮件通知
-        if ($form['email_notify'] && $form['notify_email']) {
-            self::sendEmailNotification($form, $data);
-        }
-        
-        return $submitId;
-    }
-    
-    /**
-     * 字段验证
-     */
-    private static function validateField($value, $validation)
-    {
-        switch ($validation) {
-            case 'email':
-                return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
-            case 'phone':
-                return preg_match('/^1[3-9]\d{9}$/', $value);
-            case 'url':
-                return filter_var($value, FILTER_VALIDATE_URL) !== false;
-            case 'number':
-                return is_numeric($value);
-            default:
-                return true;
-        }
-    }
-    
-    /**
-     * 发送邮件通知
-     */
-    private static function sendEmailNotification($form, $data)
-    {
-        $subject = '新的表单提交：' . $form['title'];
-        $body = "表单名称：{$form['title']}\n";
-        $body .= "提交时间：" . date('Y-m-d H:i:s') . "\n";
-        $body .= "提交IP：" . request()->ip() . "\n\n";
-        
-        foreach ($data as $key => $value) {
-            $body .= "{$key}：{$value}\n";
-        }
-        
-        // 这里调用邮件发送服务
-        // \app\common\library\Email::send($form['notify_email'], $subject, $body);
-    }
-}
-```
-
----
-
-## 📱 UniApp移动端开发规范
-
-### API接口规范
-```php
-/**
- * LDCMS API控制器基类
- */
-abstract class LdcmsApiController extends \app\common\controller\Api
-{
-    protected $noNeedLogin = [];
-    protected $noNeedRight = [];
-    
-    protected function initialize()
-    {
-        parent::initialize();
-        
-        // API开关检查
-        $config = get_addon_config('ldcms');
-        if (!$config['api_site']) {
-            $this->error('API服务未开启', null, 403);
-        }
-        
-        // API认证检查
-        if ($config['api_auth']) {
-            $this->checkApiAuth();
-        }
-        
-        // 语言设置
-        $lang = $this->request->header('Accept-Language', 'zh-cn');
-        LanguageManager::setCurrentLang($lang);
-    }
-    
-    /**
-     * API认证检查
-     */
-    protected function checkApiAuth()
-    {
-        $config = get_addon_config('ldcms');
-        $appid = $this->request->header('X-App-Id');
-        $timestamp = $this->request->header('X-Timestamp');
-        $signature = $this->request->header('X-Signature');
-        
-        if (!$appid || !$timestamp || !$signature) {
-            $this->error('API认证参数缺失', null, 401);
-        }
-        
-        // 验证时间戳（5分钟内有效）
-        if (abs(time() - $timestamp) > 300) {
-            $this->error('请求时间戳无效', null, 401);
-        }
-        
-        // 验证签名
-        $expectedSignature = md5($appid . $timestamp . $config['api_secret']);
-        if ($signature !== $expectedSignature) {
-            $this->error('API签名验证失败', null, 401);
-        }
-    }
-    
-    /**
-     * 统一API响应格式
-     */
-    protected function apiSuccess($message = 'success', $data = [], $code = 200)
-    {
-        return json([
-            'code' => $code,
-            'message' => $message,
-            'data' => $data,
-            'timestamp' => time()
-        ]);
-    }
-    
-    protected function apiError($message = 'error', $data = [], $code = 400)
-    {
-        return json([
-            'code' => $code,
-            'message' => $message,
-            'data' => $data,
-            'timestamp' => time()
-        ]);
-    }
-}
-
-/**
- * 内容API控制器
- */
-class ContentApiController extends LdcmsApiController
-{
-    /**
-     * 获取分类列表
-     */
-    public function categories()
-    {
-        $pid = $this->request->param('pid', 0, 'intval');
-        $lang = $this->request->param('lang', 'zh-cn');
-        
-        $categories = \addons\ldcms\model\Category::where('pid', $pid)
-                                                 ->where('lang', $lang)
-                                                 ->where('status', 1)
-                                                 ->field('id,name,ename,image,sort,pid')
-                                                 ->order('sort asc, id asc')
-                                                 ->select();
-        
-        return $this->apiSuccess('获取成功', $categories);
-    }
-    
-    /**
-     * 获取文档列表
-     */
-    public function documents()
-    {
-        $cid = $this->request->param('cid', 0, 'intval');
-        $page = $this->request->param('page', 1, 'intval');
-        $limit = $this->request->param('limit', 10, 'intval');
-        $lang = $this->request->param('lang', 'zh-cn');
-        
-        $limit = min($limit, 50); // 限制每页最大数量
-        
-        $documents = \addons\ldcms\model\Document::where('cid', $cid)
-                                                ->where('lang', $lang)
-                                                ->where('status', 1)
-                                                ->field('id,title,description,images,create_time,views')
-                                                ->order('create_time desc')
-                                                ->page($page, $limit)
-                                                ->select();
-        
-        $total = \addons\ldcms\model\Document::where('cid', $cid)
-                                            ->where('lang', $lang)
-                                            ->where('status', 1)
-                                            ->count();
-        
-        return $this->apiSuccess('获取成功', [
-            'list' => $documents,
-            'total' => $total,
-            'page' => $page,
-            'limit' => $limit
-        ]);
-    }
-    
-    /**
-     * 获取文档详情
-     */
-    public function documentDetail()
-    {
-        $id = $this->request->param('id', 0, 'intval');
-        
-        if (!$id) {
-            return $this->apiError('参数错误');
-        }
-        
-        $document = \addons\ldcms\model\Document::with(['category'])
-                                              ->find($id);
-        
-        if (!$document || $document['status'] != 1) {
-            return $this->apiError('文档不存在');
-        }
-        
-        // 增加浏览量
-        $document->incrementViews($id);
-        
-        return $this->apiSuccess('获取成功', $document);
-    }
-}
-```
-
-### UniApp页面开发规范
-```javascript
-// pages/index/index.js - UniApp页面示例
-export default {
-    data() {
-        return {
-            categories: [],
-            bannerList: [],
-            newsList: [],
-            loading: false,
-            lang: 'zh-cn'
-        }
-    },
-    
-    onLoad() {
-        this.initPage();
-    },
-    
-    methods: {
-        async initPage() {
-            this.loading = true;
-            
-            try {
-                await Promise.all([
-                    this.loadCategories(),
-                    this.loadBanners(),
-                    this.loadNews()
-                ]);
-            } catch (error) {
-                this.showError('加载失败：' + error.message);
-            } finally {
-                this.loading = false;
-            }
-        },
-        
-        async loadCategories() {
-            const response = await this.$api.get('/ldcms/api/categories', {
-                pid: 0,
-                lang: this.lang
-            });
-            
-            if (response.code === 200) {
-                this.categories = response.data;
-            }
-        },
-        
-        async loadBanners() {
-            const response = await this.$api.get('/ldcms/api/ads', {
-                type: 'banner',
-                limit: 5,
-                lang: this.lang
-            });
-            
-            if (response.code === 200) {
-                this.bannerList = response.data;
-            }
-        },
-        
-        async loadNews() {
-            const response = await this.$api.get('/ldcms/api/documents', {
-                cid: 1, // 新闻分类ID
-                limit: 10,
-                lang: this.lang
-            });
-            
-            if (response.code === 200) {
-                this.newsList = response.data.list;
-            }
-        },
-        
-        switchLanguage(lang) {
-            this.lang = lang;
-            uni.setStorageSync('language', lang);
-            this.initPage();
-        },
-        
-        showError(message) {
-            uni.showToast({
-                title: message,
-                icon: 'none',
-                duration: 2000
-            });
-        }
-    }
-}
-```
-
----
-
-## 📋 LDCMS开发检查清单
-
-### 功能开发检查
-- [ ] 多语言支持正确实现
-- [ ] 模板切换功能正常
-- [ ] SEO信息完整设置
-- [ ] URL重写规则正确
-- [ ] 自定义模型功能测试
-- [ ] 自定义表单提交正常
-- [ ] API接口返回格式统一
-- [ ] 移动端适配完成
-- [ ] 图片上传功能正常
-- [ ] 缓存机制正确配置
-
-### 数据安全检查
-- [ ] 输入数据过滤和验证
-- [ ] SQL注入防护措施
-- [ ] XSS攻击防护
-- [ ] 文件上传安全检查
-- [ ] API接口权限控制
-- [ ] 敏感信息加密存储
-- [ ] 日志记录完整
-- [ ] 错误信息不泄露敏感数据
-
-### 性能优化检查
-- [ ] 数据库查询优化
-- [ ] 图片压缩和CDN
-- [ ] 静态资源缓存
-- [ ] 页面加载速度优化
-- [ ] API接口响应时间
-- [ ] 内存使用优化
-- [ ] 数据库连接池配置
-
-### 多语言检查
-- [ ] 语言包翻译完整
-- [ ] URL多语言支持
-- [ ] 模板多语言适配
-- [ ] 数据库多语言字段
-- [ ] SEO多语言优化
-- [ ] 时间格式本地化
-- [ ] 货币格式本地化
-
-### 模板系统检查
-- [ ] 模板文件结构规范
-- [ ] 模板标签使用正确
-- [ ] 响应式设计实现
-- [ ] 浏览器兼容性测试
-- [ ] 移动端显示正常
-- [ ] 模板切换功能
-- [ ] 自定义模板开发
-
----
-
-**注意**: LDCMS是一个功能丰富的企业网站管理系统，开发时应充分利用其多语言、多模板、自定义功能等特性，确保系统的扩展性和用户体验。
+**注意**: 本规范基于LDCMS v1.2+版本，请根据实际使用的版本调整相关配置。

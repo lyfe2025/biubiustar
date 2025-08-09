@@ -225,13 +225,30 @@
                 <h3>Provide a full range of system solutions</h3>
                 <p>Please feel free to contact us</p>
             </div>
-            <form class="d-flex contact-form" action="{:addon_url('ldcms/diyform/message')}" method="post">
-                <input type="text" name="uname" placeholder="Your name" />
-                <input type="text" name="mobile" placeholder="Your phone number" />
-                <input class="remark" type="text" name="remark" placeholder="message" />
-                {:token()}
-                <button type="submit">Submit</button>
-            </form>
+            <form class="d-flex contact-form" action="{:addon_url('ldcms/diyform/contact_cooperation')}" method="post">
+                            <select name="category" required>
+                                <option value="">Select cooperation category *</option>
+                                <option value="livestream">Livestream E-commerce</option>
+                                <option value="shortvideo">Short Video</option>
+                                <option value="business">Business Cooperation</option>
+                                <option value="influencer">Influencer Cooperation</option>
+                                <option value="technical">Technical Consulting</option>
+                                <option value="product">Product Inquiry</option>
+                                <option value="media">Media Cooperation</option>
+                                <option value="other">Other Consulting</option>
+                            </select>
+                            <input type="text" name="name" placeholder="Name *" required />
+                            <input type="text" name="company" placeholder="Company Name" />
+                            <input type="tel" name="phone" placeholder="Phone Number *" required />
+                            <input type="email" name="email" placeholder="Email Address *" required />
+                            <textarea name="description" placeholder="Please describe your cooperation requirements *" maxlength="1000" required></textarea>
+                            <div class="captcha-container">
+                                <input type="text" name="captcha" placeholder="验证码 *" required />
+                                <img src="{:captcha_src()}" alt="captcha" onclick="this.src='{:captcha_src()}?r='+Math.random()" />
+                            </div>
+                            {:token()}
+                            <button type="submit">Submit</button>
+                        </form>
         </div>
     </div>
 </section>

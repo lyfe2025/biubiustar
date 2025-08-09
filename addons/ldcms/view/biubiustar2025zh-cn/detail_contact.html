@@ -49,12 +49,27 @@
                         </div>
                     </div>
                     <div class="contact_br col-12 col-xl-6">
-                        <form class="d-flex flex-wrap justify-content-between" action="{:addon_url('ldcms/diyform/message')}" method="post">
-                            <input type="text" name="uname" id="" placeholder="姓名 *" />
-                            <input type="tel" name="mobile" id="" placeholder="电话 *" />
-                            <input type="email" name="emails" id="" placeholder="邮箱 *" />
-                            <input type="text" name="companys" id="" placeholder="公司 *" />
-                            <textarea name="remark" id="" placeholder="请输入留言内容 *"></textarea>
+                        <form class="d-flex flex-wrap justify-content-between" action="{:addon_url('ldcms/diyform/contact_cooperation')}" method="post">
+                            <select name="category" required>
+                                <option value="">请选择合作类目 *</option>
+                                <option value="livestream">直播电商</option>
+                                <option value="shortvideo">短视频</option>
+                                <option value="business">商务合作</option>
+                                <option value="influencer">达人合作</option>
+                                <option value="technical">技术咨询</option>
+                                <option value="product">产品询价</option>
+                                <option value="media">媒体合作</option>
+                                <option value="other">其他咨询</option>
+                            </select>
+                            <input type="text" name="name" placeholder="姓名 *" required />
+                            <input type="text" name="company" placeholder="公司名称" />
+                            <input type="tel" name="phone" placeholder="联系电话 *" required />
+                            <input type="email" name="email" placeholder="邮箱地址 *" required />
+                            <textarea name="description" placeholder="请详细描述您的合作需求 *" maxlength="1000" required></textarea>
+                            <div class="captcha-container">
+                                <input type="text" name="captcha" placeholder="验证码 *" required />
+                                <img src="{:captcha_src()}" alt="captcha" onclick="this.src='{:captcha_src()}?r='+Math.random()" />
+                            </div>
                             {:token()}
                             <button type="submit">立即提交</button>
                         </form>

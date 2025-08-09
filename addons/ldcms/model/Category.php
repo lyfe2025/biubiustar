@@ -15,7 +15,8 @@ class Category extends Frontend
 
     // 追加属性
     protected $append = [
-        'url'
+        'url',
+        'ename'
     ];
 
     public function getImageAttr($value, $data)
@@ -31,6 +32,12 @@ class Category extends Frontend
     public function getUrlAttr($value, $data)
     {
         return $this->buildUrl($value, $data);
+    }
+
+    public function getEnameAttr($value, $data)
+    {
+        // 直接返回数据库中的ename字段，如果为空则返回默认值
+        return isset($data['ename']) && !empty($data['ename']) ? $data['ename'] : $data['name'];
     }
 
     public function buildImage($value, $data, $domain = true)

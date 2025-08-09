@@ -225,13 +225,30 @@
                 <h3>专业技术团队 提供全方位系统解决方案</h3>
                 <p>如有任何疑问 请随时与我们联系</p>
             </div>
-            <form class="d-flex contact-form" action="{:addon_url('ldcms/diyform/message')}" method="post">
-                <input type="text" name="uname" placeholder="您的姓名" />
-                <input type="text" name="mobile" placeholder="您的电话" />
-                <input class="remark" type="text" name="remark" placeholder="您的留言" />
-                {:token()}
-                <button type="submit">立即提交</button>
-            </form>
+            <form class="d-flex contact-form" action="{:addon_url('ldcms/diyform/contact_cooperation')}" method="post">
+                            <select name="category" required>
+                                <option value="">Chọn danh mục hợp tác *</option>
+                                <option value="livestream">Thương mại điện tử livestream</option>
+                                <option value="shortvideo">Video ngắn</option>
+                                <option value="business">Hợp tác kinh doanh</option>
+                                <option value="influencer">Hợp tác với KOL</option>
+                                <option value="technical">Tư vấn kỹ thuật</option>
+                                <option value="product">Tư vấn sản phẩm</option>
+                                <option value="media">Hợp tác truyền thông</option>
+                                <option value="other">Tư vấn khác</option>
+                            </select>
+                            <input type="text" name="name" placeholder="Họ và tên *" required />
+                            <input type="text" name="company" placeholder="Tên công ty" />
+                            <input type="tel" name="phone" placeholder="Số điện thoại *" required />
+                            <input type="email" name="email" placeholder="Địa chỉ email *" required />
+                            <textarea name="description" placeholder="Vui lòng mô tả chi tiết yêu cầu hợp tác *" maxlength="1000" required></textarea>
+                            <div class="captcha-container">
+                                <input type="text" name="captcha" placeholder="验证码 *" required />
+                                <img src="{:captcha_src()}" alt="captcha" onclick="this.src='{:captcha_src()}?r='+Math.random()" />
+                            </div>
+                            {:token()}
+                            <button type="submit">Gửi</button>
+                        </form>
         </div>
     </div>
 

@@ -1,1457 +1,709 @@
----
-# ===========================================
-# 🤖 AI自动调度配置 (必需)
-# ===========================================
-ruleName: "fastadmin-multitemplate-standards"
-description: "FastAdmin LDCMS多模板系统开发标准规范，支持多套主题模板和自定义模板开发"
-version: "1.0.0"
-lastUpdated: "2024-12-19"
+# FastAdmin LDCMS多模板系统开发标准规范
 
-alwaysApply: false
-priority: 8
-
-# ===========================================
-# 🔍 智能检测配置 (核心)
-# ===========================================
-detection:
-  keywords:
-    primary: ["模板", "template", "多模板", "主题"]
-    secondary: ["default", "ldcms2024", "ldcms2025", "view", "theme"]
-    technical: ["TemplateManager", "{ldcms:", "renderLdcmsTemplate", "getTemplate"]
-  
-  paths:
-    exact: ["addons/ldcms/view/", "view/", "template/"]
-    pattern: ["**/view/**", "**/template/**", "**/theme/**"]
-  
-  contexts:
-    development_phase: ["模板开发", "主题定制", "前端开发"]
-    project_type: ["模板系统", "主题开发", "前端定制"]
-    user_intent: ["模板定制", "主题切换", "界面美化", "前端优化"]
-
-# ===========================================
-# ⚡ 触发条件配置 (精确)
-# ===========================================
-triggers:
-  explicit_mentions:
-    exact_match: ["模板", "多模板", "主题", "模板系统", "template"]
-    fuzzy_match: ["界面定制", "前端模板", "网站主题", "页面模板"]
-  
-  file_operations:
-    reading: ["addons/ldcms/view/目录下的模板文件"]
-    editing: ["HTML模板文件", "CSS样式文件", "JS脚本文件"]
-    creating: ["新的模板套件", "自定义主题", "页面模板"]
-  
-  code_patterns:
-    namespaces: ["addons\\ldcms\\view"]
-    functions: ["renderLdcmsTemplate", "getTemplate", "setTemplate", "loadTemplate"]
-    classes: ["TemplateManager", "ThemeConfig", "ViewEngine"]
-    comments: ["模板", "template", "主题", "theme"]
-  
-  intent_analysis:
-    primary_intent: ["template_development", "theme_customization", "frontend_design"]
-    secondary_intent: ["template_switching", "ui_customization", "responsive_design"]
-    complexity_level: ["medium", "complex"]
-
-# ===========================================
-# 🔗 关联规则配置
-# ===========================================
-relationships:
-  required_with: ["ldcms-enterprise-cms-standards.mdc"]
-  recommended_with: ["bootstrap-adminlte-ui-standards.mdc", "fastadmin-multilanguage-standards.mdc"]
-  depends_on: ["common-rules.mdc"]
-
-# ===========================================
-# 📊 使用场景描述 (帮助AI理解)
-# ===========================================
-use_cases:
-  primary:
-    - scenario: "用户需要开发新的模板套件"
-      trigger_example: "如何为LDCMS创建一个新的企业模板？"
-      expected_behavior: "AI应该提供完整的模板开发指南，包括目录结构、命名规范、标签使用"
-    - scenario: "用户要定制现有模板"
-      trigger_example: "怎么修改default模板的首页布局？"
-      expected_behavior: "AI应该提供模板定制的具体方法和注意事项"
-  
-  secondary:
-    - scenario: "用户遇到模板渲染问题"
-      trigger_example: "LDCMS模板标签不生效"
-      expected_behavior: "AI应该基于模板规范提供排错和解决方案"
-    - scenario: "用户需要实现模板切换功能"
-      trigger_example: "如何让用户在前台选择不同主题？"
-      expected_behavior: "AI应该提供模板切换的实现方法"
-
-# ===========================================
-# 🎯 AI指令配置 (明确指导)
-# ===========================================
-ai_instructions:
-  when_to_load: "当用户提及模板、主题、template、前端定制，或操作view/目录时应立即加载此规则"
-  how_to_apply: "严格按照多模板开发规范提供建议，确保模板结构、标签使用、样式规范的一致性"
-  priority_reason: "多模板系统是LDCMS的重要特性，影响用户体验和网站外观"
-  coordination: "与LDCMS核心规范和多语言规范协调，确保模板与语言系统的兼容性"
-
-# ===========================================
-# 📈 性能优化配置
-# ===========================================
-performance:
-  preload_conditions: ["检测到项目包含view/目录", "用户历史操作涉及模板开发"]
-  cache_duration: "20"
-  unload_conditions: ["连续5次对话未涉及模板相关内容"]
----
-# FastAdmin LDCMS 多模板系统开发标准规范
-
-> **🎯 专为LDCMS插件设计**: 基于FastAdmin LDCMS企业网站管理系统的多模板开发规范
-> **📁 模板位置**: `addons/ldcms/view/` 目录下的多套模板
-> **🎨 现有模板**: default、en、ldcms2024、ldcms2024en、ldcms2025、ldcms2025en
-> **🔧 模板引擎**: ThinkPHP Template + LDCMS自定义标签系统
-> **⚠️ 重要**: 所有模板开发都必须基于LDCMS插件的现有模板结构进行
+> **支持多套主题模板和自定义模板开发的企业网站管理系统**
+> **技术栈**: FastAdmin + LDCMS + ThinkPHP 5.1 + Bootstrap + AdminLTE
 
 ---
 
-## 🎨 模板系统架构
+## 🎨 多模板系统架构原理
 
-## 🚨 LDCMS模板开发强制要求
+### 模板管理核心机制
+- **文件系统扫描**: 通过`ThemeService::getThemeList()`自动发现模板
+- **语言模板映射**: `fa_ldcms_langs`表中`template`字段指定模板目录
+- **无需额外表**: 不依赖主题表，完全基于文件系统和语言配置
+- **热切换支持**: 后台一键切换，无需重启服务
 
-**所有模板开发必须遵循以下LDCMS插件规范：**
-
-1. **🔥 使用LDCMS现有模板结构**: 必须基于 `addons/ldcms/view/` 下的现有模板进行开发
-2. **🔥 遵循LDCMS模板命名规范**: default、en、ldcms2024、ldcms2025等命名方式
-3. **🔥 使用LDCMS标签系统**: 必须使用 `{ldcms:}` 标签系统，不能使用其他标签
-4. **🔥 保持模板兼容性**: 新模板必须与现有LDCMS功能完全兼容
-5. **🔥 遵循多语言模板结构**: 每个主题都要有对应的语言版本
-
-### LDCMS插件现有模板目录结构（实际项目结构）
-```
-addons/ldcms/view/                    # LDCMS模板根目录
-├── 📁 default/                       # 默认中文模板 ⭐
-│   ├── 📁 index/                     # 首页模板
-│   ├── 📁 lists/                     # 列表页模板
-│   ├── 📁 detail/                    # 详情页模板
-│   ├── 📁 search/                    # 搜索模板
-│   ├── 📁 form/                      # 表单模板
-│   └── 📁 common/                    # 公共模板
-├── 📁 en/                            # 英文模板 ⭐
-│   └── (与default结构相同)
-├── 📁 ldcms2024/                     # 2024主题中文版 ⭐
-│   └── (现代化设计风格)
-├── 📁 ldcms2024en/                   # 2024主题英文版 ⭐
-│   └── (2024主题的英文版本)
-├── 📁 ldcms2025/                     # 2025主题中文版 ⭐
-│   └── (最新设计风格)
-└── 📁 ldcms2025en/                   # 2025主题英文版 ⭐
-    └── (2025主题的英文版本)
-
-注意：⭐ 标记的是已安装的模板，开发时必须基于这些现有模板进行
-```
-
-### LDCMS模板文件标准结构
-```
-每个模板目录包含：
-├── 📄 index.html                     # 首页模板文件
-├── 📄 lists.html                     # 列表页模板文件
-├── 📄 detail.html                    # 详情页模板文件
-├── 📄 search.html                    # 搜索页模板文件
-├── 📄 form.html                      # 表单页模板文件
-├── 📁 static/                        # 静态资源目录
-│   ├── 📁 css/                       # 样式文件
-│   ├── 📁 js/                        # JavaScript文件
-│   ├── 📁 images/                    # 图片资源
-│   └── 📁 fonts/                     # 字体文件
-└── 📄 config.php                     # 模板配置文件（可选）
-```
-
-### 模板配置文件规范
+### 模板发现机制
 ```php
-// config.php - 模板配置文件
-<?php
-return [
-    // 模板基本信息
-    'name' => 'default',
-    'title' => '默认模板',
-    'description' => 'LDCMS默认模板，支持响应式设计',
-    'version' => '1.0.0',
-    'author' => 'LDCMS Team',
-    'website' => 'https://www.ldcms.com',
-    'email' => 'support@ldcms.com',
-    
-    // 模板特性
-    'features' => [
-        'responsive' => true,        // 响应式设计
-        'multilang' => true,         // 多语言支持
-        'seo_friendly' => true,      // SEO友好
-        'rtl_support' => false,      // RTL支持
-        'dark_mode' => false,        // 暗黑模式
-        'custom_colors' => true,     // 自定义颜色
-        'custom_fonts' => true,      // 自定义字体
-    ],
-    
-    // 兼容性要求
-    'requirements' => [
-        'ldcms_version' => '>=1.4.0',
-        'php_version' => '>=7.4.0',
-        'mysql_version' => '>=5.7.0',
-    ],
-    
-    // 模板设置选项
-    'settings' => [
-        'layout' => [
-            'type' => 'select',
-            'title' => '布局方式',
-            'options' => [
-                'full' => '全宽布局',
-                'boxed' => '盒式布局',
-                'fluid' => '流体布局'
-            ],
-            'default' => 'full'
-        ],
-        'primary_color' => [
-            'type' => 'color',
-            'title' => '主色调',
-            'default' => '#3498db'
-        ],
-        'secondary_color' => [
-            'type' => 'color',
-            'title' => '辅助色',
-            'default' => '#2ecc71'
-        ],
-        'font_family' => [
-            'type' => 'select',
-            'title' => '字体族',
-            'options' => [
-                'system' => '系统字体',
-                'google' => 'Google Fonts',
-                'custom' => '自定义字体'
-            ],
-            'default' => 'system'
-        ],
-        'show_breadcrumb' => [
-            'type' => 'switch',
-            'title' => '显示面包屑导航',
-            'default' => true
-        ],
-        'show_sidebar' => [
-            'type' => 'switch',
-            'title' => '显示侧边栏',
-            'default' => true
-        ]
-    ],
-    
-    // 自定义区域
-    'regions' => [
-        'header_top' => '头部顶部区域',
-        'header_bottom' => '头部底部区域',
-        'sidebar_left' => '左侧边栏',
-        'sidebar_right' => '右侧边栏',
-        'footer_top' => '底部顶部区域',
-        'footer_bottom' => '底部底部区域'
-    ],
-    
-    // 页面模板映射
-    'page_templates' => [
-        'index' => 'index/index.html',
-        'category' => 'lists/index.html',
-        'document' => 'detail/index.html',
-        'search' => 'search/index.html',
-        'form' => 'form/index.html',
-        '404' => 'error/404.html',
-        '500' => 'error/500.html'
-    ]
-];
-```
-
-```json
-// template.json - 模板元信息
+// ThemeService::getThemeList() 工作原理
+public static function getThemeList()
 {
-    "name": "default",
-    "title": "默认模板",
-    "description": "LDCMS默认模板，适用于企业网站和内容管理",
-    "version": "1.0.0",
-    "author": "LDCMS Team",
-    "website": "https://www.ldcms.com",
-    "license": "MIT",
-    "tags": ["responsive", "business", "cms"],
-    "preview": "preview.jpg",
-    "screenshots": [
-        "screenshot1.jpg",
-        "screenshot2.jpg",
-        "screenshot3.jpg"
-    ],
-    "demo_url": "https://demo.ldcms.com/default",
-    "support_url": "https://support.ldcms.com",
-    "changelog": [
-        {
-            "version": "1.0.0",
-            "date": "2024-01-01",
-            "changes": ["初始版本发布"]
+    $themePath = ADDON_PATH . 'ldcms' . DS . 'view' . DS;
+    $themes = [];
+    
+    if (is_dir($themePath)) {
+        $dirs = scandir($themePath);
+        foreach ($dirs as $dir) {
+            if ($dir !== '.' && $dir !== '..' && is_dir($themePath . $dir)) {
+                $themes[] = [
+                    'name' => $dir,
+                    'title' => self::getThemeTitle($dir),
+                    'path' => $themePath . $dir,
+                    'install' => self::checkThemeInstall($dir)
+                ];
+            }
         }
-    ]
+    }
+    
+    return $themes;
 }
 ```
 
 ---
 
-## 🛠️ 模板管理器开发
+## 📁 模板目录结构标准
 
-### 模板管理核心类
-```php
-/**
- * 模板管理器
- */
-class TemplateManager
-{
-    private static $templates = [];
-    private static $currentTemplate = null;
-    private static $templateSettings = [];
-    
-    /**
-     * 初始化模板系统
-     */
-    public static function initialize()
-    {
-        self::loadTemplates();
-        self::setCurrentTemplate();
-        self::loadTemplateSettings();
-    }
-    
-    /**
-     * 加载所有模板
-     */
-    public static function loadTemplates()
-    {
-        $templatePath = ADDON_PATH . 'ldcms/view/';
-        $directories = glob($templatePath . '*', GLOB_ONLYDIR);
-        
-        foreach ($directories as $dir) {
-            $templateName = basename($dir);
-            $configFile = $dir . '/config.php';
-            $jsonFile = $dir . '/template.json';
-            
-            if (file_exists($configFile)) {
-                $config = include $configFile;
-                $config['path'] = $dir;
-                $config['url'] = '/addons/ldcms/view/' . $templateName;
-                
-                // 合并JSON信息
-                if (file_exists($jsonFile)) {
-                    $jsonInfo = json_decode(file_get_contents($jsonFile), true);
-                    $config = array_merge($config, $jsonInfo);
-                }
-                
-                self::$templates[$templateName] = $config;
-            }
-        }
-    }
-    
-    /**
-     * 获取所有模板
-     */
-    public static function getTemplates()
-    {
-        return self::$templates;
-    }
-    
-    /**
-     * 获取可用模板
-     */
-    public static function getAvailableTemplates()
-    {
-        $templates = [];
-        foreach (self::$templates as $name => $config) {
-            if (self::isTemplateCompatible($config)) {
-                $templates[$name] = $config;
-            }
-        }
-        return $templates;
-    }
-    
-    /**
-     * 检查模板兼容性
-     */
-    public static function isTemplateCompatible($config)
-    {
-        // 检查LDCMS版本
-        if (isset($config['requirements']['ldcms_version'])) {
-            $requiredVersion = $config['requirements']['ldcms_version'];
-            $currentVersion = get_addon_info('ldcms')['version'];
-            
-            if (!version_compare($currentVersion, str_replace('>=', '', $requiredVersion), '>=')) {
-                return false;
-            }
-        }
-        
-        // 检查PHP版本
-        if (isset($config['requirements']['php_version'])) {
-            $requiredVersion = str_replace('>=', '', $config['requirements']['php_version']);
-            if (!version_compare(PHP_VERSION, $requiredVersion, '>=')) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
-    /**
-     * 设置当前模板
-     */
-    public static function setCurrentTemplate($templateName = null)
-    {
-        if ($templateName === null) {
-            $templateName = self::detectCurrentTemplate();
-        }
-        
-        if (!isset(self::$templates[$templateName])) {
-            $templateName = 'default';
-        }
-        
-        self::$currentTemplate = $templateName;
-        
-        // 设置模板路径
-        $templatePath = ADDON_PATH . 'ldcms/view/' . $templateName . '/';
-        config('template.view_path', $templatePath);
-        
-        return $templateName;
-    }
-    
-    /**
-     * 检测当前模板
-     */
-    private static function detectCurrentTemplate()
-    {
-        $config = get_addon_config('ldcms');
-        $lang = LanguageHandler::getCurrentLanguage();
-        
-        // 根据语言选择模板
-        $templateMap = [
-            'zh-cn' => $config['template'] ?? 'default',
-            'en' => $config['en_template'] ?? 'en',
-            'zh-tw' => $config['tw_template'] ?? 'default'
-        ];
-        
-        return $templateMap[$lang] ?? 'default';
-    }
-    
-    /**
-     * 获取当前模板
-     */
-    public static function getCurrentTemplate()
-    {
-        return self::$currentTemplate ?: 'default';
-    }
-    
-    /**
-     * 获取模板信息
-     */
-    public static function getTemplateInfo($templateName = null)
-    {
-        $templateName = $templateName ?: self::getCurrentTemplate();
-        return self::$templates[$templateName] ?? [];
-    }
-    
-    /**
-     * 获取模板路径
-     */
-    public static function getTemplatePath($templateName = null, $file = '')
-    {
-        $templateName = $templateName ?: self::getCurrentTemplate();
-        $basePath = ADDON_PATH . 'ldcms/view/' . $templateName . '/';
-        
-        return $file ? $basePath . $file : $basePath;
-    }
-    
-    /**
-     * 获取模板URL
-     */
-    public static function getTemplateUrl($templateName = null, $file = '')
-    {
-        $templateName = $templateName ?: self::getCurrentTemplate();
-        $baseUrl = '/addons/ldcms/view/' . $templateName . '/';
-        
-        return $file ? $baseUrl . $file : $baseUrl;
-    }
-    
-    /**
-     * 检查模板文件是否存在
-     */
-    public static function templateFileExists($file, $templateName = null)
-    {
-        $templatePath = self::getTemplatePath($templateName, $file);
-        return file_exists($templatePath);
-    }
-    
-    /**
-     * 加载模板设置
-     */
-    public static function loadTemplateSettings($templateName = null)
-    {
-        $templateName = $templateName ?: self::getCurrentTemplate();
-        $settingsKey = 'template_settings_' . $templateName;
-        
-        self::$templateSettings[$templateName] = cache($settingsKey) ?: [];
-        
-        // 如果没有设置，使用默认值
-        if (empty(self::$templateSettings[$templateName])) {
-            $templateInfo = self::getTemplateInfo($templateName);
-            $defaultSettings = [];
-            
-            if (isset($templateInfo['settings'])) {
-                foreach ($templateInfo['settings'] as $key => $setting) {
-                    $defaultSettings[$key] = $setting['default'] ?? '';
-                }
-            }
-            
-            self::$templateSettings[$templateName] = $defaultSettings;
-            cache($settingsKey, $defaultSettings, 86400); // 缓存24小时
-        }
-    }
-    
-    /**
-     * 获取模板设置
-     */
-    public static function getTemplateSetting($key, $templateName = null, $default = null)
-    {
-        $templateName = $templateName ?: self::getCurrentTemplate();
-        
-        if (!isset(self::$templateSettings[$templateName])) {
-            self::loadTemplateSettings($templateName);
-        }
-        
-        return self::$templateSettings[$templateName][$key] ?? $default;
-    }
-    
-    /**
-     * 设置模板配置
-     */
-    public static function setTemplateSetting($key, $value, $templateName = null)
-    {
-        $templateName = $templateName ?: self::getCurrentTemplate();
-        
-        if (!isset(self::$templateSettings[$templateName])) {
-            self::loadTemplateSettings($templateName);
-        }
-        
-        self::$templateSettings[$templateName][$key] = $value;
-        
-        // 更新缓存
-        $settingsKey = 'template_settings_' . $templateName;
-        cache($settingsKey, self::$templateSettings[$templateName], 86400);
-        
-        return true;
-    }
-    
-    /**
-     * 批量设置模板配置
-     */
-    public static function setTemplateSettings($settings, $templateName = null)
-    {
-        $templateName = $templateName ?: self::getCurrentTemplate();
-        
-        foreach ($settings as $key => $value) {
-            self::setTemplateSetting($key, $value, $templateName);
-        }
-        
-        return true;
-    }
-}
+### 标准模板目录结构
+```
+addons/ldcms/view/template-name/
+├── index.html              # 首页模板 (必需)
+├── list.html               # 列表页模板 (必需)
+├── detail.html             # 详情页模板 (必需)
+├── search.html             # 搜索页模板 (可选)
+├── tag.html               # 标签页模板 (可选)
+├── page.html              # 单页模板 (可选)
+├── head.html              # 头部文件 (必需)
+├── footer.html            # 底部文件 (必需)
+├── nav.html               # 导航文件 (可选)
+├── sidebar.html           # 侧边栏文件 (可选)
+├── breadcrumb.html        # 面包屑文件 (可选)
+├── info.ini               # 模板信息文件 (v1.2+)
+└── screenshot.jpg         # 模板预览图 (推荐)
 ```
 
-### 模板渲染引擎
-```php
-/**
- * 模板渲染引擎
- */
-class TemplateRenderer
-{
-    private $template;
-    private $variables = [];
-    private $blocks = [];
-    private $extends = null;
-    
-    /**
-     * 构造函数
-     */
-    public function __construct($template = null)
-    {
-        $this->template = $template;
-    }
-    
-    /**
-     * 分配变量
-     */
-    public function assign($name, $value = null)
-    {
-        if (is_array($name)) {
-            $this->variables = array_merge($this->variables, $name);
-        } else {
-            $this->variables[$name] = $value;
-        }
-        
-        return $this;
-    }
-    
-    /**
-     * 渲染模板
-     */
-    public function render($template = null, $variables = [])
-    {
-        $template = $template ?: $this->template;
-        $this->assign($variables);
-        
-        // 获取模板文件路径
-        $templateFile = $this->getTemplateFile($template);
-        
-        if (!file_exists($templateFile)) {
-            throw new \Exception("模板文件不存在: {$template}");
-        }
-        
-        // 预处理模板内容
-        $content = file_get_contents($templateFile);
-        $content = $this->preprocessTemplate($content);
-        
-        // 创建临时文件
-        $tempFile = $this->createTempFile($content);
-        
-        try {
-            // 渲染模板
-            extract($this->variables);
-            ob_start();
-            include $tempFile;
-            $output = ob_get_clean();
-            
-            // 处理模板继承
-            if ($this->extends) {
-                $output = $this->processExtends($output);
-            }
-            
-            return $output;
-            
-        } finally {
-            // 清理临时文件
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
-            }
-        }
-    }
-    
-    /**
-     * 获取模板文件路径
-     */
-    private function getTemplateFile($template)
-    {
-        // 如果是相对路径，使用当前模板目录
-        if (strpos($template, '/') !== 0) {
-            $templatePath = TemplateManager::getTemplatePath();
-            return $templatePath . $template;
-        }
-        
-        return $template;
-    }
-    
-    /**
-     * 预处理模板内容
-     */
-    private function preprocessTemplate($content)
-    {
-        // 处理模板继承
-        $content = preg_replace_callback(
-            '/\{extend\s+name=["\']([^"\']+)["\']\s*\/\}/',
-            function($matches) {
-                $this->extends = $matches[1];
-                return '';
-            },
-            $content
-        );
-        
-        // 处理区块定义
-        $content = preg_replace_callback(
-            '/\{block\s+name=["\']([^"\']+)["\'].*?\}(.*?)\{\/block\}/s',
-            function($matches) {
-                $blockName = $matches[1];
-                $blockContent = $matches[2];
-                $this->blocks[$blockName] = $blockContent;
-                return "<?php echo \$this->renderBlock('{$blockName}'); ?>";
-            },
-            $content
-        );
-        
-        // 处理包含文件
-        $content = preg_replace_callback(
-            '/\{include\s+file=["\']([^"\']+)["\']\s*\/\}/',
-            function($matches) {
-                $includeFile = $matches[1];
-                $includeContent = $this->getIncludeContent($includeFile);
-                return $includeContent;
-            },
-            $content
-        );
-        
-        // 处理自定义标签
-        $content = $this->processCustomTags($content);
-        
-        return $content;
-    }
-    
-    /**
-     * 处理自定义标签
-     */
-    private function processCustomTags($content)
-    {
-        // LDCMS标签处理
-        $content = preg_replace_callback(
-            '/\{ldcms:(\w+)\s+(.*?)\}(.*?)\{\/ldcms:\1\}/s',
-            function($matches) {
-                $tagName = $matches[1];
-                $attributes = $matches[2];
-                $innerContent = $matches[3];
-                
-                return $this->processLdcmsTag($tagName, $attributes, $innerContent);
-            },
-            $content
-        );
-        
-        // 单标签处理
-        $content = preg_replace_callback(
-            '/\{ldcms:(\w+)\s+(.*?)\/\}/',
-            function($matches) {
-                $tagName = $matches[1];
-                $attributes = $matches[2];
-                
-                return $this->processLdcmsTag($tagName, $attributes);
-            },
-            $content
-        );
-        
-        return $content;
-    }
-    
-    /**
-     * 处理LDCMS标签
-     */
-    private function processLdcmsTag($tagName, $attributes, $innerContent = '')
-    {
-        $attrs = $this->parseAttributes($attributes);
-        
-        switch ($tagName) {
-            case 'category':
-                return $this->processCategoryTag($attrs, $innerContent);
-            case 'document':
-                return $this->processDocumentTag($attrs, $innerContent);
-            case 'ad':
-                return $this->processAdTag($attrs, $innerContent);
-            case 'navigation':
-                return $this->processNavigationTag($attrs, $innerContent);
-            case 'breadcrumb':
-                return $this->processBreadcrumbTag($attrs);
-            default:
-                return "<!-- Unknown tag: {$tagName} -->";
-        }
-    }
-    
-    /**
-     * 处理分类标签
-     */
-    private function processCategoryTag($attrs, $innerContent)
-    {
-        $pid = $attrs['pid'] ?? 0;
-        $limit = $attrs['limit'] ?? 10;
-        $order = $attrs['order'] ?? 'sort asc';
-        
-        $php = "<?php\n";
-        $php .= "\$categoryList = \\addons\\ldcms\\model\\Category::where('pid', {$pid})\n";
-        $php .= "    ->where('status', 1)\n";
-        $php .= "    ->where('lang', LanguageHandler::getCurrentLanguage())\n";
-        $php .= "    ->limit({$limit})\n";
-        $php .= "    ->order('{$order}')\n";
-        $php .= "    ->select();\n";
-        $php .= "foreach (\$categoryList as \$category) {\n";
-        $php .= "    extract(\$category->toArray());\n";
-        $php .= "?>\n";
-        $php .= $innerContent;
-        $php .= "\n<?php } ?>";
-        
-        return $php;
-    }
-    
-    /**
-     * 处理文档标签
-     */
-    private function processDocumentTag($attrs, $innerContent)
-    {
-        $cid = $attrs['cid'] ?? 0;
-        $limit = $attrs['limit'] ?? 10;
-        $order = $attrs['order'] ?? 'create_time desc';
-        
-        $php = "<?php\n";
-        $php .= "\$documentList = \\addons\\ldcms\\model\\Document::where('cid', {$cid})\n";
-        $php .= "    ->where('status', 1)\n";
-        $php .= "    ->where('lang', LanguageHandler::getCurrentLanguage())\n";
-        $php .= "    ->limit({$limit})\n";
-        $php .= "    ->order('{$order}')\n";
-        $php .= "    ->select();\n";
-        $php .= "foreach (\$documentList as \$document) {\n";
-        $php .= "    extract(\$document->toArray());\n";
-        $php .= "?>\n";
-        $php .= $innerContent;
-        $php .= "\n<?php } ?>";
-        
-        return $php;
-    }
-    
-    /**
-     * 解析属性
-     */
-    private function parseAttributes($attributeString)
-    {
-        $attributes = [];
-        preg_match_all('/(\w+)=["\']([^"\']*)["\']/', $attributeString, $matches, PREG_SET_ORDER);
-        
-        foreach ($matches as $match) {
-            $attributes[$match[1]] = $match[2];
-        }
-        
-        return $attributes;
-    }
-    
-    /**
-     * 创建临时文件
-     */
-    private function createTempFile($content)
-    {
-        $tempFile = sys_get_temp_dir() . '/ldcms_template_' . uniqid() . '.php';
-        file_put_contents($tempFile, $content);
-        
-        return $tempFile;
-    }
-    
-    /**
-     * 渲染区块
-     */
-    public function renderBlock($blockName)
-    {
-        return $this->blocks[$blockName] ?? '';
-    }
-    
-    /**
-     * 处理模板继承
-     */
-    private function processExtends($content)
-    {
-        if (!$this->extends) {
-            return $content;
-        }
-        
-        $parentTemplate = new self($this->extends);
-        $parentTemplate->assign($this->variables);
-        $parentTemplate->blocks = $this->blocks;
-        
-        return $parentTemplate->render();
-    }
-}
+### 模板信息文件 (info.ini)
+```ini
+[template]
+name = "BiuBiuStar2025企业模板"
+version = "1.0.0"
+author = "BiuBiuStar Team"
+description = "适合企业官网的现代化响应式模板"
+demo_url = "https://demo.biubiustar.com"
+support_url = "https://support.biubiustar.com"
+
+[requirements]
+ldcms_version = ">=1.2.0"
+php_version = ">=7.1"
+mysql_version = ">=5.6"
+
+[features]
+responsive = true
+multilanguage = true
+seo_optimized = true
+admin_compatible = true
+
+[languages]
+supported[] = "zh-cn"
+supported[] = "en"
+supported[] = "zh-tw"
+supported[] = "vi-vn"
+
+[assets]
+css[] = "css/style.min.css"
+css[] = "css/responsive.css"
+js[] = "js/app.min.js"
+js[] = "js/plugins.js"
 ```
 
 ---
 
-## 🎯 模板标签系统
+## 🎯 模板开发规范
 
-### 核心标签库
-```php
-/**
- * LDCMS模板标签库
- */
-class LdcmsTagLib extends \think\template\TagLib
-{
-    /**
-     * 标签定义
-     */
-    protected $tags = [
-        // 分类标签
-        'category' => ['attr' => 'pid,limit,order,where', 'close' => 1],
-        // 文档标签  
-        'document' => ['attr' => 'cid,limit,order,where', 'close' => 1],
-        // 广告标签
-        'ad' => ['attr' => 'type,limit,order', 'close' => 1],
-        // 导航标签
-        'navigation' => ['attr' => 'type,pid,level', 'close' => 1],
-        // 面包屑标签
-        'breadcrumb' => ['attr' => 'separator,home', 'close' => 0],
-        // 分页标签
-        'pagination' => ['attr' => 'list,simple', 'close' => 0],
-        // 搜索标签
-        'search' => ['attr' => 'type,placeholder', 'close' => 0],
-        // 语言切换标签
-        'language' => ['attr' => 'type', 'close' => 1],
-        // 自定义字段标签
-        'fields' => ['attr' => 'model,id', 'close' => 1],
-        // 标签云标签
-        'tags' => ['attr' => 'limit,order', 'close' => 1],
-        // 友情链接标签
-        'links' => ['attr' => 'type,limit', 'close' => 1],
-        // 统计标签
-        'statistics' => ['attr' => 'type', 'close' => 0],
-    ];
-    
-    /**
-     * 分类标签解析
-     */
-    public function tagCategory($tag, $content)
-    {
-        $pid = isset($tag['pid']) ? $tag['pid'] : 0;
-        $limit = isset($tag['limit']) ? $tag['limit'] : 10;
-        $order = isset($tag['order']) ? $tag['order'] : 'sort asc';
-        $where = isset($tag['where']) ? $tag['where'] : '';
-        
-        $parse = '<?php ';
-        $parse .= '$__CATEGORY_LIST__ = \\addons\\ldcms\\model\\Category::where("pid", ' . $pid . ')';
-        $parse .= '->where("status", 1)';
-        $parse .= '->where("lang", \\addons\\ldcms\\utils\\LanguageHandler::getCurrentLanguage())';
-        
-        if ($where) {
-            $parse .= '->where("' . $where . '")';
-        }
-        
-        $parse .= '->limit(' . $limit . ')';
-        $parse .= '->order("' . $order . '")';
-        $parse .= '->select(); ';
-        $parse .= 'if($__CATEGORY_LIST__): foreach($__CATEGORY_LIST__ as $key=>$category): ';
-        $parse .= '$category["url"] = \\addons\\ldcms\\utils\\SEOFriendlyURL::categoryUrl($category->toArray()); ';
-        $parse .= '?>';
-        $parse .= $content;
-        $parse .= '<?php endforeach; endif; ?>';
-        
-        return $parse;
-    }
-    
-    /**
-     * 文档标签解析
-     */
-    public function tagDocument($tag, $content)
-    {
-        $cid = isset($tag['cid']) ? $tag['cid'] : 0;
-        $limit = isset($tag['limit']) ? $tag['limit'] : 10;
-        $order = isset($tag['order']) ? $tag['order'] : 'create_time desc';
-        $where = isset($tag['where']) ? $tag['where'] : '';
-        
-        $parse = '<?php ';
-        $parse .= '$__DOCUMENT_LIST__ = \\addons\\ldcms\\model\\Document::where("cid", ' . $cid . ')';
-        $parse .= '->where("status", 1)';
-        $parse .= '->where("lang", \\addons\\ldcms\\utils\\LanguageHandler::getCurrentLanguage())';
-        
-        if ($where) {
-            $parse .= '->where("' . $where . '")';
-        }
-        
-        $parse .= '->limit(' . $limit . ')';
-        $parse .= '->order("' . $order . '")';
-        $parse .= '->select(); ';
-        $parse .= 'if($__DOCUMENT_LIST__): foreach($__DOCUMENT_LIST__ as $key=>$document): ';
-        $parse .= '$document["url"] = \\addons\\ldcms\\utils\\SEOFriendlyURL::documentUrl($document->toArray()); ';
-        $parse .= '$document["thumb"] = $document["images"] ? explode(",", $document["images"])[0] : ""; ';
-        $parse .= '?>';
-        $parse .= $content;
-        $parse .= '<?php endforeach; endif; ?>';
-        
-        return $parse;
-    }
-    
-    /**
-     * 广告标签解析
-     */
-    public function tagAd($tag, $content)
-    {
-        $type = isset($tag['type']) ? $tag['type'] : '';
-        $limit = isset($tag['limit']) ? $tag['limit'] : 5;
-        $order = isset($tag['order']) ? $tag['order'] : 'sort asc';
-        
-        $parse = '<?php ';
-        $parse .= '$__AD_LIST__ = \\addons\\ldcms\\model\\Ad::where("type", "' . $type . '")';
-        $parse .= '->where("status", 1)';
-        $parse .= '->where("lang", \\addons\\ldcms\\utils\\LanguageHandler::getCurrentLanguage())';
-        $parse .= '->limit(' . $limit . ')';
-        $parse .= '->order("' . $order . '")';
-        $parse .= '->select(); ';
-        $parse .= 'if($__AD_LIST__): foreach($__AD_LIST__ as $key=>$ad): ';
-        $parse .= '?>';
-        $parse .= $content;
-        $parse .= '<?php endforeach; endif; ?>';
-        
-        return $parse;
-    }
-    
-    /**
-     * 导航标签解析
-     */
-    public function tagNavigation($tag, $content)
-    {
-        $type = isset($tag['type']) ? $tag['type'] : 'main';
-        $pid = isset($tag['pid']) ? $tag['pid'] : 0;
-        $level = isset($tag['level']) ? $tag['level'] : 1;
-        
-        $parse = '<?php ';
-        $parse .= '$__NAV_LIST__ = \\addons\\ldcms\\utils\\NavigationHelper::getNavigation("' . $type . '", ' . $pid . ', ' . $level . '); ';
-        $parse .= 'if($__NAV_LIST__): foreach($__NAV_LIST__ as $key=>$nav): ';
-        $parse .= '?>';
-        $parse .= $content;
-        $parse .= '<?php endforeach; endif; ?>';
-        
-        return $parse;
-    }
-    
-    /**
-     * 面包屑标签解析
-     */
-    public function tagBreadcrumb($tag)
-    {
-        $separator = isset($tag['separator']) ? $tag['separator'] : ' > ';
-        $home = isset($tag['home']) ? $tag['home'] : '首页';
-        
-        $parse = '<?php ';
-        $parse .= 'echo \\addons\\ldcms\\utils\\BreadcrumbHelper::render("' . $separator . '", "' . $home . '"); ';
-        $parse .= '?>';
-        
-        return $parse;
-    }
-    
-    /**
-     * 分页标签解析
-     */
-    public function tagPagination($tag)
-    {
-        $list = isset($tag['list']) ? $tag['list'] : '$list';
-        $simple = isset($tag['simple']) ? $tag['simple'] : 'false';
-        
-        $parse = '<?php ';
-        $parse .= 'if(isset(' . $list . ') && is_object(' . $list . ') && method_exists(' . $list . ', "render")): ';
-        $parse .= 'echo ' . $list . '->render(); ';
-        $parse .= 'endif; ';
-        $parse .= '?>';
-        
-        return $parse;
-    }
-    
-    /**
-     * 搜索标签解析
-     */
-    public function tagSearch($tag)
-    {
-        $type = isset($tag['type']) ? $tag['type'] : 'simple';
-        $placeholder = isset($tag['placeholder']) ? $tag['placeholder'] : '请输入搜索关键词';
-        
-        $parse = '<?php ';
-        $parse .= 'echo \\addons\\ldcms\\utils\\SearchHelper::render("' . $type . '", "' . $placeholder . '"); ';
-        $parse .= '?>';
-        
-        return $parse;
-    }
-    
-    /**
-     * 语言切换标签解析
-     */
-    public function tagLanguage($tag, $content)
-    {
-        $type = isset($tag['type']) ? $tag['type'] : 'dropdown';
-        
-        $parse = '<?php ';
-        $parse .= '$__LANGUAGE_LIST__ = \\addons\\ldcms\\utils\\MultiLanguageConfig::getEnabledLanguages(); ';
-        $parse .= '$__CURRENT_LANG__ = \\addons\\ldcms\\utils\\LanguageHandler::getCurrentLanguage(); ';
-        $parse .= 'if($__LANGUAGE_LIST__): foreach($__LANGUAGE_LIST__ as $lang_code=>$lang_info): ';
-        $parse .= '$lang_info["active"] = ($lang_code == $__CURRENT_LANG__); ';
-        $parse .= '$lang_info["url"] = \\addons\\ldcms\\utils\\LanguageHandler::generateUrl(request()->pathinfo(), [], $lang_code); ';
-        $parse .= '?>';
-        $parse .= $content;
-        $parse .= '<?php endforeach; endif; ?>';
-        
-        return $parse;
-    }
-}
-```
+### 1. 模板文件基础结构
 
-### 模板辅助函数
-```php
-/**
- * 模板辅助函数
- */
-class TemplateHelper
-{
-    /**
-     * 获取模板设置
-     */
-    public static function getSetting($key, $default = '')
-    {
-        return TemplateManager::getTemplateSetting($key, null, $default);
-    }
-    
-    /**
-     * 获取模板URL
-     */
-    public static function getTemplateUrl($file = '')
-    {
-        return TemplateManager::getTemplateUrl(null, $file);
-    }
-    
-    /**
-     * 获取静态资源URL
-     */
-    public static function asset($file)
-    {
-        return self::getTemplateUrl('static/' . $file);
-    }
-    
-    /**
-     * 获取CSS文件URL
-     */
-    public static function css($file)
-    {
-        return self::asset('css/' . $file);
-    }
-    
-    /**
-     * 获取JS文件URL
-     */
-    public static function js($file)
-    {
-        return self::asset('js/' . $file);
-    }
-    
-    /**
-     * 获取图片URL
-     */
-    public static function img($file)
-    {
-        return self::asset('images/' . $file);
-    }
-    
-    /**
-     * 渲染CSS链接
-     */
-    public static function renderCss($files)
-    {
-        if (!is_array($files)) {
-            $files = [$files];
-        }
-        
-        $html = '';
-        foreach ($files as $file) {
-            $url = self::css($file);
-            $html .= '<link rel="stylesheet" href="' . $url . '">' . "\n";
-        }
-        
-        return $html;
-    }
-    
-    /**
-     * 渲染JS链接
-     */
-    public static function renderJs($files)
-    {
-        if (!is_array($files)) {
-            $files = [$files];
-        }
-        
-        $html = '';
-        foreach ($files as $file) {
-            $url = self::js($file);
-            $html .= '<script src="' . $url . '"></script>' . "\n";
-        }
-        
-        return $html;
-    }
-    
-    /**
-     * 生成缩略图
-     */
-    public static function thumb($image, $width = 300, $height = 200, $type = 'crop')
-    {
-        if (empty($image)) {
-            return self::img('placeholder.jpg');
-        }
-        
-        // 如果是完整URL，直接返回
-        if (strpos($image, 'http') === 0) {
-            return $image;
-        }
-        
-        // 生成缩略图URL
-        $thumbUrl = '/addons/ldcms/thumb.php?src=' . urlencode($image);
-        $thumbUrl .= '&w=' . $width . '&h=' . $height . '&t=' . $type;
-        
-        return $thumbUrl;
-    }
-    
-    /**
-     * 格式化日期
-     */
-    public static function formatDate($timestamp, $format = null)
-    {
-        if (!$timestamp) {
-            return '';
-        }
-        
-        $format = $format ?: get_current_language_config()['date_format'] ?? 'Y-m-d';
-        
-        return date($format, is_numeric($timestamp) ? $timestamp : strtotime($timestamp));
-    }
-    
-    /**
-     * 截取文本
-     */
-    public static function truncate($text, $length = 100, $suffix = '...')
-    {
-        if (mb_strlen($text) <= $length) {
-            return $text;
-        }
-        
-        return mb_substr($text, 0, $length) . $suffix;
-    }
-    
-    /**
-     * 高亮搜索关键词
-     */
-    public static function highlight($text, $keywords, $class = 'highlight')
-    {
-        if (empty($keywords)) {
-            return $text;
-        }
-        
-        $keywords = is_array($keywords) ? $keywords : [$keywords];
-        
-        foreach ($keywords as $keyword) {
-            $text = preg_replace('/(' . preg_quote($keyword, '/') . ')/i', 
-                               '<span class="' . $class . '">$1</span>', $text);
-        }
-        
-        return $text;
-    }
-    
-    /**
-     * 生成面包屑导航
-     */
-    public static function breadcrumb($items, $separator = ' > ', $class = 'breadcrumb')
-    {
-        if (empty($items)) {
-            return '';
-        }
-        
-        $html = '<nav class="' . $class . '">';
-        $html .= '<ol>';
-        
-        foreach ($items as $index => $item) {
-            $html .= '<li>';
-            
-            if (isset($item['url']) && $index < count($items) - 1) {
-                $html .= '<a href="' . $item['url'] . '">' . $item['title'] . '</a>';
-            } else {
-                $html .= $item['title'];
-            }
-            
-            if ($index < count($items) - 1) {
-                $html .= '<span class="separator">' . $separator . '</span>';
-            }
-            
-            $html .= '</li>';
-        }
-        
-        $html .= '</ol>';
-        $html .= '</nav>';
-        
-        return $html;
-    }
-}
-```
-
----
-
-## 📱 响应式模板开发
-
-### 响应式断点标准
-```css
-/* 响应式断点定义 */
-:root {
-    --breakpoint-xs: 0;
-    --breakpoint-sm: 576px;
-    --breakpoint-md: 768px;
-    --breakpoint-lg: 992px;
-    --breakpoint-xl: 1200px;
-    --breakpoint-xxl: 1400px;
-}
-
-/* 媒体查询混合器 */
-@media (max-width: 575.98px) {
-    /* Extra small devices (portrait phones) */
-    .hidden-xs { display: none !important; }
-    .visible-xs { display: block !important; }
-}
-
-@media (min-width: 576px) and (max-width: 767.98px) {
-    /* Small devices (landscape phones) */
-    .hidden-sm { display: none !important; }
-    .visible-sm { display: block !important; }
-}
-
-@media (min-width: 768px) and (max-width: 991.98px) {
-    /* Medium devices (tablets) */
-    .hidden-md { display: none !important; }
-    .visible-md { display: block !important; }
-}
-
-@media (min-width: 992px) and (max-width: 1199.98px) {
-    /* Large devices (desktops) */
-    .hidden-lg { display: none !important; }
-    .visible-lg { display: block !important; }
-}
-
-@media (min-width: 1200px) {
-    /* Extra large devices (large desktops) */
-    .hidden-xl { display: none !important; }
-    .visible-xl { display: block !important; }
-}
-```
-
-### 移动端优化
+#### 首页模板 (index.html)
 ```html
-<!-- 移动端优化的HTML结构 -->
 <!DOCTYPE html>
-<html lang="{$Think.lang}">
+<html dir="{$lang_direction}" lang="{$current_lang}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <title>{$seo.title}</title>
-    <meta name="keywords" content="{$seo.keywords}">
-    <meta name="description" content="{$seo.description}">
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="{:css('critical.css')}" as="style">
-    <link rel="preload" href="{:js('critical.js')}" as="script">
-    
-    <!-- Critical CSS inline -->
-    <style>
-        /* Critical above-the-fold styles */
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        .header { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
-    </style>
-    
-    <!-- Non-critical CSS -->
-    <link rel="preload" href="{:css('main.css')}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{:css('main.css')}"></noscript>
+    {include file="head" /}
 </head>
-<body>
-    <!-- Mobile-first navigation -->
-    <header class="header">
-        <div class="container">
-            <nav class="navbar">
-                <div class="navbar-brand">
-                    <a href="{:multilang_url('/')}">{$site.name}</a>
+<body class="home-page lang-{$current_lang}">
+    <!-- 导航区域 -->
+    {include file="nav" /}
+    
+    <!-- 轮播图区域 -->
+    <section class="hero-section">
+        {ld:slide name="banner"}
+        <div class="slide-item">
+            <div class="slide-bg" style="background-image: url('{$item.image}')">
+                <div class="slide-content">
+                    <h1 class="slide-title">{$item.title}</h1>
+                    <p class="slide-desc">{$item.description}</p>
+                    {if !empty($item.url)}
+                    <a href="{$item.url}" class="btn btn-primary">{:lang('Learn More')}</a>
+                    {/if}
                 </div>
-                
-                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-menu">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                
-                <div class="navbar-collapse collapse" id="navbar-menu">
-                    {ldcms:navigation type="main"}
-                    <ul class="navbar-nav">
-                        <li class="nav-item {eq name='nav.active' value='1'}active{/eq}">
-                            <a class="nav-link" href="{$nav.url}">{$nav.title}</a>
-                            {if condition="$nav.children"}
-                            <ul class="dropdown-menu">
-                                {volist name="nav.children" id="child"}
-                                <li><a href="{$child.url}">{$child.title}</a></li>
-                                {/volist}
-                            </ul>
-                            {/if}
-                        </li>
-                    </ul>
-                    {/ldcms:navigation}
-                </div>
-            </nav>
+            </div>
         </div>
-    </header>
+        {/ld:slide}
+    </section>
     
-    <main class="main">
-        {block name="content"}{/block}
-    </main>
-    
-    <footer class="footer">
+    <!-- 产品展示区域 -->
+    {ld:action action="home_block" model_table_name="product" alias="cate"}
+    <section class="products-section">
         <div class="container">
-            <p>&copy; 2024 {$site.name}. All rights reserved.</p>
+            <div class="section-header">
+                <h2>{$cate.name}</h2>
+                <p>{$cate.ename}</p>
+            </div>
+            <div class="products-grid">
+                {ld:list cid="$cate['id']" limit='8'}
+                <div class="product-item">
+                    <div class="product-image">
+                        <img src="{$item.image|default='/assets/addons/ldcms/default/images/no-image.jpg'}" alt="{$item.title}">
+                    </div>
+                    <div class="product-info">
+                        <h3><a href="{$item.url}">{$item.title}</a></h3>
+                        <p class="price">{$item.price|default='询价'}</p>
+                    </div>
+                </div>
+                {/ld:list}
+            </div>
         </div>
-    </footer>
+    </section>
+    {/ld:action}
     
-    <!-- JavaScript -->
-    <script>
-        // Critical JavaScript inline
-        (function() {
-            // Mobile menu toggle
-            document.addEventListener('DOMContentLoaded', function() {
-                var toggle = document.querySelector('.navbar-toggle');
-                var menu = document.querySelector('.navbar-collapse');
-                
-                if (toggle && menu) {
-                    toggle.addEventListener('click', function() {
-                        menu.classList.toggle('show');
-                    });
-                }
-            });
-        })();
-    </script>
-    
-    <!-- Non-critical JavaScript -->
-    <script async src="{:js('main.js')}"></script>
+    <!-- 底部区域 -->
+    {include file="footer" /}
 </body>
 </html>
 ```
 
+#### 列表页模板 (list.html)
+```html
+<!DOCTYPE html>
+<html dir="{$lang_direction}" lang="{$current_lang}">
+<head>
+    {include file="head" /}
+</head>
+<body class="list-page lang-{$current_lang}">
+    {include file="nav" /}
+    
+    <!-- 面包屑导航 -->
+    {include file="breadcrumb" /}
+    
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <div class="container">
+            <div class="row">
+                <!-- 内容区域 -->
+                <div class="col-lg-9">
+                    <div class="category-header">
+                        <h1>{$category.name}</h1>
+                        {if !empty($category.description)}
+                        <p class="category-desc">{$category.description}</p>
+                        {/if}
+                    </div>
+                    
+                    <!-- 内容列表 -->
+                    <div class="content-list">
+                        {ld:list cid="$category.id" page="true"}
+                        <article class="list-item">
+                            <div class="item-image">
+                                <img src="{$item.image|default='/assets/addons/ldcms/default/images/no-image.jpg'}" alt="{$item.title}">
+                            </div>
+                            <div class="item-content">
+                                <h3><a href="{$item.url}">{$item.title}</a></h3>
+                                <div class="item-meta">
+                                    <span class="date">{$item.show_time|ld_fdate='Y-m-d'}</span>
+                                    <span class="category">{$item.category_name}</span>
+                                </div>
+                                <p class="item-excerpt">{$item.description|ld_str_cut='150'}</p>
+                            </div>
+                        </article>
+                        {/ld:list}
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="pagination-wrapper">
+                        {$pages}
+                    </div>
+                </div>
+                
+                <!-- 侧边栏 -->
+                <div class="col-lg-3">
+                    {include file="sidebar" /}
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    {include file="footer" /}
+</body>
+</html>
+```
+
+#### 详情页模板 (detail.html)
+```html
+<!DOCTYPE html>
+<html dir="{$lang_direction}" lang="{$current_lang}">
+<head>
+    {include file="head" /}
+    
+    <!-- 详情页特定SEO -->
+    <title>{$content.title} - {$category.name} - {$ld.sitetitle}</title>
+    <meta name="description" content="{$content.description|ld_str_cut='160'}">
+    <meta name="keywords" content="{$content.keywords}">
+    
+    <!-- 开放图谱 -->
+    <meta property="og:title" content="{$content.title}">
+    <meta property="og:description" content="{$content.description|ld_str_cut='160'}">
+    <meta property="og:image" content="{$content.image}">
+    <meta property="og:url" content="{$content.url}">
+</head>
+<body class="detail-page lang-{$current_lang}">
+    {include file="nav" /}
+    {include file="breadcrumb" /}
+    
+    <main class="main-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-9">
+                    <article class="content-detail">
+                        <header class="content-header">
+                            <h1>{$content.title}</h1>
+                            <div class="content-meta">
+                                <span class="date">{$content.show_time|ld_fdate='Y-m-d H:i'}</span>
+                                <span class="category">{$category.name}</span>
+                                <span class="views">阅读: {$content.views}</span>
+                            </div>
+                        </header>
+                        
+                        <div class="content-body">
+                            {$content.content|raw}
+                        </div>
+                        
+                        <!-- 标签 -->
+                        {if !empty($content.tags)}
+                        <div class="content-tags">
+                            <span class="tags-label">标签:</span>
+                            {volist name="content.tags" id="tag"}
+                            <a href="{:addon_url('ldcms/tag/index', ['tag' => $tag])}" class="tag-link">{$tag}</a>
+                            {/volist}
+                        </div>
+                        {/if}
+                        
+                        <!-- 上一篇下一篇 -->
+                        <div class="content-navigation">
+                            {if !empty($prev)}
+                            <div class="prev-post">
+                                <span>上一篇:</span>
+                                <a href="{$prev.url}">{$prev.title}</a>
+                            </div>
+                            {/if}
+                            {if !empty($next)}
+                            <div class="next-post">
+                                <span>下一篇:</span>
+                                <a href="{$next.url}">{$next.title}</a>
+                            </div>
+                            {/if}
+                        </div>
+                    </article>
+                </div>
+                
+                <div class="col-lg-3">
+                    {include file="sidebar" /}
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    {include file="footer" /}
+</body>
+</html>
+```
+
+### 2. 头部文件模板 (head.html)
+```html
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- 基础SEO -->
+<title>{$seo_title|default=$ld.sitetitle}</title>
+<meta name="description" content="{$seo_description|default=$ld.seo_description}">
+<meta name="keywords" content="{$seo_keywords|default=$ld.seo_keywords}">
+<meta name="author" content="{$ld.sitetitle}">
+
+<!-- 网站图标 -->
+<link rel="shortcut icon" href="{$ld.favicon|default='/favicon.ico'}">
+<link rel="apple-touch-icon" href="{$ld.apple_icon|default='/apple-touch-icon.png'}">
+
+<!-- CSS文件 -->
+<link rel="stylesheet" href="{ld:src src='libs/bootstrap/bootstrap.min.css'}">
+<link rel="stylesheet" href="{ld:src src='libs/fontawesome/all.min.css'}">
+<link rel="stylesheet" href="{ld:src src='libs/swiper/swiper-bundle.min.css'}">
+<link rel="stylesheet" href="{ld:src src='libs/animate.css/animate.min.css'}">
+<link rel="stylesheet" href="{ld:src src='css/style.min.css'}">
+
+<!-- 语言特定样式 -->
+{if $current_lang == 'zh-tw'}
+<link rel="stylesheet" href="{ld:src src='css/traditional-chinese.css'}">
+{elseif $current_lang == 'ar'}
+<link rel="stylesheet" href="{ld:src src='css/rtl.css'}">
+{elseif in_array($current_lang, ['ja', 'ko'])}
+<link rel="stylesheet" href="{ld:src src='css/cjk.css'}">
+{/if}
+
+<!-- 多语言hreflang -->
+{ld:langs}
+{volist name="langs" id="lang"}
+<link rel="alternate" hreflang="{$lang.code}" href="{$lang.url}">
+{/volist}
+{/ld:langs}
+
+<!-- 结构化数据 -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{$ld.sitetitle}",
+    "url": "{:addon_url('ldcms/index/index', [], true)}",
+    "description": "{$ld.seo_description}",
+    "inLanguage": "{$current_lang}",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{:addon_url('ldcms/search/index', [], true)}?keyword={literal}{search_term_string}{/literal}",
+        "query-input": "required name=search_term_string"
+    }
+}
+</script>
+```
+
+### 3. 底部文件模板 (footer.html)
+```html
+<!-- JavaScript文件 -->
+<script src="__CDN__/assets/libs/jquery/dist/jquery.min.js"></script>
+<script src="{ld:src src='libs/bootstrap/bootstrap.bundle.min.js'}"></script>
+<script src="{ld:src src='libs/swiper/swiper-bundle.min.js'}"></script>
+<script src="{ld:src src='libs/wow.js/wow.min.js'}"></script>
+<script src="{ld:src src='libs/aos/aos.js'}"></script>
+<script src="{ld:src src='js/app.min.js'}"></script>
+
+<!-- 多语言JavaScript配置 -->
+<script>
+window.LDCMS = {
+    lang: '{$current_lang}',
+    baseUrl: '{:addon_url("ldcms/index/index", [], true)}',
+    apiUrl: '{:addon_url("ldcms/api/", [], true)}',
+    i18n: {
+        loading: '{:lang("Loading...")}',
+        error: '{:lang("Error occurred")}',
+        success: '{:lang("Success")}',
+        confirm: '{:lang("Are you sure?")}'
+    }
+};
+</script>
+
+<!-- 语言特定JavaScript -->
+{if $current_lang == 'zh-cn'}
+<script src="{ld:src src='js/lang/zh-cn.js'}"></script>
+{elseif $current_lang == 'en'}
+<script src="{ld:src src='js/lang/en.js'}"></script>
+{/if}
+
+<!-- 统计代码 -->
+{if !empty($ld.analytics_code)}
+{$ld.analytics_code|raw}
+{/if}
+```
+
 ---
 
-## 📋 模板开发检查清单
+## 🎨 静态资源管理规范
 
-### 基础结构检查
-- [ ] 模板目录结构规范
-- [ ] 配置文件完整
-- [ ] 模板信息文件存在
-- [ ] 静态资源组织合理
-- [ ] 预览图和截图准备
-- [ ] 许可证文件包含
+### 资源目录结构
+```
+public/assets/addons/ldcms/template-name/
+├── css/
+│   ├── style.css              # 主样式文件
+│   ├── style.min.css          # 压缩版主样式
+│   ├── responsive.css         # 响应式样式
+│   ├── traditional-chinese.css # 繁体中文样式
+│   ├── rtl.css               # RTL语言样式
+│   └── cjk.css               # 中日韩语言样式
+├── js/
+│   ├── app.js                # 主JavaScript文件
+│   ├── app.min.js            # 压缩版JavaScript
+│   ├── plugins.js            # 插件集合
+│   └── lang/                 # 多语言JavaScript
+│       ├── zh-cn.js
+│       ├── en.js
+│       └── zh-tw.js
+├── images/
+│   ├── logo.png              # 网站Logo
+│   ├── logo-dark.png         # 深色版Logo
+│   ├── no-image.jpg          # 默认占位图
+│   ├── bg/                   # 背景图片
+│   ├── icons/                # 图标文件
+│   └── banners/              # 轮播图
+├── fonts/
+│   ├── iconfont.woff         # 图标字体
+│   └── custom/               # 自定义字体
+└── libs/                     # 第三方库
+    ├── bootstrap/
+    ├── fontawesome/
+    ├── swiper/
+    └── animate.css/
+```
 
-### 功能特性检查
-- [ ] 响应式设计实现
-- [ ] 多语言支持
-- [ ] SEO优化
-- [ ] 自定义标签使用
-- [ ] 模板继承实现
-- [ ] 区块系统使用
-- [ ] 包含文件处理
+### 资源引用最佳实践
+```html
+<!-- 推荐：使用{ld:src}标签 -->
+<link rel="stylesheet" href="{ld:src src='css/style.min.css'}">
+<script src="{ld:src src='js/app.min.js'}"></script>
+<img src="{ld:src src='images/logo.png'}" alt="Logo">
+
+<!-- 兼容：使用__ADDON__替换 -->
+<link rel="stylesheet" href="__ADDON__/css/style.min.css">
+<script src="__ADDON__/js/app.min.js"></script>
+
+<!-- 条件加载：根据语言和设备 -->
+{if $current_lang == 'ar'}
+<link rel="stylesheet" href="{ld:src src='css/rtl.css'}">
+{/if}
+
+{if $is_mobile}
+<script src="{ld:src src='js/mobile.min.js'}"></script>
+{/if}
+```
+
+---
+
+## 📱 响应式设计规范
+
+### 断点标准
+```css
+/* 标准断点 */
+/* Extra small devices (portrait phones) */
+@media (max-width: 575.98px) { ... }
+
+/* Small devices (landscape phones) */
+@media (min-width: 576px) and (max-width: 767.98px) { ... }
+
+/* Medium devices (tablets) */
+@media (min-width: 768px) and (max-width: 991.98px) { ... }
+
+/* Large devices (desktops) */
+@media (min-width: 992px) and (max-width: 1199.98px) { ... }
+
+/* Extra large devices (large desktops) */
+@media (min-width: 1200px) { ... }
+```
+
+### 响应式组件示例
+```css
+/* 响应式导航 */
+.navbar {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-nav.show {
+        display: block;
+    }
+    
+    .navbar-toggler {
+        display: block;
+    }
+}
+
+/* 响应式网格 */
+.product-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (max-width: 767.98px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
+
+/* 响应式字体 */
+.hero-title {
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    line-height: 1.2;
+}
+```
+
+---
+
+## 🔧 模板功能扩展
+
+### 自定义标签开发
+```php
+// 在addons/ldcms/library/taglib/目录下创建自定义标签
+namespace addons\ldcms\library\taglib;
+
+use think\template\TagLib;
+
+class Custom extends TagLib
+{
+    // 自定义标签定义
+    protected $tags = [
+        'gallery'  => ['attr' => 'name,limit,type', 'close' => 1],
+        'contact'  => ['attr' => 'type', 'close' => 1],
+        'weather'  => ['attr' => 'city', 'close' => 0],
+    ];
+    
+    // 图片画廊标签
+    public function tagGallery($tag, $content)
+    {
+        $name = $tag['name'];
+        $limit = isset($tag['limit']) ? $tag['limit'] : 10;
+        $type = isset($tag['type']) ? $tag['type'] : 'image';
+        
+        $parse = '<?php ';
+        $parse .= '$gallery = \\addons\\ldcms\\model\\Gallery::getGallery("'.$name.'", '.$limit.', "'.$type.'");';
+        $parse .= 'if($gallery): foreach($gallery as $key => $item): ?>';
+        $parse .= $content;
+        $parse .= '<?php endforeach; endif; ?>';
+        
+        return $parse;
+    }
+}
+```
+
+### 模板配置文件
+```php
+// 模板配置文件：addons/ldcms/view/template-name/config.php
+return [
+    'template' => [
+        'name' => 'BiuBiuStar2025企业模板',
+        'version' => '1.0.0',
+        'author' => 'BiuBiuStar Team',
+        'description' => '现代化企业官网模板',
+    ],
+    
+    'settings' => [
+        'primary_color' => '#007bff',
+        'secondary_color' => '#6c757d',
+        'font_family' => 'Roboto, sans-serif',
+        'logo_height' => '40px',
+        'enable_animations' => true,
+        'enable_lazy_loading' => true,
+    ],
+    
+    'features' => [
+        'responsive' => true,
+        'multilanguage' => true,
+        'seo_optimized' => true,
+        'accessibility' => true,
+        'performance_optimized' => true,
+    ],
+    
+    'requirements' => [
+        'ldcms_version' => '>=1.2.0',
+        'php_version' => '>=7.1',
+        'mysql_version' => '>=5.6',
+    ]
+];
+```
+
+---
+
+## 🚀 性能优化规范
+
+### CSS优化
+```css
+/* 关键CSS内联 */
+<style>
+/* 首屏关键样式 */
+.header { ... }
+.hero-section { ... }
+.navigation { ... }
+</style>
+
+/* 非关键CSS延迟加载 */
+<link rel="preload" href="{ld:src src='css/style.min.css'}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{ld:src src='css/style.min.css'}"></noscript>
+```
+
+### JavaScript优化
+```html
+<!-- 关键JavaScript延迟加载 -->
+<script defer src="{ld:src src='js/app.min.js'}"></script>
+
+<!-- 非关键功能异步加载 -->
+<script>
+// 懒加载非关键功能
+document.addEventListener('DOMContentLoaded', function() {
+    // 延迟加载第三方插件
+    setTimeout(function() {
+        loadScript('{ld:src src="js/plugins.min.js"}');
+    }, 2000);
+});
+
+function loadScript(src) {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    document.head.appendChild(script);
+}
+</script>
+```
+
+### 图片优化
+```html
+<!-- 响应式图片 -->
+<picture>
+    <source media="(min-width: 768px)" srcset="{$item.image|replace='.jpg', '_large.jpg'}">
+    <source media="(min-width: 480px)" srcset="{$item.image|replace='.jpg', '_medium.jpg'}">
+    <img src="{$item.image|replace='.jpg', '_small.jpg'}" alt="{$item.title}" loading="lazy">
+</picture>
+
+<!-- WebP格式支持 -->
+<picture>
+    <source type="image/webp" srcset="{$item.image|replace='.jpg', '.webp'}">
+    <img src="{$item.image}" alt="{$item.title}" loading="lazy">
+</picture>
+```
+
+---
+
+## �� 模板开发检查清单
+
+### 基础文件检查
+- [ ] 所有必需模板文件存在
+- [ ] info.ini配置文件完整
+- [ ] screenshot.jpg预览图添加
+- [ ] 模板信息配置正确
+
+### 功能完整性检查
+- [ ] 首页模板功能完整
+- [ ] 列表页分页正常
+- [ ] 详情页上下篇导航
+- [ ] 搜索功能正常
+- [ ] 面包屑导航正确
+
+### 多语言支持检查
+- [ ] 模板支持配置的所有语言
+- [ ] 语言特定样式适配
+- [ ] RTL语言支持（如需要）
+- [ ] 字体选择合适
+
+### 响应式设计检查
+- [ ] 桌面端显示正常
+- [ ] 平板端适配良好
+- [ ] 移动端体验优秀
+- [ ] 触摸操作友好
+
+### SEO优化检查
+- [ ] 标题标签优化
+- [ ] 元描述设置
+- [ ] 结构化数据添加
+- [ ] 图片alt属性完善
 
 ### 性能优化检查
-- [ ] 关键CSS内联
-- [ ] 非关键资源延迟加载
-- [ ] 图片懒加载
-- [ ] 资源压缩
-- [ ] 缓存策略
-- [ ] CDN支持
-- [ ] 移动端优化
-
-### 兼容性检查
-- [ ] 浏览器兼容性测试
-- [ ] 移动设备测试
-- [ ] 不同分辨率测试
-- [ ] 打印样式
-- [ ] 无障碍访问
-- [ ] 搜索引擎友好
-
-### 安全性检查
-- [ ] 输出转义
-- [ ] XSS防护
-- [ ] CSRF防护
-- [ ] 安全头设置
-- [ ] 内容安全策略
-- [ ] 敏感信息保护
+- [ ] CSS文件压缩
+- [ ] JavaScript文件压缩
+- [ ] 图片格式优化
+- [ ] 资源加载优化
 
 ---
 
-**注意**: 多模板系统的设计应该考虑扩展性和维护性，建议使用模块化的方式组织代码，便于后续的升级和定制。
+**注意**: 本规范适用于FastAdmin LDCMS v1.2+版本的多模板系统开发。
