@@ -10,6 +10,11 @@
 
 ---
 
+## ⏱ 进度总览
+- 已完成：数据库扩展（fa_user 字段、fa_social_*、fa_ldcms_document_social_posts、fa_ldcms_document_activities）、LDCMS 模型注册（social_posts、activities、topics）
+- 进行中：后台通用 `ldcms/document` 已用于社交帖子扩展数据管理
+- 待开始：专用后台模块、栏目配置、前台控制器与 API、UI/UX、社交互动功能、推荐算法
+
 ## 📊 项目现状分析
 
 ### ✅ 已有基础设施
@@ -37,143 +42,139 @@
 
 ## 🎯 开发任务分解
 
-### 阶段一：数据库设计与扩展（优先级：P0）
+### 阶段一：数据库设计与扩展（优先级：P0｜状态：已完成）
 
 #### 1.1 扩展用户表结构
-```sql
--- 为现有 fa_user 表添加社交媒体相关字段
-ALTER TABLE `fa_user` ADD COLUMN `followers_count` int(10) DEFAULT 0 COMMENT '粉丝数量';
-ALTER TABLE `fa_user` ADD COLUMN `following_count` int(10) DEFAULT 0 COMMENT '关注数量';
-ALTER TABLE `fa_user` ADD COLUMN `posts_count` int(10) DEFAULT 0 COMMENT '发帖数量';
-ALTER TABLE `fa_user` ADD COLUMN `likes_received` int(10) DEFAULT 0 COMMENT '获赞总数';
-ALTER TABLE `fa_user` ADD COLUMN `is_verified` tinyint(1) DEFAULT 0 COMMENT '是否认证用户';
-ALTER TABLE `fa_user` ADD COLUMN `cover_image` varchar(255) DEFAULT '' COMMENT '个人主页封面图';
-ALTER TABLE `fa_user` ADD COLUMN `social_links` text COMMENT '社交链接JSON格式';
-```
+- 状态：已完成
+- 参考：`database/社交媒体平台数据库创建脚本.sql`（第一部分：fa_user 字段与索引）、`database/social_tables_simple.sql`
+- 完成报告：`docs/项目管理/阶段一数据库创建完成报告.md`
 
 #### 1.2 新建社交媒体核心表
 
-##### 1.2.1 社交关系表
-```sql
-CREATE TABLE `fa_social_follows` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `follower_id` int(10) unsigned NOT NULL COMMENT '关注者ID',
-  `following_id` int(10) unsigned NOT NULL COMMENT '被关注者ID',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '关注时间',
-  `status` tinyint(1) DEFAULT 1 COMMENT '状态 1:正常 0:已取消',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_follow` (`follower_id`,`following_id`),
-  KEY `idx_follower` (`follower_id`),
-  KEY `idx_following` (`following_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户关注关系表';
-```
+##### 1.2.1 社交关系表（状态：已完成）
+- 表：`fa_social_follows`
+- 参考：`database/social_tables_simple.sql`
 
-##### 1.2.2 帖子互动表
-```sql
-CREATE TABLE `fa_social_post_likes` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL COMMENT '用户ID',
-  `post_id` int(10) unsigned NOT NULL COMMENT '帖子ID',
-  `post_type` varchar(20) DEFAULT 'post' COMMENT '内容类型',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '点赞时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_like` (`user_id`,`post_id`,`post_type`),
-  KEY `idx_post` (`post_id`,`post_type`),
-  KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='帖子点赞表';
-```
+##### 1.2.2 帖子互动表（状态：已完成）
+- 表：`fa_social_post_likes`
+- 参考：`database/social_tables_simple.sql`
 
-##### 1.2.3 评论系统表
-```sql
-CREATE TABLE `fa_social_comments` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL COMMENT '评论用户ID',
-  `post_id` int(10) unsigned NOT NULL COMMENT '帖子ID',
-  `post_type` varchar(20) DEFAULT 'post' COMMENT '内容类型',
-  `parent_id` int(10) unsigned DEFAULT 0 COMMENT '父评论ID',
-  `content` text NOT NULL COMMENT '评论内容',
-  `likes_count` int(10) DEFAULT 0 COMMENT '点赞数',
-  `replies_count` int(10) DEFAULT 0 COMMENT '回复数',
-  `status` tinyint(1) DEFAULT 1 COMMENT '状态',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint(16) DEFAULT NULL COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  KEY `idx_post` (`post_id`,`post_type`),
-  KEY `idx_user` (`user_id`),
-  KEY `idx_parent` (`parent_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论表';
-```
+##### 1.2.3 评论系统表（状态：已完成）
+- 表：`fa_social_comments`
+- 参考：`database/social_tables_simple.sql`
 
-##### 1.2.4 通知系统表
-```sql
-CREATE TABLE `fa_social_notifications` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL COMMENT '接收通知的用户ID',
-  `from_user_id` int(10) unsigned DEFAULT 0 COMMENT '触发通知的用户ID',
-  `type` varchar(50) NOT NULL COMMENT '通知类型',
-  `title` varchar(255) NOT NULL COMMENT '通知标题',
-  `content` text COMMENT '通知内容',
-  `data` text COMMENT '附加数据JSON',
-  `is_read` tinyint(1) DEFAULT 0 COMMENT '是否已读',
-  `create_time` bigint(16) DEFAULT NULL COMMENT '创建时间',
-  PRIMARY KEY (`id`),
-  KEY `idx_user` (`user_id`),
-  KEY `idx_read` (`is_read`),
-  KEY `idx_type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知表';
-```
+##### 1.2.4 通知系统表（状态：已完成）
+- 表：`fa_social_notifications`
+- 参考：`database/social_tables_simple.sql`
 
 #### 1.3 扩展LDCMS模型系统
 
-##### 1.3.1 创建社交媒体内容模型
-```sql
--- 在 fa_ldcms_models 表中添加社交媒体相关模型
-INSERT INTO `fa_ldcms_models` (`name`, `table_name`, `description`, `status`, `ismenu`) VALUES
-('社交帖子', 'social_posts', '用户发布的社交媒体帖子', 1, 1),
-('活动信息', 'activities', '平台活动信息管理', 1, 1),
-('热门话题', 'topics', '热门话题标签管理', 1, 1);
-```
+##### 1.3.1 创建社交媒体内容模型（状态：已完成）
+- 模型：`social_posts`、`activities`、`topics`（已注册）
+- 参考：`database/create_social_tables.sql`、`database/social_tables_simple.sql`
+- 完成报告：`docs/项目管理/阶段一数据库创建完成报告.md`
 
-##### 1.3.2 社交帖子扩展表
-```sql
-CREATE TABLE `fa_ldcms_document_social_posts` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `document_id` int(10) unsigned NOT NULL COMMENT '关联文档ID',
-  `post_type` enum('text','image','video','mixed') DEFAULT 'text' COMMENT '帖子类型',
-  `media_files` text COMMENT '媒体文件JSON',
-  `hashtags` varchar(500) DEFAULT '' COMMENT '话题标签',
-  `location` varchar(255) DEFAULT '' COMMENT '位置信息',
-  `privacy_level` enum('public','followers','private') DEFAULT 'public' COMMENT '隐私级别',
-  `is_featured` tinyint(1) DEFAULT 0 COMMENT '是否精选',
-  `share_count` int(10) DEFAULT 0 COMMENT '分享次数',
-  PRIMARY KEY (`id`),
-  KEY `idx_document` (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='社交帖子扩展表';
-```
+##### 1.3.2 社交帖子扩展表（状态：已完成）
+- 表：`fa_ldcms_document_social_posts`
+- 参考：`database/create_social_tables.sql`、`database/social_tables_simple.sql`
+- 完成报告：`docs/项目管理/阶段一数据库创建完成报告.md`
 
-##### 1.3.3 活动信息扩展表
-```sql
-CREATE TABLE `fa_ldcms_document_activities` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `document_id` int(10) unsigned NOT NULL COMMENT '关联文档ID',
-  `activity_type` varchar(50) DEFAULT 'event' COMMENT '活动类型',
-  `start_time` bigint(16) DEFAULT NULL COMMENT '开始时间',
-  `end_time` bigint(16) DEFAULT NULL COMMENT '结束时间',
-  `location` varchar(255) DEFAULT '' COMMENT '活动地点',
-  `max_participants` int(10) DEFAULT 0 COMMENT '最大参与人数',
-  `current_participants` int(10) DEFAULT 0 COMMENT '当前参与人数',
-  `registration_required` tinyint(1) DEFAULT 0 COMMENT '是否需要报名',
-  `contact_info` text COMMENT '联系方式',
-  PRIMARY KEY (`id`),
-  KEY `idx_document` (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='活动信息扩展表';
-```
+##### 1.3.3 活动信息扩展表（状态：已完成）
+- 表：`fa_ldcms_document_activities`
+- 参考：`database/create_social_tables.sql`、`database/social_tables_simple.sql`
+- 完成报告：`docs/项目管理/阶段一数据库创建完成报告.md`
 
 ---
 
-### 阶段二：后台模型管理开发（优先级：P0）
+### 阶段二：后台模型管理开发（优先级：P0｜状态：进行中）
+
+#### 2.0 数据库校验结果（MCP）
+- `fa_ldcms_document_social_posts`、`fa_ldcms_document_activities`：已存在，结构完整（含 `document_id`、`post_type`/`activity_status` 等字段）
+- `fa_ldcms_models`：包含 `social_posts`、`activities`、`topics`
+- `fa_social_follows`、`fa_social_post_likes`、`fa_social_comments`、`fa_social_notifications`、`fa_social_activity_participants`：已存在
+- `fa_user`：已存在扩展字段（`followers_count`、`following_count`、`posts_count`、`likes_received`、`is_verified`、`cover_image`、`social_links`）
+
+#### 2.x 阶段二详细执行说明（含 FastAdmin CRUD 命令）
+
+1) 生成「社交帖子」后台模块（与文档表建立从属关系）
+
+```bash
+php think crud \
+  -t fa_ldcms_document_social_posts \
+  -c ldcms/SocialPosts \
+  -m ldcms/SocialPosts \
+  -r ldcms_document \
+  -o belongsto \
+  -k document_id \
+  -p id \
+  -s title,lang,status \
+  -u 1
+```
+
+2) 生成「活动信息」后台模块（与文档表建立从属关系）
+
+```bash
+php think crud \
+  -t fa_ldcms_document_activities \
+  -c ldcms/Activities \
+  -m ldcms/Activities \
+  -r ldcms_document \
+  -o belongsto \
+  -k document_id \
+  -p id \
+  -s title,lang,status \
+  -u 1
+```
+
+3) 生成「社交管理」系列模块（可选，便于运营与风控）
+
+```bash
+# 关注关系
+php think crud -t fa_social_follows -c social/Follows -m social/Follows -u 1
+
+# 点赞记录
+php think crud -t fa_social_post_likes -c social/PostLikes -m social/PostLikes -u 1
+
+# 评论管理
+php think crud -t fa_social_comments -c social/Comments -m social/Comments -u 1
+
+# 通知管理
+php think crud -t fa_social_notifications -c social/Notifications -m social/Notifications -u 1
+
+# 活动参与
+php think crud -t fa_social_activity_participants -c social/ActivityParticipants -m social/ActivityParticipants -u 1
+```
+
+说明：以上命令已满足一键生成控制器/模型/校验器/视图/JS/语言包并自动创建后台菜单（`-u 1`）。如需重建请增加 `-f 1` 强制覆盖；如需删除已生成文件，可追加 `-d 1 -f 1`。
+
+4) 前台会员新增字段的操作（无DB变更，仅前台表单与保存）
+
+- 目的：让会员在个人中心配置新字段（`cover_image`、`social_links`）
+- 操作：
+  - 在 `application/index/view/user/profile.html` 增加上传封面图与社交链接（JSON/多行）输入项
+  - 在 `application/index/controller/User.php` 的资料更新逻辑中，允许接收并保存 `cover_image`、`social_links`
+  - 校验与安全：限制图片类型/大小；`social_links` 建议做 JSON 校验与字段白名单
+  - 影响：仅前端交互与显示，数据库在阶段一已扩展完成，无需再次改动
+
+5) 菜单的一键生成（推荐在 CRUD 后补跑一次）
+
+```bash
+# 单控制器生成权限菜单
+php think menu -c ldcms/SocialPosts -f 1
+php think menu -c ldcms/Activities -f 1
+
+# 可选：批量生成社交管理类菜单
+php think menu -c social/Follows -c social/PostLikes -c social/Comments -c social/Notifications -c social/ActivityParticipants -f 1
+```
+
+6) 审核要求与落地（前台发帖 → 后台审核）
+
+- 策略：前台会员发布的文档（模型：`social_posts`）统一写入 `fa_ldcms_document.status = 0`（隐藏/待审核），仅当管理员审核后改为 `1`（正常）
+- 后台操作入口：`内容管理 → ldcms/document`（选择模型“社交帖子”），使用“更多 → 设为正常/设为隐藏”完成审核流
+- 前台入口（阶段四实现）：发布接口在保存文档主表时强制 `status=0`；扩展表 `fa_ldcms_document_social_posts` 同步写入。该约定使审核流程即插即用，无需额外DB变更
 
 #### 2.1 扩展LDCMS后台管理
+当前：通过通用 `ldcms/document` 模块管理 `social_posts` 扩展数据；专用控制器 `ldcms/SocialPosts.php`、`ldcms/Activities.php` 尚未创建。
 
 ##### 2.1.1 社交内容管理模块
 - **路径**: `/application/admin/controller/ldcms/SocialPosts.php`
@@ -202,7 +203,7 @@ CREATE TABLE `fa_ldcms_document_activities` (
 
 #### 2.2 多语言模板页面开发
 
-##### 2.2.1 后台管理界面多语言
+##### 2.2.1 后台管理界面多语言（状态：未开始）
 - **中文简体**: `/application/admin/lang/zh-cn/social/`
 - **中文繁体**: `/application/admin/lang/zh-tw/social/`
 - **英语**: `/application/admin/lang/en/social/`
@@ -215,7 +216,7 @@ CREATE TABLE `fa_ldcms_document_activities` (
 
 ---
 
-### 阶段三：栏目管理配置（优先级：P1）
+### 阶段三：栏目管理配置（优先级：P1｜状态：未开始）
 
 #### 3.1 配置社交媒体栏目结构
 
@@ -273,7 +274,7 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-### 阶段四：前台功能开发（优先级：P1）
+### 阶段四：前台功能开发（优先级：P1｜状态：未开始）
 
 #### 4.1 前台控制器开发
 
@@ -325,7 +326,7 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-### 阶段五：UI/UX设计实现（优先级：P1）
+### 阶段五：UI/UX设计实现（优先级：P1｜状态：未开始）
 
 #### 5.1 简洁大气毛玻璃风格
 
@@ -351,7 +352,7 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-### 阶段六：社交功能实现（优先级：P2）
+### 阶段六：社交功能实现（优先级：P2｜状态：未开始）
 
 #### 6.1 核心社交功能
 
@@ -389,7 +390,7 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-### 阶段七：高级功能开发（优先级：P3）
+### 阶段七：高级功能开发（优先级：P3｜状态：未开始）
 
 #### 7.1 活动管理系统
 
@@ -420,7 +421,7 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 
 ---
 
-### 阶段八：性能优化与安全（优先级：P2）
+### 阶段八：性能优化与安全（优先级：P2｜状态：未开始）
 
 #### 8.1 性能优化
 
@@ -455,10 +456,10 @@ INSERT INTO `fa_ldcms_category` (`name`, `ename`, `pid`, `mid`, `urlname`, `temp
 ## 📅 开发时间规划
 
 ### 第一周：数据库设计与基础架构
-- [ ] 扩展用户表结构
-- [ ] 创建社交媒体核心表
-- [ ] 配置LDCMS模型系统
-- [ ] 数据库测试和优化
+- [x] 扩展用户表结构
+- [x] 创建社交媒体核心表
+- [x] 配置LDCMS模型系统
+- [x] 数据库测试和优化（基础索引与触发器）
 
 ### 第二周：后台管理系统开发
 - [ ] 社交内容管理模块
