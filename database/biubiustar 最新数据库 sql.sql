@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 09/08/2025 15:03:41
+ Date: 09/08/2025 15:23:05
 */
 
 SET NAMES utf8mb4;
@@ -122,6 +122,65 @@ BEGIN;
 COMMIT;
 
 -- ----------------------------
+-- Table structure for fa_admin_activity_operations
+-- ----------------------------
+DROP TABLE IF EXISTS `fa_admin_activity_operations`;
+CREATE TABLE `fa_admin_activity_operations` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `document_id` int unsigned NOT NULL COMMENT '活动文档ID(fa_ldcms_document.id)',
+  `total_registrations` int unsigned DEFAULT '0' COMMENT '总报名数',
+  `approved_registrations` int unsigned DEFAULT '0' COMMENT '通过报名数',
+  `rejected_registrations` int unsigned DEFAULT '0' COMMENT '拒绝报名数',
+  `actual_attendees` int unsigned DEFAULT '0' COMMENT '实际参与人数',
+  `no_show_count` int unsigned DEFAULT '0' COMMENT '爽约人数',
+  `waiting_list_count` int unsigned DEFAULT '0' COMMENT '候补人数',
+  `checkin_count` int unsigned DEFAULT '0' COMMENT '签到人数',
+  `registration_rate` decimal(5,2) DEFAULT '0.00' COMMENT '报名率(%)',
+  `attendance_rate` decimal(5,2) DEFAULT '0.00' COMMENT '出席率(%)',
+  `completion_rate` decimal(5,2) DEFAULT '0.00' COMMENT '完成率(%)',
+  `satisfaction_score` decimal(3,2) DEFAULT '0.00' COMMENT '满意度评分',
+  `nps_score` decimal(5,2) DEFAULT '0.00' COMMENT 'NPS推荐度',
+  `total_revenue` decimal(10,2) DEFAULT '0.00' COMMENT '总收入',
+  `total_cost` decimal(10,2) DEFAULT '0.00' COMMENT '总成本',
+  `profit` decimal(10,2) DEFAULT '0.00' COMMENT '利润',
+  `marketing_cost` decimal(10,2) DEFAULT '0.00' COMMENT '营销成本',
+  `operational_cost` decimal(10,2) DEFAULT '0.00' COMMENT '运营成本',
+  `new_user_count` int unsigned DEFAULT '0' COMMENT '新用户参与数',
+  `returning_user_count` int unsigned DEFAULT '0' COMMENT '回头用户参与数',
+  `user_retention_rate` decimal(5,2) DEFAULT '0.00' COMMENT '用户留存率(%)',
+  `conversion_rate` decimal(5,2) DEFAULT '0.00' COMMENT '转化率(%)',
+  `promotion_channels` text COLLATE utf8mb4_unicode_ci COMMENT '推广渠道效果(JSON)',
+  `source_analysis` text COLLATE utf8mb4_unicode_ci COMMENT '来源分析(JSON)',
+  `roi` decimal(5,2) DEFAULT '0.00' COMMENT '投资回报率(%)',
+  `quality_rating` enum('poor','fair','good','excellent') COLLATE utf8mb4_unicode_ci DEFAULT 'good' COMMENT '质量评级:poor=差,fair=一般,good=良好,excellent=优秀',
+  `operation_difficulty` enum('easy','medium','hard','expert') COLLATE utf8mb4_unicode_ci DEFAULT 'medium' COMMENT '运营难度:easy=简单,medium=中等,hard=困难,expert=专家级',
+  `resource_efficiency` enum('low','medium','high') COLLATE utf8mb4_unicode_ci DEFAULT 'medium' COMMENT '资源效率:low=低,medium=中,high=高',
+  `recommend_repeat` tinyint unsigned DEFAULT '0' COMMENT '推荐重复举办:0=否,1=是',
+  `admin_notes` text COLLATE utf8mb4_unicode_ci COMMENT '管理员备注',
+  `lessons_learned` text COLLATE utf8mb4_unicode_ci COMMENT '经验总结',
+  `improvement_suggestions` text COLLATE utf8mb4_unicode_ci COMMENT '改进建议',
+  `is_featured` tinyint unsigned DEFAULT '0' COMMENT '是否精选案例:0=否,1=是',
+  `is_case_study` tinyint unsigned DEFAULT '0' COMMENT '是否案例研究:0=否,1=是',
+  `last_calculated` bigint DEFAULT NULL COMMENT '最后统计时间',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=禁用,1=启用',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_document_id` (`document_id`),
+  KEY `idx_quality_rating` (`quality_rating`),
+  KEY `idx_attendance_rate` (`attendance_rate`),
+  KEY `idx_roi` (`roi`),
+  KEY `idx_is_featured` (`is_featured`),
+  CONSTRAINT `fa_admin_activity_operations_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `fa_ldcms_document` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='活动运营统计表';
+
+-- ----------------------------
+-- Records of fa_admin_activity_operations
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
 -- Table structure for fa_admin_announcements
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_admin_announcements`;
@@ -162,6 +221,55 @@ BEGIN;
 COMMIT;
 
 -- ----------------------------
+-- Table structure for fa_admin_content_hotlist
+-- ----------------------------
+DROP TABLE IF EXISTS `fa_admin_content_hotlist`;
+CREATE TABLE `fa_admin_content_hotlist` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `content_type` enum('post','activity','topic') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '内容类型:post=帖子,activity=活动,topic=话题',
+  `document_id` int unsigned NOT NULL COMMENT '文档ID(fa_ldcms_document.id)',
+  `view_count_today` int unsigned NOT NULL DEFAULT '0' COMMENT '今日浏览数',
+  `like_count_today` int unsigned NOT NULL DEFAULT '0' COMMENT '今日点赞数',
+  `comment_count_today` int unsigned NOT NULL DEFAULT '0' COMMENT '今日评论数',
+  `share_count_today` int unsigned NOT NULL DEFAULT '0' COMMENT '今日分享数',
+  `collect_count` int unsigned NOT NULL DEFAULT '0' COMMENT '收藏数',
+  `hot_score` int unsigned NOT NULL DEFAULT '0' COMMENT '热度评分',
+  `trending_score` int unsigned NOT NULL DEFAULT '0' COMMENT '趋势评分',
+  `quality_score` decimal(3,2) DEFAULT '0.00' COMMENT '质量评分',
+  `growth_rate_24h` decimal(5,2) DEFAULT '0.00' COMMENT '24小时增长率(%)',
+  `engagement_rate` decimal(5,2) DEFAULT '0.00' COMMENT '互动率(%)',
+  `is_featured` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否精选:0=否,1=是',
+  `is_trending` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否热门:0=否,1=是',
+  `is_recommended` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否推荐:0=否,1=是',
+  `recommend_position` enum('none','homepage','category','hot','trending') COLLATE utf8mb4_unicode_ci DEFAULT 'none' COMMENT '推荐位置:none=无,homepage=首页,category=分类页,hot=热门,trending=趋势',
+  `recommend_weight` int unsigned DEFAULT '0' COMMENT '推荐权重',
+  `recommend_start_time` bigint DEFAULT NULL COMMENT '推荐开始时间',
+  `recommend_end_time` bigint DEFAULT NULL COMMENT '推荐结束时间',
+  `admin_action` enum('none','promote','demote','feature','unfeature','hide','delete') COLLATE utf8mb4_unicode_ci DEFAULT 'none' COMMENT '管理操作:none=无,promote=提升,demote=降级,feature=设为精选,unfeature=取消精选,hide=隐藏,delete=删除',
+  `manual_hot_score` int unsigned DEFAULT NULL COMMENT '手动设置热度',
+  `admin_notes` text COLLATE utf8mb4_unicode_ci COMMENT '管理员备注',
+  `hot_start_time` bigint DEFAULT NULL COMMENT '开始热门时间',
+  `last_calculated` bigint DEFAULT NULL COMMENT '最后计算时间',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=禁用,1=启用',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_content_type_document` (`content_type`,`document_id`),
+  KEY `idx_hot_score` (`hot_score`),
+  KEY `idx_is_featured` (`is_featured`),
+  KEY `idx_is_trending` (`is_trending`),
+  KEY `idx_recommend_position` (`recommend_position`),
+  KEY `idx_document_id` (`document_id`),
+  CONSTRAINT `fa_admin_content_hotlist_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `fa_ldcms_document` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='内容热度管理表';
+
+-- ----------------------------
+-- Records of fa_admin_content_hotlist
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
 -- Table structure for fa_admin_content_moderation
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_admin_content_moderation`;
@@ -197,6 +305,53 @@ CREATE TABLE `fa_admin_content_moderation` (
 
 -- ----------------------------
 -- Records of fa_admin_content_moderation
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for fa_admin_content_review
+-- ----------------------------
+DROP TABLE IF EXISTS `fa_admin_content_review`;
+CREATE TABLE `fa_admin_content_review` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `content_type` enum('post','comment','user_profile','activity') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '内容类型:post=帖子,comment=评论,user_profile=用户资料,activity=活动',
+  `document_id` int unsigned DEFAULT NULL COMMENT '文档ID(fa_ldcms_document.id)',
+  `comment_id` int unsigned DEFAULT NULL COMMENT '评论ID(fa_social_comments.id)',
+  `user_id` int unsigned NOT NULL COMMENT '被审核用户ID',
+  `report_reason` enum('spam','inappropriate','harassment','copyright','violence','fraud','fake','other') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '举报原因:spam=垃圾信息,inappropriate=不当内容,harassment=骚扰,copyright=侵权,violence=暴力,fraud=诈骗,fake=虚假信息,other=其他',
+  `reporter_id` int unsigned DEFAULT NULL COMMENT '举报人ID',
+  `report_detail` text COLLATE utf8mb4_unicode_ci COMMENT '举报详情描述',
+  `report_count` int unsigned DEFAULT '1' COMMENT '被举报次数',
+  `report_ips` text COLLATE utf8mb4_unicode_ci COMMENT '举报IP记录(JSON)',
+  `review_status` enum('pending','reviewing','approved','rejected','hidden','deleted') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending' COMMENT '审核状态:pending=待审核,reviewing=审核中,approved=通过,rejected=拒绝,hidden=隐藏,deleted=删除',
+  `reviewer_id` int unsigned DEFAULT NULL COMMENT '审核员ID',
+  `review_notes` text COLLATE utf8mb4_unicode_ci COMMENT '审核备注',
+  `review_time` bigint DEFAULT NULL COMMENT '审核时间',
+  `violation_level` enum('none','minor','moderate','severe','critical') COLLATE utf8mb4_unicode_ci DEFAULT 'none' COMMENT '违规等级:none=无,minor=轻微,moderate=中等,severe=严重,critical=严重',
+  `action_taken` enum('none','warning','hide','delete','ban_user','ban_ip') COLLATE utf8mb4_unicode_ci DEFAULT 'none' COMMENT '处理措施:none=无处理,warning=警告,hide=隐藏,delete=删除,ban_user=封禁用户,ban_ip=封禁IP',
+  `ban_duration` int unsigned DEFAULT '0' COMMENT '封禁时长(小时)',
+  `priority` enum('low','normal','high','urgent') COLLATE utf8mb4_unicode_ci DEFAULT 'normal' COMMENT '优先级:low=低,normal=普通,high=高,urgent=紧急',
+  `deadline` bigint DEFAULT NULL COMMENT '处理期限',
+  `auto_processed` tinyint unsigned DEFAULT '0' COMMENT '自动处理:0=人工,1=自动',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=关闭,1=开启',
+  PRIMARY KEY (`id`),
+  KEY `idx_review_status` (`review_status`),
+  KEY `idx_content_type` (`content_type`),
+  KEY `idx_document_id` (`document_id`),
+  KEY `idx_comment_id` (`comment_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_priority_createtime` (`priority`,`createtime`),
+  KEY `idx_reviewer` (`reviewer_id`),
+  CONSTRAINT `fa_admin_content_review_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `fa_ldcms_document` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fa_admin_content_review_ibfk_2` FOREIGN KEY (`comment_id`) REFERENCES `fa_social_comments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fa_admin_content_review_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `fa_user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='内容审核管理表';
+
+-- ----------------------------
+-- Records of fa_admin_content_review
 -- ----------------------------
 BEGIN;
 COMMIT;
@@ -340,6 +495,59 @@ INSERT INTO `fa_admin_log` (`id`, `admin_id`, `username`, `url`, `title`, `conte
 COMMIT;
 
 -- ----------------------------
+-- Table structure for fa_admin_marketing_campaigns
+-- ----------------------------
+DROP TABLE IF EXISTS `fa_admin_marketing_campaigns`;
+CREATE TABLE `fa_admin_marketing_campaigns` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `campaign_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '活动名称',
+  `campaign_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '活动代码',
+  `campaign_desc` text COLLATE utf8mb4_unicode_ci COMMENT '活动描述',
+  `campaign_type` enum('user_acquisition','user_retention','content_promotion','engagement_boost','revenue_increase') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '活动类型:user_acquisition=用户获取,user_retention=用户留存,content_promotion=内容推广,engagement_boost=互动提升,revenue_increase=收入增长',
+  `target_audience` enum('all_users','new_users','active_users','inactive_users','vip_users','specific_group') COLLATE utf8mb4_unicode_ci DEFAULT 'all_users' COMMENT '目标用户:all_users=所有用户,new_users=新用户,active_users=活跃用户,inactive_users=不活跃用户,vip_users=VIP用户,specific_group=特定群体',
+  `target_user_filter` text COLLATE utf8mb4_unicode_ci COMMENT '用户筛选条件(JSON)',
+  `target_metrics` text COLLATE utf8mb4_unicode_ci COMMENT '目标指标(JSON)',
+  `success_criteria` text COLLATE utf8mb4_unicode_ci COMMENT '成功标准',
+  `participation_rules` text COLLATE utf8mb4_unicode_ci COMMENT '参与规则',
+  `reward_rules` text COLLATE utf8mb4_unicode_ci COMMENT '奖励规则',
+  `limitations` text COLLATE utf8mb4_unicode_ci COMMENT '限制条件',
+  `start_time` bigint NOT NULL COMMENT '开始时间',
+  `end_time` bigint NOT NULL COMMENT '结束时间',
+  `total_budget` decimal(10,2) DEFAULT '0.00' COMMENT '总预算',
+  `current_spent` decimal(10,2) DEFAULT '0.00' COMMENT '当前花费',
+  `current_participants` int unsigned DEFAULT '0' COMMENT '当前参与人数',
+  `target_participants` int unsigned DEFAULT '0' COMMENT '目标参与人数',
+  `participation_rate` decimal(5,2) DEFAULT '0.00' COMMENT '参与率(%)',
+  `conversion_rate` decimal(5,2) DEFAULT '0.00' COMMENT '转化率(%)',
+  `roi` decimal(5,2) DEFAULT '0.00' COMMENT '投资回报率(%)',
+  `cost_per_acquisition` decimal(10,2) DEFAULT '0.00' COMMENT '获客成本',
+  `promotion_channels` text COLLATE utf8mb4_unicode_ci COMMENT '推广渠道(JSON)',
+  `channel_performance` text COLLATE utf8mb4_unicode_ci COMMENT '渠道效果(JSON)',
+  `campaign_status` enum('draft','scheduled','active','paused','completed','cancelled') COLLATE utf8mb4_unicode_ci DEFAULT 'draft' COMMENT '活动状态:draft=草稿,scheduled=已安排,active=进行中,paused=已暂停,completed=已完成,cancelled=已取消',
+  `approval_status` enum('pending','approved','rejected') COLLATE utf8mb4_unicode_ci DEFAULT 'pending' COMMENT '审批状态:pending=待审批,approved=已通过,rejected=已拒绝',
+  `created_by` int unsigned DEFAULT NULL COMMENT '创建人ID',
+  `approved_by` int unsigned DEFAULT NULL COMMENT '审批人ID',
+  `priority` enum('low','normal','high','critical') COLLATE utf8mb4_unicode_ci DEFAULT 'normal' COMMENT '优先级:low=低,normal=普通,high=高,critical=紧急',
+  `admin_notes` text COLLATE utf8mb4_unicode_ci COMMENT '管理员备注',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
+  `last_calculated` bigint DEFAULT NULL COMMENT '最后统计时间',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=禁用,1=启用',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_campaign_code` (`campaign_code`),
+  KEY `idx_campaign_status` (`campaign_status`),
+  KEY `idx_campaign_type` (`campaign_type`),
+  KEY `idx_start_end_time` (`start_time`,`end_time`),
+  KEY `idx_roi` (`roi`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='营销活动配置表';
+
+-- ----------------------------
+-- Records of fa_admin_marketing_campaigns
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
 -- Table structure for fa_admin_operation_campaigns
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_admin_operation_campaigns`;
@@ -384,6 +592,67 @@ CREATE TABLE `fa_admin_operation_campaigns` (
 
 -- ----------------------------
 -- Records of fa_admin_operation_campaigns
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for fa_admin_platform_operations
+-- ----------------------------
+DROP TABLE IF EXISTS `fa_admin_platform_operations`;
+CREATE TABLE `fa_admin_platform_operations` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `date` date NOT NULL COMMENT '统计日期',
+  `period_type` enum('daily','weekly','monthly') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'daily' COMMENT '统计周期:daily=日,weekly=周,monthly=月',
+  `year_month` varchar(7) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '年月(YYYY-MM)',
+  `total_users` int unsigned DEFAULT '0' COMMENT '总用户数',
+  `new_users` int unsigned DEFAULT '0' COMMENT '新增用户',
+  `active_users` int unsigned DEFAULT '0' COMMENT '活跃用户',
+  `daily_active_users` int unsigned DEFAULT '0' COMMENT '日活跃用户',
+  `user_retention_1day` decimal(5,2) DEFAULT '0.00' COMMENT '1日留存率(%)',
+  `user_retention_7day` decimal(5,2) DEFAULT '0.00' COMMENT '7日留存率(%)',
+  `user_retention_30day` decimal(5,2) DEFAULT '0.00' COMMENT '30日留存率(%)',
+  `total_posts` int unsigned DEFAULT '0' COMMENT '总帖子数',
+  `new_posts` int unsigned DEFAULT '0' COMMENT '新增帖子',
+  `total_comments` int unsigned DEFAULT '0' COMMENT '总评论数',
+  `new_comments` int unsigned DEFAULT '0' COMMENT '新增评论',
+  `total_likes` int unsigned DEFAULT '0' COMMENT '总点赞数',
+  `new_likes` int unsigned DEFAULT '0' COMMENT '新增点赞',
+  `content_engagement_rate` decimal(5,2) DEFAULT '0.00' COMMENT '内容互动率(%)',
+  `total_follows` int unsigned DEFAULT '0' COMMENT '总关注数',
+  `new_follows` int unsigned DEFAULT '0' COMMENT '新增关注',
+  `social_network_density` decimal(5,4) DEFAULT '0.0000' COMMENT '社交网络密度',
+  `total_activities` int unsigned DEFAULT '0' COMMENT '总活动数',
+  `new_activities` int unsigned DEFAULT '0' COMMENT '新增活动',
+  `completed_activities` int unsigned DEFAULT '0' COMMENT '完成活动数',
+  `total_activity_participants` int unsigned DEFAULT '0' COMMENT '总活动参与人次',
+  `activity_completion_rate` decimal(5,2) DEFAULT '0.00' COMMENT '活动完成率(%)',
+  `new_reports` int unsigned DEFAULT '0' COMMENT '新增举报',
+  `processed_reports` int unsigned DEFAULT '0' COMMENT '处理举报数',
+  `violation_rate` decimal(5,2) DEFAULT '0.00' COMMENT '违规率(%)',
+  `content_removal_rate` decimal(5,2) DEFAULT '0.00' COMMENT '内容删除率(%)',
+  `platform_health_score` decimal(3,2) DEFAULT '0.00' COMMENT '平台健康度评分',
+  `user_satisfaction_score` decimal(3,2) DEFAULT '0.00' COMMENT '用户满意度评分',
+  `content_quality_score` decimal(3,2) DEFAULT '0.00' COMMENT '内容质量评分',
+  `user_growth_rate` decimal(5,2) DEFAULT '0.00' COMMENT '用户增长率(%)',
+  `content_growth_rate` decimal(5,2) DEFAULT '0.00' COMMENT '内容增长率(%)',
+  `engagement_growth_rate` decimal(5,2) DEFAULT '0.00' COMMENT '互动增长率(%)',
+  `data_quality` enum('excellent','good','fair','poor') COLLATE utf8mb4_unicode_ci DEFAULT 'good' COMMENT '数据质量:excellent=优秀,good=良好,fair=一般,poor=差',
+  `anomaly_detected` tinyint unsigned DEFAULT '0' COMMENT '异常检测:0=正常,1=异常',
+  `admin_notes` text COLLATE utf8mb4_unicode_ci COMMENT '管理员备注',
+  `calculated_time` bigint DEFAULT NULL COMMENT '计算时间',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=禁用,1=启用',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_date_period` (`date`,`period_type`),
+  KEY `idx_date` (`date`),
+  KEY `idx_period_type` (`period_type`),
+  KEY `idx_platform_health` (`platform_health_score`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='平台运营数据表';
+
+-- ----------------------------
+-- Records of fa_admin_platform_operations
 -- ----------------------------
 BEGIN;
 COMMIT;
@@ -506,6 +775,55 @@ CREATE TABLE `fa_admin_topics_stats` (
 
 -- ----------------------------
 -- Records of fa_admin_topics_stats
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for fa_admin_user_behavior_stats
+-- ----------------------------
+DROP TABLE IF EXISTS `fa_admin_user_behavior_stats`;
+CREATE TABLE `fa_admin_user_behavior_stats` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `user_id` int unsigned NOT NULL COMMENT '用户ID(fa_user.id)',
+  `posts_last_7days` int unsigned NOT NULL DEFAULT '0' COMMENT '近7天发帖',
+  `posts_last_30days` int unsigned NOT NULL DEFAULT '0' COMMENT '近30天发帖',
+  `comments_last_7days` int unsigned NOT NULL DEFAULT '0' COMMENT '近7天评论',
+  `comments_last_30days` int unsigned NOT NULL DEFAULT '0' COMMENT '近30天评论',
+  `login_days_last_30` int unsigned NOT NULL DEFAULT '0' COMMENT '近30天登录天数',
+  `likes_given_last_30days` int unsigned NOT NULL DEFAULT '0' COMMENT '近30天点赞数',
+  `avg_post_likes` decimal(10,2) DEFAULT '0.00' COMMENT '平均帖子获赞数',
+  `avg_post_comments` decimal(10,2) DEFAULT '0.00' COMMENT '平均帖子评论数',
+  `high_quality_posts` int unsigned DEFAULT '0' COMMENT '优质帖子数(获赞>50)',
+  `featured_posts` int unsigned DEFAULT '0' COMMENT '精选帖子数',
+  `total_views_received` int unsigned DEFAULT '0' COMMENT '总浏览数',
+  `warning_count` int unsigned DEFAULT '0' COMMENT '警告次数',
+  `violation_count` int unsigned DEFAULT '0' COMMENT '违规次数',
+  `ban_count` int unsigned DEFAULT '0' COMMENT '封禁次数',
+  `last_violation_time` bigint DEFAULT NULL COMMENT '最后违规时间',
+  `risk_score` int unsigned DEFAULT '0' COMMENT '风险评分(0-100)',
+  `user_level` enum('newbie','regular','active','influential','vip','problematic','banned') COLLATE utf8mb4_unicode_ci DEFAULT 'newbie' COMMENT '用户等级:newbie=新手,regular=普通,active=活跃,influential=有影响力,vip=VIP,problematic=问题用户,banned=已封禁',
+  `influence_score` int unsigned DEFAULT '0' COMMENT '影响力评分',
+  `activity_score` int unsigned DEFAULT '0' COMMENT '活跃度评分',
+  `risk_level` enum('low','medium','high','critical') COLLATE utf8mb4_unicode_ci DEFAULT 'low' COMMENT '风险等级:low=低风险,medium=中风险,high=高风险,critical=严重风险',
+  `is_featured_user` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否推荐用户:0=否,1=是',
+  `restriction_status` enum('none','limited_post','limited_comment','limited_login','banned') COLLATE utf8mb4_unicode_ci DEFAULT 'none' COMMENT '限制状态:none=无限制,limited_post=限制发帖,limited_comment=限制评论,limited_login=限制登录,banned=已封禁',
+  `admin_notes` text COLLATE utf8mb4_unicode_ci COMMENT '管理员备注',
+  `last_calculated` bigint DEFAULT NULL COMMENT '最后统计时间',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=禁用,1=启用',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_id` (`user_id`),
+  KEY `idx_user_level` (`user_level`),
+  KEY `idx_influence_score` (`influence_score`),
+  KEY `idx_risk_level` (`risk_level`),
+  KEY `idx_risk_score` (`risk_score`),
+  CONSTRAINT `fa_admin_user_behavior_stats_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `fa_user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户行为统计扩展表';
+
+-- ----------------------------
+-- Records of fa_admin_user_behavior_stats
 -- ----------------------------
 BEGIN;
 COMMIT;
@@ -688,7 +1006,7 @@ CREATE TABLE `fa_auth_rule` (
   UNIQUE KEY `name` (`name`) USING BTREE,
   KEY `pid` (`pid`),
   KEY `weigh` (`weigh`)
-) ENGINE=InnoDB AUTO_INCREMENT=210 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='节点表';
+) ENGINE=InnoDB AUTO_INCREMENT=275 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='节点表';
 
 -- ----------------------------
 -- Records of fa_auth_rule
@@ -901,6 +1219,71 @@ INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`,
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (207, 'file', 203, 'ldcms/tagaction/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754507319, 1754507319, 0, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (208, 'file', 203, 'ldcms/tagaction/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754507319, 1754507319, 0, 'normal');
 INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (209, 'file', 203, 'ldcms/tagaction/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754507319, 1754507319, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (210, 'file', 0, 'admin', 'Admin', 'fa fa-list', '', '', '', 1, NULL, '', 'glygl', 'guanliyuanguanli', 1754723037, 1754723037, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (211, 'file', 210, 'admin/posts_stats', '帖子统计管理管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'tztjglgl', 'tiezitongjiguanliguanli', 1754723037, 1754723037, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (212, 'file', 211, 'admin/posts_stats/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723037, 1754723037, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (213, 'file', 211, 'admin/posts_stats/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723037, 1754723037, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (214, 'file', 211, 'admin/posts_stats/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723037, 1754723037, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (215, 'file', 211, 'admin/posts_stats/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723037, 1754723037, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (216, 'file', 211, 'admin/posts_stats/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723037, 1754723037, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (217, 'file', 210, 'admin/users_stats', '用户统计管理管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'yhtjglgl', 'yonghutongjiguanliguanli', 1754723052, 1754723052, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (218, 'file', 217, 'admin/users_stats/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723052, 1754723052, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (219, 'file', 217, 'admin/users_stats/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723052, 1754723052, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (220, 'file', 217, 'admin/users_stats/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723052, 1754723052, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (221, 'file', 217, 'admin/users_stats/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723052, 1754723052, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (222, 'file', 217, 'admin/users_stats/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723052, 1754723052, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (223, 'file', 210, 'admin/activities_stats', '活动统计管理管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'hdtjglgl', 'huodongtongjiguanliguanli', 1754723059, 1754723059, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (224, 'file', 223, 'admin/activities_stats/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723059, 1754723059, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (225, 'file', 223, 'admin/activities_stats/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723059, 1754723059, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (226, 'file', 223, 'admin/activities_stats/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723059, 1754723059, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (227, 'file', 223, 'admin/activities_stats/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723059, 1754723059, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (228, 'file', 223, 'admin/activities_stats/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723059, 1754723059, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (229, 'file', 210, 'admin/topics_stats', '话题统计管理管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'httjglgl', 'huatitongjiguanliguanli', 1754723065, 1754723065, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (230, 'file', 229, 'admin/topics_stats/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723065, 1754723065, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (231, 'file', 229, 'admin/topics_stats/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723065, 1754723065, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (232, 'file', 229, 'admin/topics_stats/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723065, 1754723065, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (233, 'file', 229, 'admin/topics_stats/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723065, 1754723065, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (234, 'file', 229, 'admin/topics_stats/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723065, 1754723065, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (235, 'file', 210, 'admin/system_stats', '系统运营数据管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'xtyysjgl', 'xitongyunyingshujuguanli', 1754723070, 1754723070, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (236, 'file', 235, 'admin/system_stats/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723070, 1754723070, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (237, 'file', 235, 'admin/system_stats/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723070, 1754723070, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (238, 'file', 235, 'admin/system_stats/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723070, 1754723070, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (239, 'file', 235, 'admin/system_stats/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723070, 1754723070, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (240, 'file', 235, 'admin/system_stats/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723070, 1754723070, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (241, 'file', 210, 'admin/content_moderation', '内容审核管理管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'nrshglgl', 'neirongshenheguanliguanli', 1754723077, 1754723077, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (242, 'file', 241, 'admin/content_moderation/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723077, 1754723077, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (243, 'file', 241, 'admin/content_moderation/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723077, 1754723077, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (244, 'file', 241, 'admin/content_moderation/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723077, 1754723077, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (245, 'file', 241, 'admin/content_moderation/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723077, 1754723077, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (246, 'file', 241, 'admin/content_moderation/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723077, 1754723077, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (247, 'file', 210, 'admin/announcements', '系统公告管理管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'xtggglgl', 'xitonggonggaoguanliguanli', 1754723083, 1754723083, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (248, 'file', 247, 'admin/announcements/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723083, 1754723083, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (249, 'file', 247, 'admin/announcements/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723083, 1754723083, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (250, 'file', 247, 'admin/announcements/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723083, 1754723083, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (251, 'file', 247, 'admin/announcements/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723083, 1754723083, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (252, 'file', 247, 'admin/announcements/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723083, 1754723083, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (253, 'file', 210, 'admin/operation_campaigns', '运营活动配置管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'yyhdpzgl', 'yunyinghuodongpeizhiguanli', 1754723089, 1754723089, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (254, 'file', 253, 'admin/operation_campaigns/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723089, 1754723089, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (255, 'file', 253, 'admin/operation_campaigns/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723089, 1754723089, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (256, 'file', 253, 'admin/operation_campaigns/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723089, 1754723089, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (257, 'file', 253, 'admin/operation_campaigns/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723089, 1754723089, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (258, 'file', 253, 'admin/operation_campaigns/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723089, 1754723089, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (259, 'file', 0, 'social', 'social', 'fa fa-list', '', '', '', 1, NULL, '', 's', 'social', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (260, 'file', 259, 'social/comments', '评论系统管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'plxtgl', 'pinglunxitongguanli', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (261, 'file', 260, 'social/comments/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (262, 'file', 260, 'social/comments/recyclebin', '回收站', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'hsz', 'huishouzhan', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (263, 'file', 260, 'social/comments/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (264, 'file', 260, 'social/comments/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (265, 'file', 260, 'social/comments/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (266, 'file', 260, 'social/comments/destroy', '真实删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zssc', 'zhenshishanchu', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (267, 'file', 260, 'social/comments/restore', '还原', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'hy', 'huanyuan', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (268, 'file', 260, 'social/comments/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723113, 1754723113, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (269, 'file', 259, 'social/topics', '热门话题管理', 'fa fa-circle-o', '', '', '', 1, NULL, '', 'rmhtgl', 'remenhuatiguanli', 1754723119, 1754723119, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (270, 'file', 269, 'social/topics/index', '查看', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'zk', 'zhakan', 1754723119, 1754723119, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (271, 'file', 269, 'social/topics/add', '添加', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'tj', 'tianjia', 1754723119, 1754723119, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (272, 'file', 269, 'social/topics/edit', '编辑', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'bj', 'bianji', 1754723119, 1754723119, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (273, 'file', 269, 'social/topics/del', '删除', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'sc', 'shanchu', 1754723119, 1754723119, 0, 'normal');
+INSERT INTO `fa_auth_rule` (`id`, `type`, `pid`, `name`, `title`, `icon`, `url`, `condition`, `remark`, `ismenu`, `menutype`, `extend`, `py`, `pinyin`, `createtime`, `updatetime`, `weigh`, `status`) VALUES (274, 'file', 269, 'social/topics/multi', '批量更新', 'fa fa-circle-o', '', '', '', 0, NULL, '', 'plgx', 'pilianggengxin', 1754723119, 1754723119, 0, 'normal');
 COMMIT;
 
 -- ----------------------------
