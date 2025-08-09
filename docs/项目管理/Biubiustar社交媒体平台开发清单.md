@@ -84,6 +84,49 @@
 - 参考：`database/create_social_tables.sql`、`database/social_tables_simple.sql`
 - 完成报告：`docs/项目管理/阶段一数据库创建完成报告.md`
 
+##### 1.4 字段类型合规审计（MCP × FastAdmin 指南）
+- 参考：`https://doc.fastadmin.net/doc/database.html#toc-2`
+- 审计范围：阶段一新增/扩展相关表
+
+- 结论与建议：
+  - `fa_user`（扩展字段）：
+    - 计数字段：`followers_count`、`following_count`、`posts_count`、`likes_received` → int unsigned（合规）
+    - 状态字段：`is_verified` → tinyint unsigned（合规）
+    - 媒体/配置：`cover_image` varchar(255)（合规）、`social_links` text（合规，建议保存前做 JSON 校验）
+    - 时间字段：核心表自带 `createtime/updatetime`（bigint），与 FastAdmin 兼容（建议模型中开启时间映射）
+  - `fa_social_follows`：`status` tinyint unsigned、时间 bigint（合规）
+  - `fa_social_post_likes`：`post_type` varchar(20) 默认 'post'（可选优化：改为 ENUM('post','comment','activity') 以避免非法值）
+  - `fa_social_comments`：`post_type` varchar(20)（可选优化：改为 ENUM('post','activity')；如未来支持更多类型，可保留 varchar）
+  - `fa_social_notifications`：`type` varchar(50)（可选优化：如类型集合固定，改为 ENUM('follow','like','comment','reply','mention','system','activity')；考虑可扩展性可维持 varchar）
+  - `fa_ldcms_document_social_posts`：`post_type`、`privacy_level` 已为 ENUM（合规）
+  - `fa_ldcms_document_activities`：`activity_type`、`activity_status` 为 varchar（可选优化：改为 ENUM('event','meetup','workshop','competition') 与 ENUM('draft','published','ongoing','completed','cancelled')）
+
+- 非破坏性 DDL（仅当需收紧取值范围时执行）：
+  ```sql
+  -- 点赞/评论的内容类型收紧
+  ALTER TABLE `fa_social_post_likes`
+    MODIFY COLUMN `post_type` ENUM('post','comment','activity') DEFAULT 'post' COMMENT '内容类型';
+  ALTER TABLE `fa_social_comments`
+    MODIFY COLUMN `post_type` ENUM('post','activity') DEFAULT 'post' COMMENT '内容类型';
+
+  -- 通知类型（如希望强约束）
+  ALTER TABLE `fa_social_notifications`
+    MODIFY COLUMN `type` ENUM('follow','like','comment','reply','mention','system','activity') NOT NULL COMMENT '通知类型';
+
+  -- 活动类型/状态（如希望强约束）
+  ALTER TABLE `fa_ldcms_document_activities`
+    MODIFY COLUMN `activity_type` ENUM('event','meetup','workshop','competition') DEFAULT 'event' COMMENT '活动类型',
+    MODIFY COLUMN `activity_status` ENUM('draft','published','ongoing','completed','cancelled') DEFAULT 'draft' COMMENT '活动状态';
+  ```
+
+- 时间字段与 FastAdmin 映射（模型层）：
+  ```php
+  protected $autoWriteTimestamp = 'integer';
+  protected $createTime = 'create_time';
+  protected $updateTime = 'update_time';
+  protected $deleteTime = 'delete_time';
+  ```
+
 ---
 
 ### 阶段二：后台模型管理开发（优先级：P0｜状态：进行中）
@@ -213,6 +256,82 @@ php think menu -c social/Follows -c social/PostLikes -c social/Comments -c socia
 - **社交内容管理**: `/application/admin/view/ldcms/social_posts/`
 - **活动管理**: `/application/admin/view/ldcms/activities/`
 - **用户管理**: `/application/admin/view/social/users/`
+
+#### 2.3 前台会员中心字段接入（与阶段一字段对齐）
+- 展示字段（用户主页/个人中心）：`followers_count`、`following_count`、`posts_count`、`likes_received`、`is_verified`
+- 可编辑字段（个人资料页）：`cover_image`、`social_links`
+- 建议位置：
+  - 控制器：`/application/index/controller/User.php`（扩展资料保存与展示）
+  - 视图：`/application/index/view/user/profile.html`、`/application/index/view/user/index.html`
+- 数据校验：保存时校验 `social_links` 为 JSON（或在保存前进行 JSON.stringify）
+
+#### 2.4 菜单一键生成与合理编排
+- 生成菜单（CRUD 命令已带 `-u 1` 自动生成菜单，若需单独重建/编排可执行）：
+  ```bash
+  # 精确导入以下控制器的菜单
+  php think menu -c ldcms/SocialPosts -e 1
+  php think menu -c ldcms/Activities -e 1
+  php think menu -c social/Follows -e 1
+  php think menu -c social/PostLikes -e 1
+  php think menu -c social/Comments -e 1
+  php think menu -c social/Notifications -e 1
+  php think menu -c social/ActivityParticipants -e 1
+  ```
+- 合理编排建议：
+  - 顶级分组：`社交管理`（可使用 `social/*` 控制器自动形成同级菜单分组）
+  - 权重排序：在后台“权限规则”中手动拖拽；或执行 SQL 更新 `fa_auth_rule.weigh`（仅对上述新建菜单）
+  - 图标/备注：在控制器类注释中添加 `@icon fa fa-users`、`@remark`，再执行 `php think menu -c 控制器 -e 1 -f 1`
+
+【重要】菜单中文化规范（避免英文标题）
+- 菜单标题来源：控制器与方法的 PHPDoc 注释文本；若缺失则回退为英文类名/方法名
+- 要求：为控制器与常用方法补充中文注释，然后执行强制菜单重建
+- 示例（控制器头部注释与方法注释）：
+  ```php
+  /**
+   * 社交帖子扩展信息管理
+   * @icon fa fa-comments
+   * @remark 管理用户发布的社交帖子扩展信息
+   */
+  class SocialPosts extends Backend { ... }
+
+  /** 查看 */ public function index() { ... }
+  /** 添加 */ public function add() { ... }
+  /** 编辑 */ public function edit($ids=null) { ... }
+  /** 删除 */ public function del($ids="") { ... }
+  /** 批量更新 */ public function multi($ids="") { ... }
+  /** 回收站 */ public function recyclebin() { ... }
+  /** 还原 */ public function restore($ids="") { ... }
+  /** 真实删除 */ public function destroy($ids="") { ... }
+  ```
+- 重新导入中文菜单：`php think menu -c ldcms/SocialPosts -e 1 -f 1`（其它控制器同理）
+
+#### 2.5 前台发布内容审核机制（必做）
+- 原则：前台会员发布的社交帖子默认置为“待审核”，后台审核后才对外展示
+- 落地要点：
+  - 发布入口：`/application/index/controller/Social.php`（新增发布接口/动作），写入 `fa_ldcms_document` 与 `fa_ldcms_document_social_posts`
+  - 默认状态：插入 `fa_ldcms_document.status = 0`（隐藏/待审核），`lang` 按当前站点语言，`mid` 为“社交帖子”模型 ID
+  - 后台审核：通过 `ldcms/SocialPosts` 或通用 `ldcms/document` 对应模型进行审核置为 `status = 1`
+  - 前台展示：所有列表/详情页查询统一加 `status = 1` 条件，避免未审核内容外泄
+  - 模型 ID 查询：`SELECT id FROM fa_ldcms_models WHERE table_name='social_posts'`
+
+#### 2.6 数据库类型合规性检查（MCP × FastAdmin 指南）
+- 主键：各表 `id` 为 `int unsigned auto_increment`（合规）
+- 状态类：如 `status`、`is_featured` 为 `tinyint unsigned`（合规）
+- 时间类：当前为 `create_time`/`update_time`/`delete_time`（bigint）
+  - FastAdmin 默认为 `createtime`/`updatetime`/`deletetime`（int）
+  - 建议：生成后的模型中手动设置时间字段映射以启用自动写入与软删除：
+    ```php
+    protected $autoWriteTimestamp = 'integer';
+    protected $createTime = 'create_time';
+    protected $updateTime = 'update_time';
+    protected $deleteTime = 'delete_time'; // 如需软删除
+    ```
+- 字符型：`varchar(<=255)`、长文本用 `text`（已按规范）
+- 枚举：`enum('public','followers','private')`、`enum('text','image','video','mixed')`（合规）
+- 索引：`document_id` 唯一/普通索引、常用过滤字段具备索引（合规）
+
+参考：FastAdmin 官方数据库字段规范（数据类型与时间字段约定）
+- 文档：`https://doc.fastadmin.net/doc/database.html#toc-4`
 
 ---
 
