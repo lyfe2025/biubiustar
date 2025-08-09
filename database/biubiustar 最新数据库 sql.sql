@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 09/08/2025 13:08:19
+ Date: 09/08/2025 14:48:30
 */
 
 SET NAMES utf8mb4;
@@ -976,7 +976,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_ldcms_document`;
 CREATE TABLE `fa_ldcms_document` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT '文档ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `mid` int NOT NULL COMMENT '模型ID',
   `cid` int DEFAULT NULL COMMENT '栏目ID',
   `sub_cid` varchar(255) DEFAULT '' COMMENT '副栏目ID列表',
@@ -995,7 +995,7 @@ CREATE TABLE `fa_ldcms_document` (
   `flag` varchar(255) DEFAULT '' COMMENT '文档标识',
   `tag` varchar(255) DEFAULT '' COMMENT '文档标签',
   `outlink` varchar(255) DEFAULT NULL COMMENT '外部跳转链接',
-  `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '文档状态：0隐藏，1正常',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=隐藏,1=正常',
   `gid` varchar(255) DEFAULT '' COMMENT '浏览权限用户组',
   `custom_tpl` varchar(255) DEFAULT '' COMMENT '自定义详情页模板',
   `custom_urlname` varchar(255) DEFAULT '' COMMENT '自定义URL名称',
@@ -1425,33 +1425,33 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_ldcms_document_activities`;
 CREATE TABLE `fa_ldcms_document_activities` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '扩展记录ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `document_id` int unsigned NOT NULL COMMENT '关联的LDCMS文档ID',
-  `activity_type` enum('event','meetup','workshop','competition','conference','party') COLLATE utf8mb4_unicode_ci DEFAULT 'event' COMMENT '活动类型：event活动，meetup聚会，workshop工作坊，competition比赛，conference会议，party聚会',
-  `activity_status` enum('draft','published','ongoing','completed','cancelled','postponed') COLLATE utf8mb4_unicode_ci DEFAULT 'draft' COMMENT '活动状态：draft草稿，published已发布，ongoing进行中，completed已完成，cancelled已取消，postponed已延期',
-  `start_time` bigint DEFAULT NULL COMMENT '活动开始时间戳',
-  `end_time` bigint DEFAULT NULL COMMENT '活动结束时间戳',
-  `register_start` bigint DEFAULT NULL COMMENT '报名开始时间戳',
-  `register_end` bigint DEFAULT NULL COMMENT '报名结束时间戳',
-  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动举办地点名称',
-  `location_detail` text COLLATE utf8mb4_unicode_ci COMMENT '活动地点详细描述和交通指引',
-  `location_lat` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动地点纬度坐标',
-  `location_lng` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动地点经度坐标',
-  `max_participants` int unsigned DEFAULT '0' COMMENT '最大参与人数限制，0表示无限制',
-  `current_participants` int unsigned DEFAULT '0' COMMENT '当前已报名参与人数统计',
-  `min_participants` int unsigned DEFAULT '0' COMMENT '最少参与人数要求',
-  `fee` decimal(10,2) unsigned DEFAULT '0.00' COMMENT '活动参与费用',
-  `fee_type` enum('free','paid','aa') COLLATE utf8mb4_unicode_ci DEFAULT 'free' COMMENT '费用类型：free免费，paid付费，aa AA制',
-  `registration_required` tinyint unsigned DEFAULT '0' COMMENT '是否需要报名：0不需要，1需要',
-  `need_approval` tinyint unsigned DEFAULT '0' COMMENT '是否需要审批：0不需要，1需要',
-  `contact_info` text COLLATE utf8mb4_unicode_ci COMMENT '联系方式信息，JSON格式存储联系人和联系方式',
-  `requirements` text COLLATE utf8mb4_unicode_ci COMMENT '参与要求和注意事项',
-  `schedule` text COLLATE utf8mb4_unicode_ci COMMENT '活动日程安排，JSON格式存储时间安排',
-  `organizer` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动主办方名称',
-  `sponsor` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动赞助商名称',
-  `extra_fields` text COLLATE utf8mb4_unicode_ci COMMENT '扩展字段，JSON格式存储额外信息',
-  `create_time` bigint DEFAULT NULL COMMENT '创建时间戳',
-  `update_time` bigint DEFAULT NULL COMMENT '更新时间戳',
+  `activity_type` enum('event','meetup','workshop','competition','conference','party') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'event' COMMENT '活动类型:event=活动,meetup=聚会,workshop=工作坊,competition=比赛,conference=会议,party=派对',
+  `activity_status` enum('draft','published','ongoing','completed','cancelled','postponed') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'draft' COMMENT '活动状态:draft=草稿,published=已发布,ongoing=进行中,completed=已完成,cancelled=已取消,postponed=已延期',
+  `start_time` bigint DEFAULT NULL COMMENT '开始时间',
+  `end_time` bigint DEFAULT NULL COMMENT '结束时间',
+  `register_start` bigint DEFAULT NULL COMMENT '报名开始时间',
+  `register_end` bigint DEFAULT NULL COMMENT '报名结束时间',
+  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '活动地点',
+  `location_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '活动地点详细描述和交通指引',
+  `location_lat` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '纬度',
+  `location_lng` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '经度',
+  `max_participants` int unsigned NOT NULL DEFAULT '0' COMMENT '最大参与人数',
+  `current_participants` int unsigned NOT NULL DEFAULT '0' COMMENT '当前参与人数',
+  `min_participants` int unsigned NOT NULL DEFAULT '0' COMMENT '最少参与人数',
+  `fee` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '活动费用',
+  `fee_type` enum('free','paid','aa') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'free' COMMENT '费用类型:free=免费,paid=付费,aa=AA制',
+  `registration_required` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '需要报名:0=否,1=是',
+  `need_approval` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '需要审批:0=否,1=是',
+  `contact_info` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '联系方式信息，JSON格式存储联系人和联系方式',
+  `requirements` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '参与要求和注意事项',
+  `schedule` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '活动日程安排，JSON格式存储时间安排',
+  `organizer` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '组织者',
+  `sponsor` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '赞助商',
+  `extra_fields` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '扩展字段，JSON格式存储额外信息',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_document` (`document_id`),
   KEY `idx_activity_type` (`activity_type`),
@@ -2338,24 +2338,24 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_ldcms_document_social_posts`;
 CREATE TABLE `fa_ldcms_document_social_posts` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '扩展记录ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `document_id` int unsigned NOT NULL COMMENT '关联的LDCMS文档ID',
-  `post_type` enum('text','image','video','mixed') COLLATE utf8mb4_unicode_ci DEFAULT 'text' COMMENT '帖子类型：text纯文字，image图片，video视频，mixed混合媒体',
-  `media_files` text COLLATE utf8mb4_unicode_ci COMMENT '媒体文件信息，JSON格式存储文件路径和元数据',
-  `hashtags` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '话题标签，多个标签用逗号分隔',
-  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '发布位置信息',
-  `location_lat` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '发布位置纬度坐标',
-  `location_lng` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '发布位置经度坐标',
-  `privacy_level` enum('public','followers','private') COLLATE utf8mb4_unicode_ci DEFAULT 'public' COMMENT '隐私级别：public公开，followers仅粉丝可见，private私密',
-  `is_featured` tinyint unsigned DEFAULT '0' COMMENT '是否精选帖子：0普通，1精选',
-  `allow_comment` tinyint unsigned DEFAULT '1' COMMENT '是否允许评论：0不允许，1允许',
-  `allow_share` tinyint unsigned DEFAULT '1' COMMENT '是否允许分享：0不允许，1允许',
-  `share_count` int unsigned DEFAULT '0' COMMENT '分享次数统计',
-  `comment_count` int unsigned DEFAULT '0' COMMENT '评论数量统计',
-  `mood` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '发布时的心情状态',
-  `mention_users` text COLLATE utf8mb4_unicode_ci COMMENT '提及的用户ID列表，JSON格式存储',
-  `create_time` bigint DEFAULT NULL COMMENT '创建时间戳',
-  `update_time` bigint DEFAULT NULL COMMENT '更新时间戳',
+  `post_type` enum('text','image','video','mixed') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'text' COMMENT '帖子类型:text=文本,image=图片,video=视频,mixed=混合',
+  `media_files` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '媒体文件信息，JSON格式存储文件路径和元数据',
+  `hashtags` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '话题标签',
+  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '位置信息',
+  `location_lat` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '纬度',
+  `location_lng` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '经度',
+  `privacy_level` enum('public','followers','private') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'public' COMMENT '隐私级别:public=公开,followers=仅粉丝,private=私密',
+  `is_featured` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否精选:0=否,1=是',
+  `allow_comment` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '允许评论:0=否,1=是',
+  `allow_share` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '允许分享:0=否,1=是',
+  `share_count` int unsigned NOT NULL DEFAULT '0' COMMENT '分享次数',
+  `comment_count` int unsigned NOT NULL DEFAULT '0' COMMENT '评论数量',
+  `mood` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '心情状态',
+  `mention_users` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '提及的用户ID列表，JSON格式存储',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_document` (`document_id`),
   KEY `idx_post_type` (`post_type`),
@@ -2940,15 +2940,15 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_social_activity_participants`;
 CREATE TABLE `fa_social_activity_participants` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '参与记录ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `activity_id` int unsigned NOT NULL COMMENT '活动ID',
   `user_id` int unsigned NOT NULL COMMENT '参与用户ID',
-  `status` enum('registered','approved','attended','cancelled','rejected') COLLATE utf8mb4_unicode_ci DEFAULT 'registered' COMMENT '参与状态：registered已报名，approved已通过，attended已到场，cancelled已取消，rejected已拒绝',
-  `remark` text COLLATE utf8mb4_unicode_ci COMMENT '参与备注信息',
-  `register_time` bigint DEFAULT NULL COMMENT '报名时间戳',
-  `attend_time` bigint DEFAULT NULL COMMENT '签到时间戳',
-  `create_time` bigint DEFAULT NULL COMMENT '记录创建时间戳',
-  `update_time` bigint DEFAULT NULL COMMENT '记录更新时间戳',
+  `status` enum('registered','approved','attended','cancelled','rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'registered' COMMENT '参与状态:registered=已报名,approved=已批准,attended=已参加,cancelled=已取消,rejected=已拒绝',
+  `remark` text COLLATE utf8mb4_unicode_ci COMMENT '备注信息',
+  `register_time` bigint DEFAULT NULL COMMENT '报名时间',
+  `attend_time` bigint DEFAULT NULL COMMENT '签到时间',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_participant` (`activity_id`,`user_id`),
   KEY `idx_activity` (`activity_id`,`status`),
@@ -2966,20 +2966,20 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_social_comments`;
 CREATE TABLE `fa_social_comments` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '评论ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `user_id` int unsigned NOT NULL COMMENT '评论用户ID',
   `post_id` int unsigned NOT NULL COMMENT '被评论内容ID',
-  `post_type` enum('post','activity') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'post' COMMENT '内容类型：post帖子，activity活动',
-  `parent_id` int unsigned DEFAULT '0' COMMENT '父评论ID，0表示顶级评论',
-  `reply_to_user_id` int unsigned DEFAULT '0' COMMENT '回复目标用户ID',
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容文本',
-  `ip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '评论用户IP地址',
-  `likes_count` int unsigned DEFAULT '0' COMMENT '评论获得的点赞数量',
-  `replies_count` int unsigned DEFAULT '0' COMMENT '评论获得的回复数量',
-  `status` tinyint unsigned DEFAULT '1' COMMENT '评论状态：1正常显示，0已删除，2审核中',
-  `create_time` bigint DEFAULT NULL COMMENT '评论创建时间戳',
-  `update_time` bigint DEFAULT NULL COMMENT '评论更新时间戳',
-  `delete_time` bigint DEFAULT NULL COMMENT '评论删除时间戳（软删除）',
+  `post_type` enum('post','activity') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'post' COMMENT '帖子类型:post=社交帖子,activity=活动',
+  `parent_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父级评论ID',
+  `reply_to_user_id` int unsigned NOT NULL DEFAULT '0' COMMENT '回复用户ID',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容文本',
+  `ip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'IP地址',
+  `likes_count` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
+  `replies_count` int unsigned NOT NULL DEFAULT '0' COMMENT '回复数',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=隐藏,1=正常',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
+  `deletetime` bigint DEFAULT NULL COMMENT '删除时间',
   PRIMARY KEY (`id`),
   KEY `idx_post` (`post_id`,`post_type`,`status`),
   KEY `idx_user` (`user_id`),
@@ -2997,12 +2997,12 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_social_follows`;
 CREATE TABLE `fa_social_follows` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '关系记录ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `follower_id` int unsigned NOT NULL COMMENT '关注者用户ID',
   `following_id` int unsigned NOT NULL COMMENT '被关注用户ID',
-  `create_time` bigint DEFAULT NULL COMMENT '关注建立时间戳',
-  `update_time` bigint DEFAULT NULL COMMENT '关系更新时间戳',
-  `status` tinyint unsigned DEFAULT '1' COMMENT '关注状态：1正常关注，0已取消关注',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '关注状态:0=取消关注,1=关注中',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_follow` (`follower_id`,`following_id`),
   KEY `idx_follower` (`follower_id`,`status`),
@@ -3020,23 +3020,23 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_social_notifications`;
 CREATE TABLE `fa_social_notifications` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '通知ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `user_id` int unsigned NOT NULL COMMENT '接收通知的用户ID',
   `from_user_id` int unsigned DEFAULT '0' COMMENT '触发通知的用户ID',
-  `type` enum('follow','like','comment','reply','mention','system','activity') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '通知类型：follow关注，like点赞，comment评论，reply回复，mention提及，system系统，activity活动',
+  `type` enum('follow','like','comment','reply','mention','system','activity') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '通知类型:follow=关注,like=点赞,comment=评论,reply=回复,mention=提及,system=系统,activity=活动',
   `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '通知标题',
-  `content` text COLLATE utf8mb4_unicode_ci COMMENT '通知详细内容',
-  `data` text COLLATE utf8mb4_unicode_ci COMMENT '通知附加数据，JSON格式存储',
-  `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '通知关联的URL链接',
-  `is_read` tinyint unsigned DEFAULT '0' COMMENT '是否已读：0未读，1已读',
-  `is_deleted` tinyint unsigned DEFAULT '0' COMMENT '是否删除：0正常，1已删除',
-  `create_time` bigint DEFAULT NULL COMMENT '通知创建时间戳',
-  `read_time` bigint DEFAULT NULL COMMENT '通知阅读时间戳',
-  `expire_time` bigint DEFAULT NULL COMMENT '通知过期时间戳',
+  `content` text COLLATE utf8mb4_unicode_ci COMMENT '通知内容',
+  `data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '通知附加数据，JSON格式存储',
+  `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '跳转链接',
+  `is_read` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否已读:0=未读,1=已读',
+  `is_deleted` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否删除:0=否,1=是',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `readtime` bigint DEFAULT NULL COMMENT '阅读时间',
+  `expire_time` bigint DEFAULT NULL COMMENT '过期时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_read` (`user_id`,`is_read`,`is_deleted`),
   KEY `idx_type` (`type`),
-  KEY `idx_create_time` (`create_time`)
+  KEY `idx_create_time` (`createtime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通知系统表';
 
 -- ----------------------------
@@ -3050,12 +3050,12 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_social_post_likes`;
 CREATE TABLE `fa_social_post_likes` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '点赞记录ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `user_id` int unsigned NOT NULL COMMENT '点赞用户ID',
   `post_id` int unsigned NOT NULL COMMENT '被点赞内容ID',
-  `post_type` enum('post','comment','activity') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'post' COMMENT '内容类型：post帖子，comment评论，activity活动',
-  `create_time` bigint DEFAULT NULL COMMENT '点赞时间戳',
-  `ip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '点赞用户IP地址',
+  `post_type` enum('post','comment','activity') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'post' COMMENT '点赞类型:post=帖子,comment=评论,activity=活动',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `ip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'IP地址',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_like` (`user_id`,`post_id`,`post_type`),
   KEY `idx_post` (`post_id`,`post_type`),
@@ -3073,19 +3073,19 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_social_topics`;
 CREATE TABLE `fa_social_topics` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '话题ID，主键',
-  `topic_name` varchar(100) NOT NULL COMMENT '话题名称，如：#旅行',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `topic_name` varchar(100) NOT NULL COMMENT '话题名称',
   `topic_desc` text COMMENT '话题描述',
-  `topic_color` varchar(7) DEFAULT '#8B5CF6' COMMENT '话题颜色',
+  `topic_color` varchar(7) DEFAULT '#8B5CF6' COMMENT '话题颜色代码',
   `topic_icon` varchar(255) DEFAULT '' COMMENT '话题图标',
-  `posts_count` int unsigned DEFAULT '0' COMMENT '使用该话题的帖子数量',
-  `participants_count` int unsigned DEFAULT '0' COMMENT '参与用户数量',
-  `trending_score` int unsigned DEFAULT '0' COMMENT '热度分数',
-  `is_official` tinyint unsigned DEFAULT '0' COMMENT '是否官方话题：0否，1是',
-  `is_trending` tinyint unsigned DEFAULT '0' COMMENT '是否当前热门：0否，1是',
-  `status` tinyint unsigned DEFAULT '1' COMMENT '状态：0禁用，1启用',
-  `create_time` bigint DEFAULT NULL COMMENT '创建时间',
-  `update_time` bigint DEFAULT NULL COMMENT '更新时间',
+  `posts_count` int unsigned NOT NULL DEFAULT '0' COMMENT '帖子数量',
+  `participants_count` int unsigned NOT NULL DEFAULT '0' COMMENT '参与者数量',
+  `trending_score` int unsigned NOT NULL DEFAULT '0' COMMENT '热度评分',
+  `is_official` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否官方:0=否,1=是',
+  `is_trending` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否热门:0=否,1=是',
+  `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态:0=禁用,1=启用',
+  `createtime` bigint DEFAULT NULL COMMENT '创建时间',
+  `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `topic_name` (`topic_name`),
   KEY `idx_trending` (`is_trending`,`trending_score`),
@@ -3097,14 +3097,14 @@ CREATE TABLE `fa_social_topics` (
 -- Records of fa_social_topics
 -- ----------------------------
 BEGIN;
-INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (1, '#旅行', '分享旅行经历和美景', '#FF6B6B', '', 0, 0, 100, 1, 1, 1, 1754710191, 1754710191);
-INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (2, '#美食', '分享美食和烹饪心得', '#4ECDC4', '', 0, 0, 95, 1, 1, 1, 1754710191, 1754710191);
-INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (3, '#生活', '记录日常生活点滴', '#45B7D1', '', 0, 0, 90, 1, 1, 1, 1754710191, 1754710191);
-INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (4, '#摄影', '摄影作品分享和交流', '#96CEB4', '', 0, 0, 85, 1, 1, 1, 1754710191, 1754710191);
-INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (5, '#健身', '健身心得和运动分享', '#FECA57', '', 0, 0, 80, 1, 1, 1, 1754710191, 1754710191);
-INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (6, '#学习', '学习经验和知识分享', '#FF9FF3', '', 0, 0, 75, 1, 1, 1, 1754710191, 1754710191);
-INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (7, '#工作', '职场经验和工作心得', '#54A0FF', '', 0, 0, 70, 1, 1, 1, 1754710191, 1754710191);
-INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `create_time`, `update_time`) VALUES (8, '#科技', '科技资讯和数码产品', '#5F27CD', '', 0, 0, 65, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `createtime`, `updatetime`) VALUES (1, '#旅行', '分享旅行经历和美景', '#FF6B6B', '', 0, 0, 100, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `createtime`, `updatetime`) VALUES (2, '#美食', '分享美食和烹饪心得', '#4ECDC4', '', 0, 0, 95, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `createtime`, `updatetime`) VALUES (3, '#生活', '记录日常生活点滴', '#45B7D1', '', 0, 0, 90, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `createtime`, `updatetime`) VALUES (4, '#摄影', '摄影作品分享和交流', '#96CEB4', '', 0, 0, 85, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `createtime`, `updatetime`) VALUES (5, '#健身', '健身心得和运动分享', '#FECA57', '', 0, 0, 80, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `createtime`, `updatetime`) VALUES (6, '#学习', '学习经验和知识分享', '#FF9FF3', '', 0, 0, 75, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `createtime`, `updatetime`) VALUES (7, '#工作', '职场经验和工作心得', '#54A0FF', '', 0, 0, 70, 1, 1, 1, 1754710191, 1754710191);
+INSERT INTO `fa_social_topics` (`id`, `topic_name`, `topic_desc`, `topic_color`, `topic_icon`, `posts_count`, `participants_count`, `trending_score`, `is_official`, `is_trending`, `status`, `createtime`, `updatetime`) VALUES (8, '#科技', '科技资讯和数码产品', '#5F27CD', '', 0, 0, 65, 1, 1, 1, 1754710191, 1754710191);
 COMMIT;
 
 -- ----------------------------
@@ -3163,7 +3163,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `fa_user`;
 CREATE TABLE `fa_user` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID，主键',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `group_id` int unsigned NOT NULL DEFAULT '0' COMMENT '用户组别ID',
   `username` varchar(32) DEFAULT '' COMMENT '用户名',
   `nickname` varchar(50) DEFAULT '' COMMENT '用户昵称',
@@ -3173,7 +3173,7 @@ CREATE TABLE `fa_user` (
   `mobile` varchar(11) DEFAULT '' COMMENT '手机号码',
   `avatar` varchar(255) DEFAULT '' COMMENT '用户头像路径',
   `level` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '用户等级',
-  `gender` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '用户性别：0未知，1男性，2女性',
+  `gender` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '性别:0=未知,1=男,2=女',
   `birthday` date DEFAULT NULL COMMENT '用户生日',
   `bio` varchar(100) DEFAULT '' COMMENT '个人简介格言',
   `money` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '账户余额',
@@ -3190,13 +3190,13 @@ CREATE TABLE `fa_user` (
   `createtime` bigint DEFAULT NULL COMMENT '创建时间',
   `updatetime` bigint DEFAULT NULL COMMENT '更新时间',
   `token` varchar(50) DEFAULT '' COMMENT '用户令牌',
-  `status` varchar(30) DEFAULT 'normal' COMMENT '用户状态：normal正常，hidden隐藏',
+  `status` varchar(30) NOT NULL DEFAULT 'normal' COMMENT '状态:normal=正常,hidden=隐藏',
   `verification` varchar(255) DEFAULT '' COMMENT '邮箱验证码',
   `followers_count` int unsigned DEFAULT '0' COMMENT '粉丝数量统计',
   `following_count` int unsigned DEFAULT '0' COMMENT '关注数量统计',
   `posts_count` int unsigned DEFAULT '0' COMMENT '发帖数量统计',
   `likes_received` int unsigned DEFAULT '0' COMMENT '获得点赞总数',
-  `is_verified` tinyint unsigned DEFAULT '0' COMMENT '是否认证用户：0未认证，1已认证',
+  `is_verified` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否认证:0=否,1=是',
   `cover_image` varchar(255) DEFAULT '' COMMENT '个人主页封面图片路径',
   `social_links` text COMMENT '社交媒体链接，JSON格式存储',
   PRIMARY KEY (`id`),

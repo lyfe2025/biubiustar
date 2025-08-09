@@ -4,7 +4,7 @@ return array (
   'name' => 'BiuBiuStar',
   'beian' => '',
   'cdnurl' => '',
-  'version' => '1.0.14',
+  'version' => '1.0.16',
   'timezone' => 'Asia/Shanghai',
   'forbiddenip' => '',
   'languages' => 
